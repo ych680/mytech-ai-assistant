@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="MyTech v2 — a FastGPT-powered electronic product recommendation chatbot using validated reference product data.">
+  <title>MyTech v2 — Product Recommendation Chatbot</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f6f3;
+      --surface: #ffffff;
+      --surface-soft: #f2f1ee;
+      --surface-raised: #f2f1ee;
+      --border: #dedcd7;
+      --border-strong: #c9c6c0;
+      --text: #1c1c1c;
+      --text-soft: #6f6d69;
+      --text-muted: #726f6a;
+      --green: #21b66f;
+      --shadow: 0 8px 28px rgba(20, 20, 20, 0.035);
+      --header-height: 82px;
+      --composer-height: 212px;
+      --radius-xl: 20px;
+      --radius-lg: 16px;
+      --radius-md: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, "SF Pro Text", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    body::before {
+      display: none;
+    }
+
+    button,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      color: inherit;
+    }
+
+    button:focus-visible,
+    textarea:focus-visible {
+      outline: 3px solid rgba(31, 31, 31, 0.55);
+      outline-offset: 2px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .topbar {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 20;
+      height: var(--header-height);
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.97);
+    }
+
+    .topbar-inner {
+      width: min(100% - 32px, 1120px);
+      height: 100%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .topbar-left,
+    .topbar-right,
+    .identity-list,
+    .status {
+      display: flex;
+      align-items: center;
+    }
+
+    .topbar-left {
+      min-width: 0;
+      gap: 18px;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border: 1px solid #111111;
+      border-radius: 12px;
+      background: #1f1f1f;
+      box-shadow: 0 2px 8px rgba(20, 20, 20, 0.12);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .identity-list {
+      min-width: 0;
+      gap: 24px;
+    }
+
+    .identity-item {
+      min-width: 0;
+    }
+
+    .identity-key,
+    .identity-value {
+      display: block;
+      white-space: nowrap;
+    }
+
+    .identity-key {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 650;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .identity-value {
+      margin-top: 1px;
+      color: var(--text);
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    .topbar-right {
+      flex: 0 0 auto;
+      gap: 14px;
+    }
+
+    .status {
+      gap: 9px;
+      color: var(--text-soft);
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(33, 182, 111, 0.1);
+    }
+
+    .status.is-generating .status-dot {
+      background: #6f6d69;
+      box-shadow: 0 0 0 3px rgba(111, 109, 105, 0.12);
+      animation: status-pulse 1s ease-in-out infinite;
+    }
+
+    .status.is-unavailable .status-dot {
+      background: #8e8a84;
+      box-shadow: 0 0 0 3px rgba(142, 138, 132, 0.12);
+    }
+
+    .restart-button {
+      min-height: 40px;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #ffffff;
+      color: #292929;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .restart-button:hover {
+      border-color: var(--border-strong);
+      background: #f2f1ee;
+      transform: translateY(-1px);
+    }
+
+    .chat-card {
+      position: fixed;
+      top: calc(var(--header-height) + 16px);
+      bottom: calc(var(--composer-height) + 14px);
+      left: 50%;
+      width: min(calc(100% - 32px), 980px);
+      transform: translateX(-50%);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .chat-card::before {
+      display: none;
+    }
+
+    .messages {
+      height: 100%;
+      overflow-y: auto;
+      padding: 30px clamp(18px, 4vw, 42px) 38px;
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: #c9c6c0 transparent;
+    }
+
+    .messages::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .messages::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: #c9c6c0;
+    }
+
+    .message {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      margin: 0 0 24px;
+      animation: message-in 220ms ease both;
+    }
+
+    .message.user {
+      justify-content: flex-end;
+    }
+
+    .assistant-avatar {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      margin-top: 22px;
+      border: 1px solid #111111;
+      border-radius: 10px;
+      background: #1f1f1f;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      box-shadow: 0 2px 7px rgba(20, 20, 20, 0.1);
+    }
+
+    .message-stack {
+      min-width: 0;
+      max-width: min(82%, 720px);
+    }
+
+    .user .message-stack {
+      max-width: min(72%, 640px);
+    }
+
+    .assistant-label {
+      margin: 0 0 6px 3px;
+      color: #292929;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .bubble {
+      border: 1px solid #ebe9e5;
+      border-radius: var(--radius-lg);
+      background: var(--surface-raised);
+      color: var(--text);
+      font-size: 1rem;
+      line-height: 1.58;
+      padding: 14px 17px;
+      box-shadow: none;
+      overflow-wrap: anywhere;
+    }
+
+    .user .bubble {
+      border-color: #262626;
+      border-radius: var(--radius-lg);
+      background: #262626;
+      color: #ffffff;
+      box-shadow: none;
+    }
+
+    .bubble p {
+      margin: 0;
+    }
+
+    .bubble p + p {
+      margin-top: 10px;
+    }
+
+    .support-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 12px 0 2px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .support-list li {
+      padding: 5px 9px;
+      border: 1px solid #d8d6d1;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #474541;
+      font-family: inherit;
+      font-size: 0.78rem;
+    }
+
+    .thinking-bubble {
+      min-width: 142px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      color: var(--text-soft);
+    }
+
+    .thinking-dots {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 20px;
+    }
+
+    .thinking-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #6f6d69;
+      animation: dot-bounce 900ms ease-in-out infinite;
+    }
+
+    .thinking-dots span:nth-child(2) {
+      animation-delay: 130ms;
+    }
+
+    .thinking-dots span:nth-child(3) {
+      animation-delay: 260ms;
+    }
+
+    .recommendation-intro {
+      margin-bottom: 12px !important;
+    }
+
+    .product-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .product-card {
+      padding: 13px;
+      border: 1px solid #d8d6d1;
+      border-radius: var(--radius-md);
+      background: #ffffff;
+    }
+
+    .product-topline {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .product-name {
+      color: #1c1c1c;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .product-price {
+      color: #1f1f1f;
+      font-family: inherit;
+      font-size: 0.98rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .product-meta {
+      margin-top: 5px;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .product-specs {
+      margin: 9px 0 0;
+      color: #54514c;
+      font-family: inherit;
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+
+    .product-reason {
+      margin-top: 8px !important;
+      color: #333230;
+      font-size: 0.88rem;
+      line-height: 1.52;
+    }
+
+    .product-source {
+      margin-top: 8px !important;
+      color: #77736d;
+      font-size: 0.76rem;
+      line-height: 1.45;
+    }
+
+    .next-step {
+      margin-top: 12px !important;
+      color: #474541;
+      font-size: 0.9rem;
+    }
+
+    .demo-note {
+      margin-top: 12px !important;
+      color: var(--text-muted);
+      font-size: 0.76rem;
+    }
+
+    .composer-shell {
+      position: fixed;
+      inset: auto 0 0;
+      z-index: 20;
+      height: var(--composer-height);
+      border-top: 1px solid var(--border);
+      background: rgba(247, 246, 243, 0.98);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+
+    .composer-inner {
+      width: min(calc(100% - 32px), 980px);
+      height: 100%;
+      margin: 0 auto;
+      padding: 16px 0 13px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .quick-prompts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .prompt-button {
+      min-height: 34px;
+      padding: 7px 11px;
+      border: 1px solid #d8d6d1;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #292929;
+      font-size: 0.77rem;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: color 150ms ease, border-color 150ms ease, background 150ms ease, transform 150ms ease;
+    }
+
+    .prompt-button:hover:not(:disabled) {
+      border-color: #aaa7a1;
+      background: #f1f0ed;
+      color: #1c1c1c;
+      transform: translateY(-1px);
+    }
+
+    .composer-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      padding: 7px;
+      border: 1px solid #d7d5d0;
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 4px 16px rgba(20, 20, 20, 0.035);
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .composer-row:focus-within {
+      border-color: #808080;
+      box-shadow: 0 4px 16px rgba(20, 20, 20, 0.035), 0 0 0 3px rgba(31, 31, 31, 0.08);
+    }
+
+    #messageInput {
+      width: 100%;
+      min-height: 46px;
+      max-height: 132px;
+      resize: none;
+      overflow-y: hidden;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      padding: 11px 10px;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    #messageInput::placeholder {
+      color: #77736d;
+    }
+
+    .send-button {
+      width: 46px;
+      height: 46px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 12px;
+      background: #1f1f1f;
+      color: #ffffff;
+      box-shadow: none;
+      cursor: pointer;
+      transition: background 150ms ease, transform 150ms ease, opacity 150ms ease;
+    }
+
+    .send-button:hover:not(:disabled) {
+      background: #000000;
+      transform: translateY(-1px);
+    }
+
+    .send-button svg {
+      width: 21px;
+      height: 21px;
+      fill: none;
+      stroke: currentColor;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 2;
+    }
+
+    textarea:disabled,
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .composer-help {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      white-space: nowrap;
+    }
+
+    .mock-label {
+      color: var(--text-soft);
+    }
+
+    @keyframes message-in {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes dot-bounce {
+      0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.48;
+      }
+      30% {
+        transform: translateY(-5px);
+        opacity: 1;
+      }
+    }
+
+    @keyframes status-pulse {
+      0%, 100% {
+        opacity: 0.46;
+        transform: scale(0.85);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.08);
+      }
+    }
+
+    @media (max-width: 760px) {
+      :root {
+        --composer-height: 174px;
+      }
+
+      .quick-prompts {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding: 1px 1px 5px;
+        scrollbar-width: none;
+      }
+
+      .quick-prompts::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    @media (max-width: 700px) {
+      :root {
+        --header-height: 116px;
+        --composer-height: 174px;
+      }
+
+      .topbar-inner {
+        width: min(100% - 24px, 980px);
+        padding: 9px 0;
+        align-content: center;
+        flex-wrap: wrap;
+        gap: 7px 12px;
+      }
+
+      .topbar-left,
+      .topbar-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .topbar-left {
+        gap: 12px;
+      }
+
+      .identity-list {
+        width: 100%;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .brand-mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+        font-size: 0.78rem;
+      }
+
+      .identity-key {
+        font-size: 0.63rem;
+      }
+
+      .identity-value {
+        font-size: 0.79rem;
+      }
+
+      .status {
+        font-size: 0.76rem;
+      }
+
+      .restart-button {
+        min-height: 34px;
+        padding: 6px 10px;
+        font-size: 0.73rem;
+      }
+
+      .chat-card {
+        top: calc(var(--header-height) + 8px);
+        bottom: calc(var(--composer-height) + 8px);
+        width: calc(100% - 20px);
+        border-radius: 18px;
+      }
+
+      .messages {
+        padding: 22px 14px 28px;
+      }
+
+      .message {
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .assistant-avatar {
+        width: 31px;
+        height: 31px;
+        margin-top: 21px;
+        border-radius: 9px;
+        font-size: 0.65rem;
+      }
+
+      .message-stack,
+      .user .message-stack {
+        max-width: calc(100% - 39px);
+      }
+
+      .bubble {
+        padding: 12px 14px;
+        font-size: 0.94rem;
+      }
+
+      .product-topline {
+        gap: 9px;
+      }
+
+      .composer-inner {
+        width: calc(100% - 20px);
+        padding: 10px 0 9px;
+        gap: 8px;
+      }
+
+      .quick-prompts {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding: 1px 1px 5px;
+        scrollbar-width: none;
+      }
+
+      .quick-prompts::-webkit-scrollbar {
+        display: none;
+      }
+
+      .prompt-button {
+        min-height: 32px;
+        font-size: 0.72rem;
+      }
+
+      .composer-row {
+        border-radius: 15px;
+        padding: 5px;
+      }
+
+      #messageInput {
+        min-height: 44px;
+        padding: 10px 8px;
+        font-size: 0.95rem;
+      }
+
+      .send-button {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+      }
+
+      .composer-help span:first-child {
+        display: none;
+      }
+
+      .composer-help {
+        justify-content: flex-end;
+        font-size: 0.68rem;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .identity-list {
+        gap: 8px;
+      }
+
+      .identity-value {
+        font-size: 0.73rem;
+      }
+
+      .restart-button {
+        max-width: 170px;
+        line-height: 1.2;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-left">
+        <div class="brand-mark" aria-hidden="true">MT</div>
+        <div class="identity-list" aria-label="Account and assistant information">
+          <div class="identity-item">
+            <span class="identity-key">User</span>
+            <span class="identity-value">Guest Shopper</span>
+          </div>
+          <div class="identity-item">
+            <span class="identity-key">Assistant</span>
+            <span class="identity-value">MyTech</span>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="status" id="sessionStatus" role="status" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="statusText">Loading reference data...</span>
+        </div>
+        <button class="restart-button" id="restartButton" type="button">Clear Conversation / Restart</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="chat-card" aria-label="MyTech conversation">
+    <div class="messages" id="messages" aria-live="polite" aria-relevant="additions text"></div>
+  </main>
+
+  <footer class="composer-shell">
+    <div class="composer-inner">
+      <div class="quick-prompts" aria-label="Starter questions">
+        <button class="prompt-button" type="button" data-prompt="What can you help me with?">What can you help me with?</button>
+        <button class="prompt-button" type="button" data-prompt="I need a laptop under ¥6,000 for gaming.">I need a laptop under ¥6,000 for gaming.</button>
+        <button class="prompt-button" type="button" data-prompt="I need a monitor under ¥2,000 for gaming.">I need a monitor under ¥2,000 for gaming.</button>
+        <button class="prompt-button" type="button" data-prompt="I need a laptop under ¥6,000 and a mouse under ¥300 for gaming.">I need a laptop under ¥6,000 and a mouse under ¥300 for gaming.</button>
+        <button class="prompt-button" type="button" data-prompt="I'm not sure which device suits my needs.">I'm not sure which device suits my needs.</button>
+      </div>
+
+      <div class="composer-row">
+        <label class="sr-only" for="messageInput">Message MyTech</label>
+        <textarea id="messageInput" rows="1" placeholder="Describe the product, budget, or main usage…" aria-label="Message MyTech"></textarea>
+        <button class="send-button" id="sendButton" type="button" aria-label="Send message">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M22 2 11 13"></path>
+            <path d="m22 2-7 20-4-9-9-4Z"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="composer-help">
+        <span>Enter to send · Shift + Enter for a new line</span>
+        <span class="mock-label">Reference product data · RMB (¥) · Not live retailer pricing</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    "use strict";
+
+    // MyTech v2 keeps the approved Editorial Clean interface while routing
+    // recommendation intelligence through a secure FastGPT adapter.
+    const IDENTITY = Object.freeze({
+      name: "MyTech",
+      role: "electronic product recommendation chatbot",
+      supportedCategories: Object.freeze([
+        "Laptop",
+        "Desktop",
+        "Smartphone",
+        "Tablet",
+        "Headphones",
+        "Monitor",
+        "Smartwatch",
+        "Mouse",
+        "Keyboard"
+      ])
+    });
+
+    const CONFIG = Object.freeze({
+      datasetUrl: "./mytech_v1_product_dataset.json",
+      systemPromptUrl: "./mytech_v1_system_prompt.txt",
+      endpoint: "/api/mytech",
+      healthEndpoint: "/api/health",
+      maximumHistoryMessages: 16,
+      minimumThinkingTimeMs: 1000
+    });
+
+    const MYTECH_OUTPUT_SCHEMA = Object.freeze({
+      type: "object",
+      properties: {
+        answer: { type: "string" },
+        recommendations: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              category: {
+                type: "string",
+                enum: [...IDENTITY.supportedCategories]
+              },
+              recommended_product: { type: "string" },
+              price: { type: "number", minimum: 0 },
+              reason: { type: "string" },
+              source: { type: "string" }
+            },
+            required: ["category", "recommended_product", "price", "reason"],
+            additionalProperties: false
+          }
+        },
+        next_step: { type: "string" },
+        clarification_needed: { type: "boolean" }
+      },
+      required: ["answer", "recommendations", "next_step", "clarification_needed"],
+      additionalProperties: false
+    });
+
+    const CATEGORY_MATCHERS = Object.freeze([
+      { category: "Headphones", pattern: "\\b(?:headphones?|headsets?|earbuds?|earphones?)\\b" },
+      { category: "Smartphone", pattern: "\\b(?:smartphones?|smart phones?|phones?|mobiles?)\\b" },
+      { category: "Laptop", pattern: "\\b(?:laptops?|notebooks?|ultrabooks?)\\b" },
+      { category: "Desktop", pattern: "\\b(?:desktops?|desktop computers?|gaming pcs?|personal computers?|pcs?|towers?)\\b" },
+      { category: "Tablet", pattern: "\\b(?:tablets?|ipads?)\\b" },
+      { category: "Monitor", pattern: "\\b(?:monitors?)\\b" },
+      { category: "Smartwatch", pattern: "\\b(?:smartwatch(?:es)?|smart watches?)\\b" },
+      { category: "Mouse", pattern: "\\b(?:mouse|mice)\\b" },
+      { category: "Keyboard", pattern: "\\b(?:keyboards?)\\b" }
+    ]);
+
+    const USAGE_MATCHERS = Object.freeze([
+      { usage: "Gaming", pattern: "\\b(?:gaming|games?|competitive gaming|play games?)\\b" },
+      { usage: "Study", pattern: "\\b(?:study|studying|school|student|classes|coursework|note[- ]?taking|reading)\\b" },
+      { usage: "Office", pattern: "\\b(?:office|work|working|documents?|spreadsheets?|meetings?|business)\\b" },
+      { usage: "Creative", pattern: "\\b(?:creative|design|drawing|illustration|video editing|photo editing|content creation)\\b" },
+      { usage: "Photography", pattern: "\\b(?:photography|taking photos?|camera quality|photos?|social media)\\b" },
+      { usage: "Media", pattern: "\\b(?:media|movies?|videos?|streaming|entertainment)\\b" },
+      { usage: "Music", pattern: "\\b(?:music|listening|audio|songs?|podcasts?)\\b" },
+      { usage: "Calls", pattern: "\\b(?:calls?|calling|video calls?|voice chat)\\b" },
+      { usage: "Travel", pattern: "\\b(?:travel|travelling|traveling|commute|commuting|portable|on the go)\\b" },
+      { usage: "Fitness", pattern: "\\b(?:fitness|exercise|workout|health tracking|daily health)\\b" },
+      { usage: "Development", pattern: "\\b(?:development|programming|coding|software development)\\b" },
+      { usage: "Productivity", pattern: "\\b(?:productivity|multitasking|heavy multitasking)\\b" },
+      { usage: "Typing", pattern: "\\b(?:typing|long typing sessions?)\\b" },
+      { usage: "Noise cancellation", pattern: "\\b(?:noise cancellation|noise cancelling|noise-cancelling|anc)\\b" },
+      { usage: "Daily", pattern: "\\b(?:daily|everyday|general|basic|normal use|casual use|home use)\\b" }
+    ]);
+
+    const USAGE_COMPATIBILITY = Object.freeze({
+      Gaming: ["gaming"],
+      Study: ["study", "note-taking", "reading"],
+      Office: ["office", "productivity", "multitasking", "home use"],
+      Creative: ["creative"],
+      Photography: ["photography", "video", "social media"],
+      Media: ["media", "entertainment", "video"],
+      Music: ["music", "daily music"],
+      Calls: ["calls"],
+      Travel: ["travel", "commute", "portable"],
+      Fitness: ["fitness", "health tracking", "daily health", "daily wear"],
+      Development: ["development", "professional productivity", "heavy multitasking"],
+      Productivity: ["productivity", "office", "multitasking", "creative work"],
+      Typing: ["typing", "office", "productivity"],
+      "Noise cancellation": ["noise cancellation", "travel", "commute"],
+      Daily: ["daily", "general use", "home use", "daily wear"]
+    });
+
+    const messagesElement = document.getElementById("messages");
+    const inputElement = document.getElementById("messageInput");
+    const sendButton = document.getElementById("sendButton");
+    const restartButton = document.getElementById("restartButton");
+    const statusElement = document.getElementById("sessionStatus");
+    const statusText = document.getElementById("statusText");
+    const promptButtons = Array.from(document.querySelectorAll(".prompt-button"));
+
+    let productDataset = null;
+    let systemPrompt = "";
+    let productByName = new Map();
+    let datasetReady = false;
+    let modelConnectionReady = false;
+    let isGenerating = false;
+    let requestVersion = 0;
+    let activeAbortController = null;
+    let modelHistory = [];
+    let fastGptChatId = "";
+
+    const sessionContext = {
+      activeCategories: [],
+      requirementsByCategory: {},
+      lastRecommendationsByCategory: {}
+    };
+
+    function formatPrice(value) {
+      return `¥${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value)}`;
+    }
+
+    function delay(milliseconds) {
+      return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+    }
+
+    function createFastGptChatId() {
+      const randomId = typeof window.crypto?.randomUUID === "function"
+        ? window.crypto.randomUUID()
+        : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 14)}`;
+      return `mytech-${randomId}`;
+    }
+
+    function rotateFastGptChatId() {
+      fastGptChatId = createFastGptChatId();
+    }
+
+    function scrollToNewest() {
+      requestAnimationFrame(() => {
+        messagesElement.scrollTop = messagesElement.scrollHeight;
+      });
+    }
+
+    function setControlsDisabled(value) {
+      inputElement.disabled = value;
+      sendButton.disabled = value;
+      promptButtons.forEach((button) => {
+        button.disabled = value;
+      });
+    }
+
+    function setStatus(mode, text) {
+      statusElement.classList.toggle("is-generating", mode === "generating");
+      statusElement.classList.toggle("is-unavailable", mode === "unavailable");
+      statusText.textContent = text;
+    }
+
+    function restoreConnectionStatus() {
+      if (!datasetReady) {
+        setStatus("unavailable", "Reference Data Unavailable");
+      } else if (modelConnectionReady) {
+        setStatus("ready", "Online / FastGPT Ready");
+      } else {
+        setStatus("unavailable", "FastGPT Connection Required");
+      }
+    }
+
+    function createAssistantMessage() {
+      const row = document.createElement("article");
+      row.className = "message assistant";
+
+      const avatar = document.createElement("div");
+      avatar.className = "assistant-avatar";
+      avatar.textContent = "MT";
+      avatar.setAttribute("aria-hidden", "true");
+
+      const stack = document.createElement("div");
+      stack.className = "message-stack";
+
+      const label = document.createElement("div");
+      label.className = "assistant-label";
+      label.textContent = IDENTITY.name;
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+
+      stack.append(label, bubble);
+      row.append(avatar, stack);
+      messagesElement.appendChild(row);
+      return { row, bubble };
+    }
+
+    function addUserMessage(text) {
+      const row = document.createElement("article");
+      row.className = "message user";
+
+      const stack = document.createElement("div");
+      stack.className = "message-stack";
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.textContent = text;
+
+      stack.appendChild(bubble);
+      row.appendChild(stack);
+      messagesElement.appendChild(row);
+      scrollToNewest();
+    }
+
+    function addTextResponse(response) {
+      const { bubble } = createAssistantMessage();
+      const paragraphs = Array.isArray(response.paragraphs) ? response.paragraphs : [];
+
+      paragraphs.forEach((text) => {
+        const paragraph = document.createElement("p");
+        paragraph.textContent = text;
+        bubble.appendChild(paragraph);
+      });
+
+      if (Array.isArray(response.list) && response.list.length) {
+        const list = document.createElement("ul");
+        list.className = "support-list";
+        response.list.forEach((item) => {
+          const listItem = document.createElement("li");
+          listItem.textContent = item;
+          list.appendChild(listItem);
+        });
+        bubble.appendChild(list);
+      }
+
+      scrollToNewest();
+    }
+
+    function addStructuredResponse(response) {
+      const { bubble } = createAssistantMessage();
+
+      const answer = document.createElement("p");
+      answer.className = "recommendation-intro";
+      answer.textContent = response.answer;
+      bubble.appendChild(answer);
+
+      if (response.recommendations.length) {
+        const productList = document.createElement("div");
+        productList.className = "product-list";
+
+        response.recommendations.forEach((recommendation) => {
+          const product = productByName.get(recommendation.recommended_product);
+          const card = document.createElement("section");
+          card.className = "product-card";
+
+          const topline = document.createElement("div");
+          topline.className = "product-topline";
+
+          const name = document.createElement("div");
+          name.className = "product-name";
+          name.textContent = product.product;
+
+          const price = document.createElement("div");
+          price.className = "product-price";
+          price.textContent = formatPrice(product.price_rmb);
+          topline.append(name, price);
+
+          const meta = document.createElement("div");
+          meta.className = "product-meta";
+          meta.textContent = `${product.category} · ${product.tier} · Reference price`;
+
+          const specs = document.createElement("p");
+          specs.className = "product-specs";
+          specs.textContent = product.key_features.join(" · ");
+
+          const reason = document.createElement("p");
+          reason.className = "product-reason";
+          reason.textContent = recommendation.reason;
+
+          const source = document.createElement("p");
+          source.className = "product-source";
+          source.textContent = `Source: ${product.source}`;
+
+          card.append(topline, meta, specs, reason, source);
+          productList.appendChild(card);
+        });
+
+        const note = document.createElement("p");
+        note.className = "demo-note";
+        note.textContent = productDataset.price_note;
+        bubble.append(productList, note);
+      }
+
+      if (response.next_step && response.next_step !== response.answer) {
+        const nextStep = document.createElement("p");
+        nextStep.className = "next-step";
+        nextStep.textContent = response.next_step;
+        bubble.appendChild(nextStep);
+      }
+
+      scrollToNewest();
+    }
+
+    function addThinkingMessage() {
+      const { row, bubble } = createAssistantMessage();
+      bubble.classList.add("thinking-bubble");
+
+      const text = document.createElement("span");
+      text.textContent = "Thinking...";
+
+      const dots = document.createElement("span");
+      dots.className = "thinking-dots";
+      dots.setAttribute("aria-hidden", "true");
+      dots.append(document.createElement("span"), document.createElement("span"), document.createElement("span"));
+
+      bubble.append(text, dots);
+      scrollToNewest();
+      return row;
+    }
+
+    function setGenerating(value) {
+      isGenerating = value;
+      setControlsDisabled(value || !datasetReady);
+      messagesElement.setAttribute("aria-busy", String(value));
+      if (value) {
+        setStatus("generating", "Generating...");
+      } else {
+        restoreConnectionStatus();
+      }
+    }
+
+    function autoResizeInput() {
+      inputElement.style.height = "auto";
+      const nextHeight = Math.min(inputElement.scrollHeight, 132);
+      inputElement.style.height = `${nextHeight}px`;
+      inputElement.style.overflowY = inputElement.scrollHeight > 132 ? "auto" : "hidden";
+    }
+
+    function collectMatches(text, definitions) {
+      const matches = [];
+      definitions.forEach((definition) => {
+        const regex = new RegExp(definition.pattern, "gi");
+        for (const match of text.matchAll(regex)) {
+          matches.push({
+            value: definition.category || definition.usage,
+            index: match.index,
+            end: match.index + match[0].length
+          });
+        }
+      });
+      return matches.sort((first, second) => first.index - second.index);
+    }
+
+    function uniqueCategoryMatches(matches) {
+      const seen = new Set();
+      return matches.filter((match) => {
+        if (seen.has(match.value)) return false;
+        seen.add(match.value);
+        return true;
+      });
+    }
+
+    function parseAmount(rawAmount, suffix) {
+      const numeric = Number.parseFloat(rawAmount.replace(/,/g, ""));
+      if (!Number.isFinite(numeric) || numeric <= 0) return null;
+      return suffix && suffix.toLowerCase() === "k" ? Math.round(numeric * 1000) : Math.round(numeric);
+    }
+
+    function collectBudgetMatches(text) {
+      const regex = /(?:under|below|up to|less than|maximum|max|budget(?:\s+is|\s+of|\s+around)?|spend(?:\s+up to)?|around|about)\s*(?:¥|rmb|cny)?\s*([\d,]+(?:\.\d+)?)\s*(k)?\b|(?:¥|rmb|cny)\s*([\d,]+(?:\.\d+)?)\s*(k)?\b|([\d,]+(?:\.\d+)?)\s*(k)?\s*(?:rmb|cny|yuan)\b/gi;
+      const matches = [];
+      for (const match of text.matchAll(regex)) {
+        const rawAmount = match[1] || match[3] || match[5];
+        const suffix = match[2] || match[4] || match[6];
+        const amount = parseAmount(rawAmount, suffix);
+        if (amount) {
+          matches.push({ amount, index: match.index, end: match.index + match[0].length });
+        }
+      }
+      return matches;
+    }
+
+    function clearSessionContext() {
+      sessionContext.activeCategories = [];
+      sessionContext.requirementsByCategory = {};
+      sessionContext.lastRecommendationsByCategory = {};
+    }
+
+    function requirementFor(category) {
+      if (!sessionContext.requirementsByCategory[category]) {
+        sessionContext.requirementsByCategory[category] = {
+          category,
+          budget: null,
+          usage: null
+        };
+      }
+      return sessionContext.requirementsByCategory[category];
+    }
+
+    function assignDetailsToCategories(text, categoryMatches, budgetMatches, usageMatches) {
+      categoryMatches.forEach((categoryMatch, index) => {
+        const nextCategoryIndex = categoryMatches[index + 1]?.index ?? text.length;
+        const requirement = requirementFor(categoryMatch.value);
+        const segmentBudget = budgetMatches.find((match) => match.index >= categoryMatch.index && match.index < nextCategoryIndex);
+        if (segmentBudget) requirement.budget = segmentBudget.amount;
+
+        if (usageMatches.length === 1) {
+          requirement.usage = usageMatches[0].value;
+        } else {
+          const segmentUsage = usageMatches.find((match) => match.index >= categoryMatch.index && match.index < nextCategoryIndex);
+          if (segmentUsage) requirement.usage = segmentUsage.value;
+        }
+      });
+
+      if (categoryMatches.length === 1 && budgetMatches.length === 1) {
+        requirementFor(categoryMatches[0].value).budget = budgetMatches[0].amount;
+      }
+    }
+
+    function updateSessionContext(text) {
+      const categoryMatches = uniqueCategoryMatches(collectMatches(text, CATEGORY_MATCHERS));
+      const usageMatches = collectMatches(text, USAGE_MATCHERS);
+      const budgetMatches = collectBudgetMatches(text);
+      const previousActive = [...sessionContext.activeCategories];
+      const previousRecommendations = { ...sessionContext.lastRecommendationsByCategory };
+
+      const explicitReset = /\b(?:start over|start again|restart|new recommendation)\b|\bnot sure which device\b|\bwhich device suits my needs\b/i.test(text);
+      const explicitNewCue = /^\s*(?:now|next)\b/i.test(text) || /\b(?:a new|another)\s+(?:laptop|desktop|smartphone|phone|tablet|headphones?|monitor|smartwatch|smart watch|mouse|keyboard)\b/i.test(text);
+      const additiveCue = /\b(?:also|as well as)\b/i.test(text);
+      const mentionedCategories = categoryMatches.map((match) => match.value);
+      const switchedCategory = mentionedCategories.length === 1
+        && previousActive.length > 0
+        && !previousActive.includes(mentionedCategories[0]);
+      const startsNewFlow = explicitReset || explicitNewCue || (switchedCategory && !additiveCue);
+
+      if (startsNewFlow) {
+        clearSessionContext();
+        modelHistory = [];
+        rotateFastGptChatId();
+      }
+
+      if (mentionedCategories.length) {
+        if (additiveCue && !startsNewFlow) {
+          sessionContext.activeCategories = [...new Set([...sessionContext.activeCategories, ...mentionedCategories])];
+        } else {
+          sessionContext.activeCategories = mentionedCategories;
+        }
+        assignDetailsToCategories(text, categoryMatches, budgetMatches, usageMatches);
+      } else if (!explicitReset) {
+        const pendingBudgetCategories = sessionContext.activeCategories.filter((category) => !requirementFor(category).budget);
+        const pendingUsageCategories = sessionContext.activeCategories.filter((category) => !requirementFor(category).usage);
+
+        if (budgetMatches.length === 1) {
+          const targets = pendingBudgetCategories.length === 1
+            ? pendingBudgetCategories
+            : sessionContext.activeCategories.length === 1 ? sessionContext.activeCategories : [];
+          targets.forEach((category) => {
+            requirementFor(category).budget = budgetMatches[0].amount;
+          });
+        }
+
+        if (usageMatches.length === 1) {
+          const targets = pendingUsageCategories.length === 1
+            ? pendingUsageCategories
+            : sessionContext.activeCategories.length === 1 ? sessionContext.activeCategories : [];
+          targets.forEach((category) => {
+            requirementFor(category).usage = usageMatches[0].value;
+          });
+        }
+      }
+
+      const budgetsByCategory = {};
+      const usagesByCategory = {};
+      sessionContext.activeCategories.forEach((category) => {
+        const requirement = requirementFor(category);
+        if (requirement.budget) budgetsByCategory[category] = requirement.budget;
+        if (requirement.usage) usagesByCategory[category] = requirement.usage;
+      });
+
+      return {
+        startsNewFlow,
+        activeCategories: [...sessionContext.activeCategories],
+        budgetsByCategory,
+        usagesByCategory,
+        previousRecommendationsByCategory: startsNewFlow ? {} : previousRecommendations,
+        ambiguousBetter: /\bbetter\b/i.test(text) && !/\b(?:better\s+(?:screen|display|battery|camera|performance|value|comfort|sound|microphone|portability)|better\s+for)\b/i.test(text),
+        comparison: /\bcheaper\b/i.test(text)
+          ? "cheaper"
+          : /\bmore expensive\b/i.test(text)
+            ? "more_expensive"
+            : /\b(?:another option|different option|alternative)\b/i.test(text)
+              ? "another"
+              : null
+      };
+    }
+
+    function isPlainObject(value) {
+      return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+    }
+
+    function hasExactKeys(object, requiredKeys, allowedKeys, label, errors) {
+      const keys = Object.keys(object);
+      requiredKeys.forEach((key) => {
+        if (!keys.includes(key)) errors.push(`${label} is missing ${key}.`);
+      });
+      keys.forEach((key) => {
+        if (!allowedKeys.includes(key)) errors.push(`${label} contains unsupported field ${key}.`);
+      });
+    }
+
+    function usageIsCompatible(product, requestedUsage) {
+      const acceptedTerms = USAGE_COMPATIBILITY[requestedUsage];
+      if (!acceptedTerms) return true;
+      const datasetUsages = product.main_usage.map((usage) => usage.toLowerCase());
+      return datasetUsages.some((usage) => acceptedTerms.some((term) => usage.includes(term)));
+    }
+
+    function validateStructuredOutput(output, guard) {
+      const errors = [];
+      if (!isPlainObject(output)) {
+        return { valid: false, errors: ["The model output is not a JSON object."] };
+      }
+
+      const requiredTopLevel = ["answer", "recommendations", "next_step", "clarification_needed"];
+      hasExactKeys(output, requiredTopLevel, requiredTopLevel, "Response", errors);
+
+      if (typeof output.answer !== "string" || !output.answer.trim()) errors.push("answer must be a non-empty string.");
+      if (!Array.isArray(output.recommendations)) errors.push("recommendations must be an array.");
+      if (typeof output.next_step !== "string") errors.push("next_step must be a string.");
+      if (typeof output.clarification_needed !== "boolean") errors.push("clarification_needed must be a boolean.");
+
+      const recommendations = Array.isArray(output.recommendations) ? output.recommendations : [];
+      if (guard.ambiguousBetter && recommendations.length) {
+        errors.push("An ambiguous 'better' request must ask for clarification without a recommendation.");
+      }
+
+      recommendations.forEach((recommendation, index) => {
+        const label = `Recommendation ${index + 1}`;
+        if (!isPlainObject(recommendation)) {
+          errors.push(`${label} must be an object.`);
+          return;
+        }
+
+        const required = ["category", "recommended_product", "price", "reason"];
+        const allowed = [...required, "source"];
+        hasExactKeys(recommendation, required, allowed, label, errors);
+
+        if (!IDENTITY.supportedCategories.includes(recommendation.category)) {
+          errors.push(`${label} has an unsupported category.`);
+        }
+        if (typeof recommendation.recommended_product !== "string") {
+          errors.push(`${label} has an invalid product name.`);
+          return;
+        }
+
+        const product = productByName.get(recommendation.recommended_product);
+        if (!product) {
+          errors.push(`${label} is not in the approved dataset.`);
+          return;
+        }
+        if (recommendation.category !== product.category) errors.push(`${label} category does not match the dataset.`);
+        if (typeof recommendation.price !== "number" || recommendation.price !== product.price_rmb) {
+          errors.push(`${label} price does not match the dataset.`);
+        }
+        if (typeof recommendation.reason !== "string" || !recommendation.reason.trim()) {
+          errors.push(`${label} reason must be a non-empty string.`);
+        }
+        if (Object.prototype.hasOwnProperty.call(recommendation, "source")
+          && (typeof recommendation.source !== "string" || recommendation.source !== product.source)) {
+          errors.push(`${label} source does not match the dataset.`);
+        }
+
+        const hardBudget = guard.budgetsByCategory[product.category];
+        if (hardBudget && product.price_rmb > hardBudget) {
+          errors.push(`${label} exceeds the active hard budget of ${formatPrice(hardBudget)}.`);
+        }
+
+        const requestedUsage = guard.usagesByCategory[product.category];
+        if (requestedUsage && !usageIsCompatible(product, requestedUsage)) {
+          errors.push(`${label} does not match the dataset usage tags for ${requestedUsage}.`);
+        }
+
+        const previous = guard.previousRecommendationsByCategory[product.category];
+        if (previous && guard.comparison === "another" && product.product === previous.product) {
+          errors.push(`${label} repeats the previous product instead of giving another option.`);
+        }
+        if (previous && guard.comparison === "cheaper" && product.price_rmb >= previous.price) {
+          errors.push(`${label} is not cheaper than the previous recommendation.`);
+        }
+        if (previous && guard.comparison === "more_expensive" && product.price_rmb <= previous.price) {
+          errors.push(`${label} is not more expensive than the previous recommendation.`);
+        }
+      });
+
+      const visibleText = [
+        typeof output.answer === "string" ? output.answer : "",
+        typeof output.next_step === "string" ? output.next_step : "",
+        ...recommendations.map((item) => typeof item?.reason === "string" ? item.reason : "")
+      ].join(" ");
+      if (/\b(?:live (?:price|pricing|availability)|currently in stock|available right now)\b/i.test(visibleText)) {
+        errors.push("The response makes an unsupported live price or availability claim.");
+      }
+
+      return { valid: errors.length === 0, errors };
+    }
+
+    function coerceStructuredOutput(result) {
+      let candidate = result;
+      if (isPlainObject(candidate) && Object.prototype.hasOwnProperty.call(candidate, "output")) {
+        candidate = candidate.output;
+      }
+      if (isPlainObject(candidate) && Object.prototype.hasOwnProperty.call(candidate, "output_text")) {
+        candidate = candidate.output_text;
+      }
+      if (typeof candidate === "string") {
+        try {
+          return JSON.parse(candidate);
+        } catch {
+          throw new Error("MODEL_OUTPUT_NOT_JSON");
+        }
+      }
+      return candidate;
+    }
+
+    function injectedAppId() {
+      return typeof window.MyTechModel?.appId === "string" ? window.MyTechModel.appId : "";
+    }
+
+    function hasInjectedModelAdapter() {
+      return Boolean(
+        window.MyTechModel
+        && window.MyTechModel.provider === "fastgpt"
+        && typeof window.MyTechModel.call === "function"
+        && injectedAppId().trim()
+      );
+    }
+
+    // Secure model-call adapter. A host may inject window.MyTechModel.call().
+    // Otherwise the app uses the included same-origin server; no browser API key is accepted.
+    async function callModel(payload, signal) {
+      if (hasInjectedModelAdapter()) {
+        const result = await window.MyTechModel.call({
+          provider: "fastgpt",
+          appId: injectedAppId(),
+          chatId: payload.chatId,
+          message: payload.message,
+          context: payload.context,
+          budgetConstraints: payload.budgetConstraints,
+          usageConstraints: payload.usageConstraints
+        }, { signal });
+
+        const reportedProvider = result?.provider || window.MyTechModel.provider;
+        const reportedAppId = result?.appId || injectedAppId();
+        if (reportedProvider !== "fastgpt" || !String(reportedAppId).trim()) {
+          throw new Error("MODEL_CONNECTION_REJECTED");
+        }
+        return result;
+      }
+
+      if (window.location.protocol === "file:") throw new Error("MODEL_CONNECTION_UNAVAILABLE");
+
+      const response = await fetch(CONFIG.endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = new Error(body?.message || "MODEL_REQUEST_FAILED");
+        error.code = body?.error || "MODEL_REQUEST_FAILED";
+        throw error;
+      }
+      if (body.provider !== "fastgpt" || !String(body.appId || "").trim()) {
+        throw new Error("MODEL_CONNECTION_REJECTED");
+      }
+      return body.output;
+    }
+
+    function serializableContext() {
+      return {
+        activeRequests: sessionContext.activeCategories.map((category) => ({
+          ...requirementFor(category),
+          lastRecommendation: sessionContext.lastRecommendationsByCategory[category]?.product || null
+        }))
+      };
+    }
+
+    async function requestValidatedModel(message, guard, signal) {
+      const rawResult = await callModel({
+        message,
+        chatId: fastGptChatId,
+        context: serializableContext(),
+        budgetConstraints: guard.budgetsByCategory,
+        usageConstraints: guard.usagesByCategory
+      }, signal);
+
+      const output = coerceStructuredOutput(rawResult);
+      const validation = validateStructuredOutput(output, guard);
+      if (validation.valid) return output;
+
+      const error = new Error("MODEL_OUTPUT_VALIDATION_FAILED");
+      error.code = "MODEL_OUTPUT_VALIDATION_FAILED";
+      error.validationErrors = validation.errors;
+      throw error;
+    }
+
+    function updateContextAfterResponse(response) {
+      response.recommendations.forEach((recommendation) => {
+        sessionContext.lastRecommendationsByCategory[recommendation.category] = {
+          product: recommendation.recommended_product,
+          price: recommendation.price
+        };
+      });
+    }
+
+    function safeErrorResponse(error) {
+      const code = error.code || error.message;
+      if (code === "MODEL_NOT_CONFIGURED" || code === "MODEL_CONNECTION_UNAVAILABLE") {
+        return {
+          paragraphs: [
+            "MyTech's secure FastGPT connection is not configured yet.",
+            "Run the app through the included server with a FastGPT API key stored on the server. For security, MyTech never accepts or stores an API key in this browser page."
+          ]
+        };
+      }
+      if (code === "MODEL_OUTPUT_VALIDATION_FAILED" || code === "MODEL_OUTPUT_NOT_JSON" || code === "EMPTY_MODEL_OUTPUT") {
+        return {
+          paragraphs: [
+            "I couldn't safely validate the model response, so I did not show any product recommendation.",
+            "Please try the request again or restate the category, maximum budget, and main usage."
+          ]
+        };
+      }
+      if (code === "MODEL_CONNECTION_REJECTED") {
+        return {
+          paragraphs: ["MyTech rejected the response because the configured connection did not identify the approved FastGPT workflow."]
+        };
+      }
+      return {
+        paragraphs: [
+          "MyTech could not reach the secure FastGPT connection.",
+          "Please check the server connection and try again."
+        ]
+      };
+    }
+
+    async function sendMessage() {
+      const text = inputElement.value.trim();
+      if (!text || isGenerating || !datasetReady) return;
+
+      addUserMessage(text);
+      inputElement.value = "";
+      autoResizeInput();
+
+      const guard = updateSessionContext(text);
+      const currentRequest = ++requestVersion;
+      activeAbortController = new AbortController();
+      setGenerating(true);
+      const thinkingMessage = addThinkingMessage();
+      const thinkingDelay = delay(CONFIG.minimumThinkingTimeMs);
+
+      try {
+        const response = await requestValidatedModel(text, guard, activeAbortController.signal);
+        await thinkingDelay;
+        if (currentRequest !== requestVersion) return;
+
+        thinkingMessage.remove();
+        addStructuredResponse(response);
+        updateContextAfterResponse(response);
+        modelHistory.push(
+          { role: "user", content: text },
+          { role: "assistant", content: JSON.stringify(response) }
+        );
+        if (modelHistory.length > CONFIG.maximumHistoryMessages) {
+          modelHistory = modelHistory.slice(-CONFIG.maximumHistoryMessages);
+        }
+      } catch (error) {
+        await thinkingDelay;
+        if (currentRequest !== requestVersion || error.name === "AbortError") return;
+        thinkingMessage.remove();
+        addTextResponse(safeErrorResponse(error));
+      } finally {
+        if (currentRequest === requestVersion) {
+          activeAbortController = null;
+          setGenerating(false);
+          inputElement.focus({ preventScroll: true });
+        }
+      }
+    }
+
+    function resetConversation() {
+      requestVersion += 1;
+      if (activeAbortController) {
+        activeAbortController.abort();
+        activeAbortController = null;
+      }
+
+      modelHistory = [];
+      rotateFastGptChatId();
+      clearSessionContext();
+      setGenerating(false);
+      messagesElement.replaceChildren();
+      inputElement.value = "";
+      autoResizeInput();
+
+      addTextResponse({
+        paragraphs: [
+          "Hi! I'm MyTech. I can help you choose laptops, desktops, smartphones, tablets, headphones, monitors, smartwatches, mice, and keyboards. Tell me what you need, your budget in RMB, and your main usage."
+        ]
+      });
+
+      if (datasetReady) inputElement.focus({ preventScroll: true });
+    }
+
+    function validateProductDataset(dataset) {
+      if (!isPlainObject(dataset) || !Array.isArray(dataset.products)) {
+        throw new Error("INVALID_PRODUCT_DATASET");
+      }
+      if (dataset.dataset_name !== "MyTech v1 Product Dataset" || dataset.version !== "1.0") {
+        throw new Error("UNEXPECTED_PRODUCT_DATASET_VERSION");
+      }
+      if (dataset.currency !== "RMB" || dataset.products.length !== 27) {
+        throw new Error("INVALID_PRODUCT_DATASET_CONTENT");
+      }
+      if (JSON.stringify(dataset.supported_categories) !== JSON.stringify(IDENTITY.supportedCategories)) {
+        throw new Error("INVALID_SUPPORTED_CATEGORIES");
+      }
+
+      const ids = new Set();
+      const names = new Set();
+      dataset.products.forEach((product) => {
+        const valid = isPlainObject(product)
+          && typeof product.id === "string"
+          && IDENTITY.supportedCategories.includes(product.category)
+          && typeof product.product === "string"
+          && Number.isFinite(product.price_rmb)
+          && product.price_rmb >= 0
+          && typeof product.tier === "string"
+          && Array.isArray(product.main_usage)
+          && Array.isArray(product.key_features)
+          && typeof product.source === "string";
+        if (!valid || ids.has(product.id) || names.has(product.product)) {
+          throw new Error("INVALID_PRODUCT_DATASET_ENTRY");
+        }
+        ids.add(product.id);
+        names.add(product.product);
+      });
+    }
+
+    async function loadApplicationData() {
+      const [datasetResponse, promptResponse] = await Promise.all([
+        fetch(CONFIG.datasetUrl, { cache: "no-store" }),
+        fetch(CONFIG.systemPromptUrl, { cache: "no-store" })
+      ]);
+      if (!datasetResponse.ok || !promptResponse.ok) throw new Error("APPLICATION_DATA_LOAD_FAILED");
+
+      const [dataset, promptText] = await Promise.all([
+        datasetResponse.json(),
+        promptResponse.text()
+      ]);
+      validateProductDataset(dataset);
+      if (!promptText.trim().startsWith("You are MyTech")) throw new Error("INVALID_SYSTEM_PROMPT");
+
+      productDataset = dataset;
+      systemPrompt = promptText.trim();
+      productByName = new Map(dataset.products.map((product) => [product.product, product]));
+      datasetReady = true;
+    }
+
+    async function checkModelConnection() {
+      if (hasInjectedModelAdapter()) return true;
+      if (window.location.protocol === "file:") return false;
+      try {
+        const response = await fetch(CONFIG.healthEndpoint, { cache: "no-store" });
+        if (!response.ok) return false;
+        const body = await response.json();
+        return body.ready === true
+          && body.provider === "fastgpt"
+          && typeof body.appId === "string"
+          && Boolean(body.appId.trim());
+      } catch {
+        return false;
+      }
+    }
+
+    async function initialize() {
+      setControlsDisabled(true);
+      resetConversation();
+      setStatus("ready", "Loading reference data...");
+
+      try {
+        await loadApplicationData();
+        modelConnectionReady = await checkModelConnection();
+        setControlsDisabled(false);
+        restoreConnectionStatus();
+      } catch {
+        datasetReady = false;
+        setControlsDisabled(true);
+        restoreConnectionStatus();
+        addTextResponse({
+          paragraphs: [
+            "MyTech could not load the approved v1 product dataset and has disabled recommendations to prevent unvalidated product information.",
+            "Open the app through the included server and keep the dataset file beside the HTML file."
+          ]
+        });
+      }
+    }
+
+    inputElement.addEventListener("input", autoResizeInput);
+    inputElement.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+
+    sendButton.addEventListener("click", sendMessage);
+    restartButton.addEventListener("click", resetConversation);
+    promptButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        if (isGenerating || !datasetReady) return;
+        inputElement.value = button.dataset.prompt;
+        autoResizeInput();
+        sendMessage();
+      });
+    });
+
+    initialize();
+  </script>
+</body>
+</html>

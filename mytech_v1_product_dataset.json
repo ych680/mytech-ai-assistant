@@ -1,0 +1,506 @@
+{
+  "dataset_name": "MyTech v1 Product Dataset",
+  "version": "1.0",
+  "snapshot_date": "2026-09-12",
+  "currency": "RMB",
+  "price_note": "Fixed reference prices for the classroom prototype. They are not live retailer quotes. MyTech should describe them as reference prices.",
+  "supported_categories": [
+    "Laptop",
+    "Desktop",
+    "Smartphone",
+    "Tablet",
+    "Headphones",
+    "Monitor",
+    "Smartwatch",
+    "Mouse",
+    "Keyboard"
+  ],
+  "products": [
+    {
+      "id": "LAP-001",
+      "category": "Laptop",
+      "product": "Lenovo Xiaoxin 14 (2025, Ryzen 7 H255, 16GB/512GB)",
+      "price_rmb": 5799,
+      "tier": "Entry",
+      "main_usage": [
+        "Study",
+        "Office",
+        "Daily use"
+      ],
+      "key_features": [
+        "14-inch display",
+        "16GB RAM",
+        "512GB SSD",
+        "Ryzen 7 H255"
+      ],
+      "source": "Lenovo Official Store"
+    },
+    {
+      "id": "LAP-002",
+      "category": "Laptop",
+      "product": "HUAWEI MateBook 14",
+      "price_rmb": 6599,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Study",
+        "Office",
+        "Creative work"
+      ],
+      "key_features": [
+        "2.8K OLED display",
+        "HarmonyOS AI features",
+        "Long battery-life positioning"
+      ],
+      "source": "Huawei Official Website"
+    },
+    {
+      "id": "LAP-003",
+      "category": "Laptop",
+      "product": "Lenovo Xiaoxin Pro 14 (Ryzen 7 H255, 32GB/1TB)",
+      "price_rmb": 8999,
+      "tier": "Premium",
+      "main_usage": [
+        "Heavy multitasking",
+        "Creative work",
+        "Productivity"
+      ],
+      "key_features": [
+        "14-inch display",
+        "32GB RAM",
+        "1TB SSD",
+        "Ryzen 7 H255"
+      ],
+      "source": "Lenovo Official Store"
+    },
+    {
+      "id": "DES-001",
+      "category": "Desktop",
+      "product": "Lenovo Tianyi 510S (Core i3-14100, 16GB/512GB)",
+      "price_rmb": 4099,
+      "tier": "Entry",
+      "main_usage": [
+        "Office",
+        "Study",
+        "Home use"
+      ],
+      "key_features": [
+        "Core i3-14100",
+        "16GB RAM",
+        "512GB SSD",
+        "Compact desktop"
+      ],
+      "source": "Lenovo Official Store"
+    },
+    {
+      "id": "DES-002",
+      "category": "Desktop",
+      "product": "Lenovo Tianyi 510S (Core i5-14400, 16GB/512GB)",
+      "price_rmb": 5099,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Office",
+        "Multitasking",
+        "Home productivity"
+      ],
+      "key_features": [
+        "Core i5-14400",
+        "16GB RAM",
+        "512GB SSD",
+        "Compact desktop"
+      ],
+      "source": "Lenovo Official Store"
+    },
+    {
+      "id": "DES-003",
+      "category": "Desktop",
+      "product": "Apple Mac mini (M4 Pro)",
+      "price_rmb": 10999,
+      "tier": "Premium",
+      "main_usage": [
+        "Creative work",
+        "Professional productivity",
+        "Development"
+      ],
+      "key_features": [
+        "Apple M4 Pro chip",
+        "Compact desktop design"
+      ],
+      "source": "Apple China"
+    },
+    {
+      "id": "PHO-001",
+      "category": "Smartphone",
+      "product": "HUAWEI nova 14 活力版",
+      "price_rmb": 2399,
+      "tier": "Entry",
+      "main_usage": [
+        "Daily use",
+        "Photography",
+        "Social media"
+      ],
+      "key_features": [
+        "Front and rear 50MP imaging",
+        "66W fast charging",
+        "HarmonyOS features"
+      ],
+      "source": "Huawei Official Website"
+    },
+    {
+      "id": "PHO-002",
+      "category": "Smartphone",
+      "product": "HONOR 400 Pro (12GB/256GB)",
+      "price_rmb": 3399,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Photography",
+        "Daily use",
+        "Entertainment"
+      ],
+      "key_features": [
+        "12GB RAM",
+        "256GB storage",
+        "HONOR 400-series photography focus"
+      ],
+      "source": "HONOR Official Launch Information"
+    },
+    {
+      "id": "PHO-003",
+      "category": "Smartphone",
+      "product": "Apple iPhone 17 (256GB)",
+      "price_rmb": 6799,
+      "tier": "Premium",
+      "main_usage": [
+        "Daily use",
+        "Photography",
+        "Video",
+        "Apple ecosystem"
+      ],
+      "key_features": [
+        "256GB storage",
+        "6.3-inch display",
+        "A19 chip"
+      ],
+      "source": "Apple China"
+    },
+    {
+      "id": "TAB-001",
+      "category": "Tablet",
+      "product": "HUAWEI MatePad 11.5 S (2025)",
+      "price_rmb": 2199,
+      "tier": "Entry",
+      "main_usage": [
+        "Study",
+        "Note-taking",
+        "Reading"
+      ],
+      "key_features": [
+        "Paper-like display option",
+        "Huawei Notes",
+        "HarmonyOS AI study features"
+      ],
+      "source": "Huawei Official Website"
+    },
+    {
+      "id": "TAB-002",
+      "category": "Tablet",
+      "product": "HUAWEI MatePad 11.5 (2026)",
+      "price_rmb": 2599,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Study",
+        "Media",
+        "Note-taking"
+      ],
+      "key_features": [
+        "11.5-inch 2.5K display",
+        "120Hz refresh rate",
+        "10100mAh battery"
+      ],
+      "source": "Huawei Official Website"
+    },
+    {
+      "id": "TAB-003",
+      "category": "Tablet",
+      "product": "Apple iPad Air 11-inch (M3, Wi-Fi)",
+      "price_rmb": 4799,
+      "tier": "Premium",
+      "main_usage": [
+        "Creative work",
+        "Study",
+        "Productivity"
+      ],
+      "key_features": [
+        "Apple M3 chip",
+        "11-inch display"
+      ],
+      "source": "Apple China"
+    },
+    {
+      "id": "AUD-001",
+      "category": "Headphones",
+      "product": "Sony WH-CH520",
+      "price_rmb": 350,
+      "tier": "Entry",
+      "main_usage": [
+        "Daily music",
+        "Study",
+        "Calls"
+      ],
+      "key_features": [
+        "Bluetooth 5.2",
+        "Up to 50-hour battery-life specification",
+        "Lightweight on-ear design"
+      ],
+      "source": "Sony / JD Reference"
+    },
+    {
+      "id": "AUD-002",
+      "category": "Headphones",
+      "product": "Apple AirPods Pro 3",
+      "price_rmb": 1899,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Commute",
+        "Noise cancellation",
+        "Apple ecosystem"
+      ],
+      "key_features": [
+        "Active noise cancellation",
+        "Up to 8 hours listening with ANC",
+        "Heart-rate sensing"
+      ],
+      "source": "Apple China"
+    },
+    {
+      "id": "AUD-003",
+      "category": "Headphones",
+      "product": "Sony WH-1000XM6",
+      "price_rmb": 4799,
+      "tier": "Premium",
+      "main_usage": [
+        "Travel",
+        "Premium noise cancellation",
+        "Music"
+      ],
+      "key_features": [
+        "Flagship over-ear noise-cancelling positioning"
+      ],
+      "source": "Sony China"
+    },
+    {
+      "id": "MON-001",
+      "category": "Monitor",
+      "product": "AOC Q27G40E",
+      "price_rmb": 879,
+      "tier": "Entry",
+      "main_usage": [
+        "Gaming",
+        "Study",
+        "General use"
+      ],
+      "key_features": [
+        "27-inch",
+        "2560×1440 resolution",
+        "180Hz refresh rate",
+        "Fast IPS",
+        "1ms GTG"
+      ],
+      "source": "AOC China Official Store"
+    },
+    {
+      "id": "MON-002",
+      "category": "Monitor",
+      "product": "REDMI G27Q 320Hz",
+      "price_rmb": 1199,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Competitive gaming",
+        "Gaming"
+      ],
+      "key_features": [
+        "27-inch",
+        "2560×1440 resolution",
+        "320Hz refresh rate",
+        "1ms response time"
+      ],
+      "source": "JD / Market Reference"
+    },
+    {
+      "id": "MON-003",
+      "category": "Monitor",
+      "product": "LG UltraGear 27GS95QE",
+      "price_rmb": 3499,
+      "tier": "Premium",
+      "main_usage": [
+        "Premium gaming",
+        "High-refresh gaming"
+      ],
+      "key_features": [
+        "26.5-inch QHD OLED",
+        "240Hz refresh rate",
+        "0.03ms GTG"
+      ],
+      "source": "LG China / Market Reference"
+    },
+    {
+      "id": "WAT-001",
+      "category": "Smartwatch",
+      "product": "HUAWEI WATCH GT 5 (41mm)",
+      "price_rmb": 1488,
+      "tier": "Entry",
+      "main_usage": [
+        "Fitness",
+        "Daily health tracking",
+        "Daily wear"
+      ],
+      "key_features": [
+        "41mm model",
+        "Fitness and daily smartwatch positioning"
+      ],
+      "source": "Huawei Official Website"
+    },
+    {
+      "id": "WAT-002",
+      "category": "Smartwatch",
+      "product": "Apple Watch SE 3",
+      "price_rmb": 1999,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Fitness",
+        "Daily health tracking",
+        "Apple ecosystem"
+      ],
+      "key_features": [
+        "40mm or 44mm",
+        "Heart-rate tracking",
+        "Sleep tracking",
+        "50m water resistance"
+      ],
+      "source": "Apple China"
+    },
+    {
+      "id": "WAT-003",
+      "category": "Smartwatch",
+      "product": "HUAWEI WATCH 5",
+      "price_rmb": 2699,
+      "tier": "Premium",
+      "main_usage": [
+        "Smart features",
+        "Health tracking",
+        "Independent connectivity"
+      ],
+      "key_features": [
+        "X-TAP sensing",
+        "Huawei AI features",
+        "eSIM support"
+      ],
+      "source": "Huawei Official Website"
+    },
+    {
+      "id": "MOU-001",
+      "category": "Mouse",
+      "product": "Logitech M240",
+      "price_rmb": 109,
+      "tier": "Entry",
+      "main_usage": [
+        "Office",
+        "Study",
+        "Portable use"
+      ],
+      "key_features": [
+        "Bluetooth",
+        "Quiet-click positioning",
+        "Lightweight portable design"
+      ],
+      "source": "JD Reference"
+    },
+    {
+      "id": "MOU-002",
+      "category": "Mouse",
+      "product": "Logitech G304 LIGHTSPEED",
+      "price_rmb": 229,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Gaming",
+        "General use"
+      ],
+      "key_features": [
+        "Wireless gaming mouse",
+        "LIGHTSPEED wireless positioning"
+      ],
+      "source": "JD / Market Reference"
+    },
+    {
+      "id": "MOU-003",
+      "category": "Mouse",
+      "product": "Logitech MX Master 3S",
+      "price_rmb": 429,
+      "tier": "Premium",
+      "main_usage": [
+        "Office",
+        "Creative work",
+        "Productivity"
+      ],
+      "key_features": [
+        "8,000 DPI sensor",
+        "Quiet clicks",
+        "MagSpeed scrolling"
+      ],
+      "source": "Logitech / Market Reference"
+    },
+    {
+      "id": "KEY-001",
+      "category": "Keyboard",
+      "product": "Logitech K848",
+      "price_rmb": 249,
+      "tier": "Entry",
+      "main_usage": [
+        "Office",
+        "General typing",
+        "Light gaming"
+      ],
+      "key_features": [
+        "Wired mechanical keyboard",
+        "Backlighting",
+        "Full-size layout"
+      ],
+      "source": "JD / Market Reference"
+    },
+    {
+      "id": "KEY-002",
+      "category": "Keyboard",
+      "product": "Logitech Signature K650",
+      "price_rmb": 299,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Office",
+        "Long typing sessions",
+        "Productivity"
+      ],
+      "key_features": [
+        "Wireless and Bluetooth",
+        "Integrated palm rest",
+        "Full-size layout"
+      ],
+      "source": "Logitech / JD Reference"
+    },
+    {
+      "id": "KEY-003",
+      "category": "Keyboard",
+      "product": "Logitech MX Keys S",
+      "price_rmb": 529,
+      "tier": "Premium",
+      "main_usage": [
+        "Office",
+        "Productivity",
+        "Multi-device use"
+      ],
+      "key_features": [
+        "Wireless and Bluetooth",
+        "Smart backlighting",
+        "Multi-device switching"
+      ],
+      "source": "Logitech / JD Reference"
+    }
+  ]
+}
