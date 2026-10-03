@@ -346,9 +346,9 @@ async function handleStaticRequest(request, response, pathname) {
 }
 
 const server = createServer(async (request, response) => {
-  const url = new URL(request.url || "/", `http://${request.headers.host || "localhost"}`);
-
   try {
+    const url = new URL(request.url || "/", `http://${request.headers.host || "localhost"}`);
+
     if (request.method === "GET" && url.pathname === "/api/health") {
       const ready = Boolean(FASTGPT_API_KEY) && FASTGPT_URL_IS_VALID && Boolean(FASTGPT_APP_ID);
       sendJson(response, 200, {

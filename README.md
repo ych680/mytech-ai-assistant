@@ -1,6 +1,6 @@
 # MyTech v2 — Grounded RAG Product Recommendation Assistant
 
-MyTech v2 is an electronic product recommendation assistant developed as part of postgraduate AI coursework. The current Week 04 implementation combines a browser interface, a secure Node.js backend, and a published FastGPT workflow with grounded RAG retrieval.
+MyTech v2 is an electronic product recommendation assistant developed as part of postgraduate AI coursework. The current Week 04 implementation combines a browser interface, a Node.js backend for this local classroom prototype with server-side API key handling, and a published FastGPT workflow with grounded RAG retrieval.
 
 ## Architecture
 
@@ -50,6 +50,8 @@ The **FastGPT Knowledge Base** is the current grounded product-fact retrieval so
    ```
 
 5. Open [http://127.0.0.1:8787](http://127.0.0.1:8787).
+
+This is a local classroom prototype. Public deployment would require additional protections such as authentication and rate limiting.
 
 ## Validation and safety
 
