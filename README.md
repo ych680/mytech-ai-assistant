@@ -225,7 +225,6 @@ MyTech_v2/
 ├── mytech_v2_server.mjs
 ├── mytech_v1_product_dataset.json
 ├── mytech_v1_system_prompt.txt
-├── MyTech_v2_FastGPT_Test_Report.pdf
 ├── .env.example
 ├── .gitignore
 └── README.md
@@ -243,7 +242,6 @@ Local `.env` files are intentionally excluded from version control.
 - `workflow/mytech-fastgpt-workflow.json` — exported FastGPT workflow configuration.
 - `workflow/README.md` — workflow architecture, screenshots, and import instructions.
 - `docs/screenshots/` — portfolio screenshots showing the chatbot interface and multi-product recommendation behavior.
-- `MyTech_v2_FastGPT_Test_Report.pdf` — FastGPT test report.
 - `.env.example` — environment configuration template.
 - `.gitignore` — excludes local environment files, dependencies, logs, and generated files.
 
@@ -283,12 +281,6 @@ The project has been tested for:
 - multi-product requests
 - structured JSON rendering
 - conversation reset and state handling
-
-A test report is included in:
-
-```text
-MyTech_v2_FastGPT_Test_Report.pdf
-```
 
 ## Prototype Limitations
 
