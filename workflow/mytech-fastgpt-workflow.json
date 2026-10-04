@@ -1,0 +1,2896 @@
+﻿{
+  "nodes": [
+    {
+      "nodeId": "448745",
+      "name": "Workflow Start",
+      "intro": "Receives the user message and provides access to conversation-level state variables.",
+      "avatar": "core/workflow/template/workflowStart",
+      "flowNodeType": "workflowStart",
+      "position": {
+        "x": 345,
+        "y": -344.2446492944009
+      },
+      "version": "481",
+      "inputs": [
+        {
+          "key": "userChatInput",
+          "label": "workflow:user_question",
+          "valueType": "string",
+          "required": true,
+          "selectedType": "reference",
+          "renderTypeList": [
+            "agentGenerated",
+            "reference",
+            "textarea"
+          ],
+          "debugLabel": "",
+          "toolDescription": "用户问题",
+          "defaultToAgentGenerated": true
+        }
+      ],
+      "outputs": [
+        {
+          "id": "userChatInput",
+          "key": "userChatInput",
+          "type": "static",
+          "valueType": "string",
+          "label": "common:core.module.input.label.user question",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "nodeId": "o92mVeWzf02489Q2",
+      "name": "State Extraction",
+      "intro": "Extracts product requests, missing fields, follow-up intent, and request scope from the current message and conversation history.",
+      "avatar": "core/workflow/template/extractJson",
+      "flowNodeType": "contentExtract",
+      "showStatus": true,
+      "position": {
+        "x": 1065,
+        "y": -735.2446492944009
+      },
+      "version": "4.9.2",
+      "inputs": [
+        {
+          "key": "modelId",
+          "label": "common:core.module.input.label.aiModel",
+          "valueType": "string",
+          "required": true,
+          "selectedType": "selectLLMModel",
+          "renderTypeList": [
+            "selectLLMModel",
+            "reference"
+          ],
+          "value": "6a9ba71d79f33eeee68c1557",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "description",
+          "label": "workflow:extraction_requirements_description",
+          "valueType": "string",
+          "placeholder": "workflow:extraction_requirements_placeholder",
+          "selectedType": "textarea",
+          "renderTypeList": [
+            "agentGenerated",
+            "textarea",
+            "reference"
+          ],
+          "value": "You are the state extraction component for MyTech, an electronic product recommendation chatbot.\n\nUse the current user message together with the recent conversation history to determine the latest valid task state.\n\nMyTech supports these product categories only:\nLaptop, Desktop, Smartphone, Tablet, Headphones, Monitor, Smartwatch, Mouse, Keyboard.\n\nFor each requested product, identify:\n- category\n- budget in RMB\n- main_usage\n\n\nIMPORTANT STATE RULES\n\n1. Preserve valid information established in earlier turns when the user does not change it.\n\n2. If the user corrects or updates a previous value, the newest value replaces the old value.\n\n3. When the user uses approximate budget wording such as:\n- around\n- about\n- approximately\n- roughly\n\nextract the stated numeric amount as the budget.\n\nExamples:\n\n\"around ¥300\"\n→ budget = 300\n\n\"about ¥1500\"\n→ budget = 1500\n\n\"approximately ¥6000\"\n→ budget = 6000\n\n\"roughly ¥1000\"\n→ budget = 1000\n\nDo not increase, widen, round up, or reinterpret the budget automatically.\n\nThe stated numeric amount remains the maximum budget unless the user explicitly agrees to increase or change it.\n\nFor example, \"around ¥300\" still means budget = 300, not 350, 400, or another higher amount.\n\n4. Do not guess missing information.\n\n5. Support multiple product requests in the same conversation.\n\n6. Keep each product request separate.\n\nDo not mix category, budget, or main_usage between different product requests.\n\n7. Detect follow-up intent using exactly one of these values:\n- none\n- cheaper\n- more_expensive\n- alternative\n\nUse:\n\n- cheaper when the user asks for a cheaper or more affordable option.\n\n- more_expensive when the user asks for a more expensive or higher-priced option.\n\n- alternative when the user asks for another, different, or alternative option.\n\n- none when no such follow-up intent is present.\n\n\n8. Determine scope_status using exactly one of these values:\n\n- supported:\n  The user is requesting, continuing, or clarifying a recommendation involving one or more supported MyTech product categories.\n\n- unsupported:\n  The user is requesting a product category outside MyTech's supported categories.\n\n- help:\n  The user is asking what MyTech can do, what products MyTech supports, what MyTech can recommend, asking about MyTech's capabilities, or simply greeting MyTech or casually opening a conversation.\n\n  Simple greetings, repeated greetings, and casual greeting variations should all be classified as help.\n\n  Examples:\n  \"What can you help me with?\"\n  \"What products do you support?\"\n  \"What can MyTech recommend?\"\n  \"What do you do?\"\n  \"Which product categories can you recommend?\"\n  \"Hello\"\n  \"Hi\"\n  \"Hey\"\n  \"Hello MyTech\"\n  \"Hi, what can you do?\"\n  \"Hi hi\"\n  \"Hello hello\"\n  \"Hey hey\"\n  \"Hi there\"\n  \"Hello there\"\n  \"Hey MyTech\"\n  \"Hi!\"\n  \"Hello!\"\n  \"Hey!\"\n\n  Repeated or stylistic greetings such as \"hi hi\", \"hello hello\", or \"hey hey\" should still be treated as simple greetings and classified as help.\n\n- unrelated:\n  The request is unrelated to electronic product recommendation and is not a question about MyTech's capabilities and is not merely a greeting.\n\n  Examples:\n  \"Can you write my essay?\"\n  \"Tell me a joke.\"\n  \"What's the weather?\"\n  \"Help me with my homework.\"\n\n\n9. If the user says they are unsure which device suits their needs, DO NOT classify the request as help or unrelated.\n\nExamples:\n\"I'm not sure which device suits my needs.\"\n\"I don't know what device I should buy.\"\n\"Which type of device would suit me?\"\n\nFor these cases:\n- set scope_status to supported\n- set clarification_needed to true\n- preserve any valid existing product state only if it is clearly relevant\n- identify the most important missing information, usually the user's main usage or need\n\n\n10. If the user asks only what MyTech can do, what categories it supports, or simply greets MyTech:\n- set scope_status to help\n- set clarification_needed to false\n- product_requests_json should normally be []\n- missing_fields_json should be []\n- follow_up_intent should be none\n\n\n11. If the request is unsupported:\n- set scope_status to unsupported\n- set clarification_needed to false\n- do not invent a supported category as a substitute\n\n\n12. If the request is unrelated:\n- set scope_status to unrelated\n- set clarification_needed to false\n- do not interpret unrelated content as a product recommendation request\n\n\n13. For supported recommendation requests, required information for each product request is:\n- category\n- budget\n- main_usage\n\nIf one or more required fields are missing:\n- set clarification_needed to true\n- include the missing field names in missing_fields_json\n\nIf all required fields are complete:\n- set clarification_needed to false\n- missing_fields_json should be []\n\n\n14. For follow-up messages such as:\n\n\"Give me a cheaper one.\"\n\"Give me a more expensive one.\"\n\"Give me an alternative.\"\n\nUse recent conversation history to preserve the existing product category, budget, and main_usage.\n\nDo not create a new unrelated product request.\n\n\n15. If the user changes the budget in a later message, update the budget while preserving the existing category and main_usage unless they also change them.\n\nIf the new budget uses approximate wording such as \"around\", \"about\", \"approximately\", or \"roughly\", still extract the stated numeric value exactly as the new budget.\n\nExample:\n\nPrevious budget = 1500\n\nUser:\n\"Actually, make it around ¥1000.\"\n\nNew budget = 1000\n\n\n16. If the user changes the usage or category, use the newest valid information.\n\n\n17. If a greeting is combined with a valid product request, prioritize the product request instead of classifying the whole message as help.\n\nExamples:\n\n\"Hi, I need a gaming mouse under ¥300.\"\n\"Hello, can you recommend a laptop for study?\"\n\"Hey MyTech, I need headphones under ¥1000.\"\n\nFor these cases:\n- set scope_status to supported\n- extract the product request normally\n- do not route the message to help only because it begins with a greeting\n\n\n18. If a greeting is combined with a capability question, classify it as help.\n\nExamples:\n\n\"Hi, what can you help me with?\"\n\"Hello, what products do you support?\"\n\"Hey MyTech, what can you recommend?\"\n\n\n19. Return the requested extraction fields only.\n\nDo not give product recommendations.\n\nDo not explain your reasoning.",
+          "debugLabel": "",
+          "description": "workflow:extraction_requirements_description_detail",
+          "toolDescription": ""
+        },
+        {
+          "key": "history",
+          "label": "common:core.module.input.label.chat history",
+          "valueType": "chatHistory",
+          "required": true,
+          "max": 50,
+          "min": 0,
+          "selectedType": "numberInput",
+          "renderTypeList": [
+            "agentGenerated",
+            "numberInput",
+            "reference"
+          ],
+          "value": 6,
+          "debugLabel": "",
+          "description": "workflow:max_dialog_rounds",
+          "toolDescription": ""
+        },
+        {
+          "key": "content",
+          "label": "workflow:text_to_extract",
+          "valueType": "string",
+          "required": true,
+          "selectedType": "reference",
+          "renderTypeList": [
+            "agentGenerated",
+            "reference",
+            "textarea"
+          ],
+          "value": [
+            "448745",
+            "userChatInput"
+          ],
+          "debugLabel": "",
+          "toolDescription": "需要检索的内容",
+          "defaultToAgentGenerated": true
+        },
+        {
+          "key": "extractKeys",
+          "label": "",
+          "valueType": "any",
+          "selectedType": "custom",
+          "renderTypeList": [
+            "custom"
+          ],
+          "value": [
+            {
+              "valueType": "string",
+              "required": true,
+              "defaultValue": "[]",
+              "desc": "A valid JSON array string representing the latest active product requests. Each item uses {\"category\":\"...\", \"budget\":number or null, \"main_usage\":\"...\"}. Return [] if there is no active product request.",
+              "key": "product_requests_json",
+              "enum": ""
+            },
+            {
+              "valueType": "string",
+              "required": true,
+              "defaultValue": "[]",
+              "desc": "A valid JSON array string listing missing required fields. Return [] if none are missing.",
+              "key": "missing_fields_json",
+              "enum": ""
+            },
+            {
+              "valueType": "string",
+              "required": true,
+              "defaultValue": "false",
+              "desc": "Return exactly true if required information is missing, otherwise false.",
+              "key": "clarification_needed",
+              "enum": "true\nfalse"
+            },
+            {
+              "valueType": "string",
+              "required": true,
+              "defaultValue": "none",
+              "desc": "Return exactly one of: none, cheaper, more_expensive, alternative.",
+              "key": "follow_up_intent",
+              "enum": "none\ncheaper\nmore_expensive\nalternative"
+            },
+            {
+              "valueType": "string",
+              "required": true,
+              "defaultValue": "unrelated",
+              "desc": "Return exactly one of: supported, unsupported, help, unrelated.",
+              "key": "scope_status",
+              "enum": "supported\nunsupported\nunrelated\nhelp"
+            }
+          ],
+          "debugLabel": "",
+          "description": "workflow:target_fields_description",
+          "toolDescription": ""
+        },
+        {
+          "key": "model",
+          "label": "common:core.module.input.label.aiModel",
+          "valueType": "string",
+          "required": true,
+          "selectedType": "selectLLMModel",
+          "renderTypeList": [
+            "selectLLMModel",
+            "reference"
+          ],
+          "value": "qwen-turbo",
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": [
+        {
+          "id": "success",
+          "key": "success",
+          "type": "static",
+          "valueType": "boolean",
+          "valueDesc": "",
+          "label": "workflow:full_field_extraction",
+          "description": "提取字段全部填充时返回 true （模型提取或使用默认值均属于成功）",
+          "required": true
+        },
+        {
+          "id": "fields",
+          "key": "fields",
+          "type": "static",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "workflow:complete_extraction_result",
+          "description": "一个 JSON 字符串，例如：{\"name:\":\"YY\",\"Time\":\"2023/7/2 18:00\"}",
+          "required": true
+        },
+        {
+          "id": "system_error_text",
+          "key": "system_error_text",
+          "type": "error",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "workflow:error_text",
+          "description": ""
+        },
+        {
+          "id": "rl9WgHCzjKtbCimF",
+          "key": "product_requests_json",
+          "type": "static",
+          "valueType": "string",
+          "label": "提取结果-product_requests_json"
+        },
+        {
+          "id": "h7azElOY6YQvqGPz",
+          "key": "missing_fields_json",
+          "type": "static",
+          "valueType": "string",
+          "label": "提取结果-missing_fields_json"
+        },
+        {
+          "id": "gThKLSlIvJTuPwf2",
+          "key": "clarification_needed",
+          "type": "static",
+          "valueType": "string",
+          "label": "提取结果-clarification_needed"
+        },
+        {
+          "id": "sQlTUhBjnI2rUOjZ",
+          "key": "follow_up_intent",
+          "type": "static",
+          "valueType": "string",
+          "label": "提取结果-follow_up_intent"
+        },
+        {
+          "id": "glbdrxC5MkmY4Mhz",
+          "key": "scope_status",
+          "type": "static",
+          "valueType": "string",
+          "label": "提取结果-scope_status"
+        }
+      ],
+      "catchError": false
+    },
+    {
+      "nodeId": "pcta8CyBWPIfyJ15",
+      "name": "State Normalization & Guard",
+      "intro": "Parses extracted state, preserves contextual follow-ups, normalizes categories, and applies deterministic category and state validation rules.",
+      "avatar": "core/workflow/template/codeRun",
+      "flowNodeType": "code",
+      "showStatus": true,
+      "position": {
+        "x": 1905,
+        "y": -593.2446492944009
+      },
+      "inputs": [
+        {
+          "key": "system_addInputParam",
+          "label": "",
+          "valueType": "dynamic",
+          "required": false,
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "selectedType": "addInputParam",
+          "renderTypeList": [
+            "addInputParam"
+          ],
+          "debugLabel": "",
+          "description": "workflow:these_variables_will_be_input_parameters_for_code_execution",
+          "toolDescription": "",
+          "canAgentGenerated": false
+        },
+        {
+          "key": "codeType",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": "js",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "code",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "custom",
+          "renderTypeList": [
+            "custom"
+          ],
+          "value": "function main({\n  product_requests_json,\n  missing_fields_json,\n  clarification_needed_text,\n  follow_up_intent,\n  scope_status,\n  user_question,\n  stored_product_requests\n}) {\n  let product_requests = [];\n  let missing_fields = [];\n\n  // --------------------------------------------------\n  // 1. Parse extraction outputs\n  // --------------------------------------------------\n\n  try {\n    const parsedProducts = JSON.parse(product_requests_json || \"[]\");\n    product_requests = Array.isArray(parsedProducts)\n      ? parsedProducts\n      : [];\n  } catch (e) {\n    product_requests = [];\n  }\n\n  try {\n    const parsedMissing = JSON.parse(missing_fields_json || \"[]\");\n    missing_fields = Array.isArray(parsedMissing)\n      ? parsedMissing\n      : [];\n  } catch (e) {\n    missing_fields = [];\n  }\n\n  let clarification_needed =\n    String(clarification_needed_text || \"\")\n      .trim()\n      .toLowerCase() === \"true\";\n\n  let normalizedIntent =\n    String(follow_up_intent || \"none\")\n      .trim()\n      .toLowerCase();\n\n  let normalizedScope =\n    String(scope_status || \"unrelated\")\n      .trim()\n      .toLowerCase();\n\n  const storedRequests =\n    Array.isArray(stored_product_requests)\n      ? stored_product_requests\n      : [];\n\n  const question =\n    String(user_question || \"\")\n      .trim()\n      .toLowerCase();\n\n\n  // --------------------------------------------------\n  // 2. Supported category whitelist\n  // --------------------------------------------------\n\n  const supportedCategories = {\n    laptop: \"Laptop\",\n    desktop: \"Desktop\",\n    smartphone: \"Smartphone\",\n    tablet: \"Tablet\",\n    headphones: \"Headphones\",\n    monitor: \"Monitor\",\n    smartwatch: \"Smartwatch\",\n    mouse: \"Mouse\",\n    keyboard: \"Keyboard\"\n  };\n\n\n  // --------------------------------------------------\n  // 3. Deterministically detect common follow-up intent\n  // --------------------------------------------------\n\n  let detectedIntent = \"none\";\n\n  if (\n    /\\bcheaper\\b/.test(question) ||\n    /\\bmore affordable\\b/.test(question) ||\n    /\\bless expensive\\b/.test(question) ||\n    /\\blower[- ]priced\\b/.test(question)\n  ) {\n    detectedIntent = \"cheaper\";\n  } else if (\n    /\\bmore expensive\\b/.test(question) ||\n    /\\bhigher[- ]priced\\b/.test(question)\n  ) {\n    detectedIntent = \"more_expensive\";\n  } else if (\n    /\\balternative\\b/.test(question) ||\n    /\\banother (one|option|product)\\b/.test(question) ||\n    /\\bdifferent (one|option|product)\\b/.test(question) ||\n    /\\bother option\\b/.test(question)\n  ) {\n    detectedIntent = \"alternative\";\n  }\n\n  const effectiveIntent =\n    detectedIntent !== \"none\"\n      ? detectedIntent\n      : normalizedIntent;\n\n  const isFollowUp =\n    effectiveIntent === \"cheaper\" ||\n    effectiveIntent === \"more_expensive\" ||\n    effectiveIntent === \"alternative\";\n\n\n  // --------------------------------------------------\n  // 4. Follow-up state guard\n  // --------------------------------------------------\n  //\n  // A short contextual follow-up such as:\n  // \"Can you recommend a cheaper option?\"\n  // must continue the previous supported request.\n  // --------------------------------------------------\n\n  if (isFollowUp && storedRequests.length > 0) {\n    normalizedIntent = effectiveIntent;\n\n    normalizedScope = \"supported\";\n\n    // Restore previous product state if the extractor lost it.\n    if (product_requests.length === 0) {\n      product_requests = storedRequests.map(item => ({\n        ...item\n      }));\n    }\n\n    missing_fields = getMissingFields(product_requests);\n\n    clarification_needed =\n      missing_fields.length > 0;\n  }\n\n\n  // --------------------------------------------------\n  // 5. Category whitelist guard\n  // --------------------------------------------------\n  //\n  // Supported categories are a hard business rule.\n  // If the extractor returns Camera, TV, Printer, Router, etc.,\n  // the request must be routed to unsupported instead of asking\n  // clarification questions.\n  // --------------------------------------------------\n\n  let hasUnsupportedCategory = false;\n\n  product_requests = product_requests.map(request => {\n    if (!request || typeof request !== \"object\") {\n      return request;\n    }\n\n    const rawCategory =\n      String(request.category || \"\").trim();\n\n    if (!rawCategory) {\n      return request;\n    }\n\n    const canonicalCategory =\n      supportedCategories[rawCategory.toLowerCase()];\n\n    if (!canonicalCategory) {\n      hasUnsupportedCategory = true;\n      return request;\n    }\n\n    return {\n      ...request,\n      category: canonicalCategory\n    };\n  });\n\n  if (hasUnsupportedCategory) {\n    normalizedScope = \"unsupported\";\n    normalizedIntent = \"none\";\n    clarification_needed = false;\n    missing_fields = [];\n  }\n\n\n  // --------------------------------------------------\n  // 6. Recalculate missing fields for supported requests\n  // --------------------------------------------------\n\n  if (\n    normalizedScope === \"supported\" &&\n    product_requests.length > 0\n  ) {\n    missing_fields = getMissingFields(product_requests);\n\n    clarification_needed =\n      missing_fields.length > 0;\n  }\n\n\n  // --------------------------------------------------\n  // 7. Normalize allowed intent values\n  // --------------------------------------------------\n\n  const allowedIntents = [\n    \"none\",\n    \"cheaper\",\n    \"more_expensive\",\n    \"alternative\"\n  ];\n\n  if (!allowedIntents.includes(normalizedIntent)) {\n    normalizedIntent = \"none\";\n  }\n\n\n  // --------------------------------------------------\n  // 8. Normalize allowed scope values\n  // --------------------------------------------------\n\n  const allowedScopes = [\n    \"supported\",\n    \"unsupported\",\n    \"help\",\n    \"unrelated\"\n  ];\n\n  if (!allowedScopes.includes(normalizedScope)) {\n    normalizedScope = \"unrelated\";\n  }\n\n\n  // --------------------------------------------------\n  // 9. Return normalized state\n  // --------------------------------------------------\n\n  return {\n    product_requests,\n    missing_fields,\n    clarification_needed,\n    follow_up_intent: normalizedIntent,\n    scope_status: normalizedScope\n  };\n\n\n  // --------------------------------------------------\n  // Helper: determine missing required fields\n  // --------------------------------------------------\n\n  function getMissingFields(requests) {\n    const missing = new Set();\n\n    for (const request of requests) {\n      if (\n        !request ||\n        !String(request.category || \"\").trim()\n      ) {\n        missing.add(\"category\");\n      }\n\n      if (\n        request == null ||\n        request.budget === null ||\n        request.budget === undefined ||\n        String(request.budget).trim() === \"\"\n      ) {\n        missing.add(\"budget\");\n      }\n\n      if (\n        !request ||\n        !String(request.main_usage || \"\").trim()\n      ) {\n        missing.add(\"main_usage\");\n      }\n    }\n\n    return Array.from(missing);\n  }\n}",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "product_requests_json",
+          "label": "product_requests_json",
+          "valueType": "string",
+          "required": true,
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "selectedType": "reference",
+          "renderTypeList": [
+            "reference"
+          ],
+          "value": [
+            "o92mVeWzf02489Q2",
+            "rl9WgHCzjKtbCimF"
+          ],
+          "canAgentGenerated": false,
+          "canEdit": true
+        },
+        {
+          "key": "missing_fields_json",
+          "label": "missing_fields_json",
+          "valueType": "string",
+          "required": true,
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "selectedType": "reference",
+          "renderTypeList": [
+            "reference"
+          ],
+          "value": [
+            "o92mVeWzf02489Q2",
+            "h7azElOY6YQvqGPz"
+          ],
+          "canAgentGenerated": false,
+          "canEdit": true
+        },
+        {
+          "key": "clarification_needed_text",
+          "label": "clarification_needed_text",
+          "valueType": "string",
+          "required": true,
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "selectedType": "reference",
+          "renderTypeList": [
+            "reference"
+          ],
+          "value": [
+            "o92mVeWzf02489Q2",
+            "gThKLSlIvJTuPwf2"
+          ],
+          "canAgentGenerated": false,
+          "canEdit": true
+        },
+        {
+          "key": "follow_up_intent",
+          "label": "follow_up_intent",
+          "valueType": "string",
+          "required": true,
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "selectedType": "reference",
+          "renderTypeList": [
+            "reference"
+          ],
+          "value": [
+            "o92mVeWzf02489Q2",
+            "sQlTUhBjnI2rUOjZ"
+          ],
+          "canAgentGenerated": false,
+          "canEdit": true
+        },
+        {
+          "key": "scope_status",
+          "label": "scope_status",
+          "valueType": "string",
+          "required": true,
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "selectedType": "reference",
+          "renderTypeList": [
+            "reference"
+          ],
+          "value": [
+            "o92mVeWzf02489Q2",
+            "glbdrxC5MkmY4Mhz"
+          ],
+          "canAgentGenerated": false,
+          "canEdit": true
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "selectedType": "reference",
+          "valueType": "string",
+          "canEdit": true,
+          "key": "user_question",
+          "label": "user_question",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "canAgentGenerated": false,
+          "required": true,
+          "value": [
+            "448745",
+            "userChatInput"
+          ]
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "selectedType": "reference",
+          "valueType": "arrayObject",
+          "canEdit": true,
+          "key": "stored_product_requests",
+          "label": "stored_product_requests",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "canAgentGenerated": false,
+          "required": true,
+          "value": [
+            "VARIABLE_NODE_ID",
+            "zkIQmRTN"
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "id": "system_rawResponse",
+          "key": "system_rawResponse",
+          "type": "static",
+          "valueType": "object",
+          "valueDesc": "",
+          "label": "workflow:full_response_data",
+          "description": ""
+        },
+        {
+          "id": "error",
+          "key": "error",
+          "type": "error",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "workflow:error_text",
+          "description": ""
+        },
+        {
+          "id": "system_addOutputParam",
+          "key": "system_addOutputParam",
+          "type": "dynamic",
+          "valueType": "dynamic",
+          "valueDesc": "",
+          "label": "",
+          "description": "将代码中 return 的对象作为输出，传递给后续的节点。变量名需要对应 return 的 key",
+          "customFieldConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDefaultValue": false,
+            "showDescription": false
+          }
+        },
+        {
+          "id": "qLUQfhG0ILRX",
+          "key": "product_requests",
+          "type": "dynamic",
+          "valueType": "arrayObject",
+          "valueDesc": "",
+          "label": "product_requests",
+          "description": ""
+        },
+        {
+          "id": "gR0mkQpJ4Og8",
+          "key": "missing_fields",
+          "type": "dynamic",
+          "valueType": "arrayString",
+          "valueDesc": "",
+          "label": "missing_fields",
+          "description": ""
+        },
+        {
+          "id": "xGlW9E",
+          "key": "clarification_needed",
+          "type": "dynamic",
+          "valueType": "boolean",
+          "valueDesc": "",
+          "label": "clarification_needed",
+          "description": ""
+        },
+        {
+          "id": "uI3SmT",
+          "key": "follow_up_intent",
+          "type": "dynamic",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "follow_up_intent",
+          "description": ""
+        },
+        {
+          "id": "oRl6g8",
+          "key": "scope_status",
+          "type": "dynamic",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "scope_status",
+          "description": ""
+        }
+      ],
+      "catchError": false
+    },
+    {
+      "nodeId": "y641hB3ildC7AsuP",
+      "name": "Scope Router",
+      "intro": "Routes the request to supported, unsupported, help, or unrelated branches based on the normalized scope status.",
+      "avatar": "core/workflow/template/ifelse",
+      "flowNodeType": "ifElseNode",
+      "showStatus": true,
+      "position": {
+        "x": 2745,
+        "y": -344.2446492944009
+      },
+      "inputs": [
+        {
+          "key": "ifElseList",
+          "label": "",
+          "valueType": "any",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": [
+            {
+              "condition": "AND",
+              "list": [
+                {
+                  "variable": [
+                    "pcta8CyBWPIfyJ15",
+                    "oRl6g8"
+                  ],
+                  "condition": "equalTo",
+                  "value": "supported",
+                  "valueType": "input"
+                }
+              ],
+              "branchId": "ez6SYCKnzlr5MQt3"
+            },
+            {
+              "branchId": "oZIEJGxWNeVYLAAs",
+              "condition": "AND",
+              "list": [
+                {
+                  "variable": [
+                    "pcta8CyBWPIfyJ15",
+                    "oRl6g8"
+                  ],
+                  "condition": "equalTo",
+                  "value": "unsupported",
+                  "valueType": "input"
+                }
+              ]
+            },
+            {
+              "branchId": "a7qMok3Xm40sFqSJ",
+              "condition": "AND",
+              "list": [
+                {
+                  "variable": [
+                    "pcta8CyBWPIfyJ15",
+                    "oRl6g8"
+                  ],
+                  "condition": "equalTo",
+                  "value": "help",
+                  "valueType": "input"
+                }
+              ]
+            }
+          ],
+          "debugLabel": "",
+          "toolDescription": "",
+          "canAgentGenerated": false
+        }
+      ],
+      "outputs": [
+        {
+          "id": "ifElseResult",
+          "key": "ifElseResult",
+          "type": "static",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "workflow:judgment_result",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "nodeId": "tVqEyTvHnHG9GG1D",
+      "name": "Conversation State Update",
+      "intro": "Updates the persistent conversation state with normalized product requests, missing fields, clarification status, and follow-up intent.",
+      "avatar": "core/workflow/template/variableUpdate",
+      "flowNodeType": "variableUpdate",
+      "showStatus": false,
+      "position": {
+        "x": 3641,
+        "y": -1365
+      },
+      "inputs": [
+        {
+          "key": "updateList",
+          "label": "",
+          "valueType": "any",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": [
+            {
+              "variable": [
+                "VARIABLE_NODE_ID",
+                "zkIQmRTN"
+              ],
+              "value": [
+                [
+                  "pcta8CyBWPIfyJ15",
+                  "qLUQfhG0ILRX"
+                ]
+              ],
+              "valueType": "arrayObject",
+              "renderType": "reference",
+              "arrayMode": "equal"
+            },
+            {
+              "variable": [
+                "VARIABLE_NODE_ID",
+                "irltsRTo"
+              ],
+              "value": [
+                [
+                  "pcta8CyBWPIfyJ15",
+                  "gR0mkQpJ4Og8"
+                ]
+              ],
+              "renderType": "reference",
+              "valueType": "arrayString",
+              "arrayMode": "equal"
+            },
+            {
+              "variable": [
+                "VARIABLE_NODE_ID",
+                "oRIBQRvl"
+              ],
+              "value": [
+                "pcta8CyBWPIfyJ15",
+                "xGlW9E"
+              ],
+              "renderType": "reference",
+              "valueType": "boolean",
+              "booleanMode": "true"
+            },
+            {
+              "variable": [
+                "VARIABLE_NODE_ID",
+                "x66hJwYK"
+              ],
+              "value": [
+                "pcta8CyBWPIfyJ15",
+                "uI3SmT"
+              ],
+              "renderType": "reference",
+              "valueType": "string"
+            }
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "nodeId": "tkCKIXzj7te874Od",
+      "name": "Unsupported Category Response",
+      "intro": "Returns a safe structured response when the requested product category is outside MyTech's supported scope.",
+      "avatar": "core/workflow/template/reply",
+      "flowNodeType": "answerNode",
+      "position": {
+        "x": 3641,
+        "y": -330
+      },
+      "inputs": [
+        {
+          "key": "text",
+          "label": "common:core.module.input.label.Response content",
+          "valueType": "any",
+          "required": true,
+          "isRichText": false,
+          "placeholder": "common:core.module.input.description.Response content",
+          "maxLength": 100000,
+          "selectedType": "textarea",
+          "renderTypeList": [
+            "agentGenerated",
+            "textarea",
+            "reference"
+          ],
+          "value": "{\n  \"answer\": \"Sorry, MyTech does not currently support that product category. I can help with Laptop, Desktop, Smartphone, Tablet, Headphones, Monitor, Smartwatch, Mouse, and Keyboard.\",\n  \"recommendations\": [],\n  \"next_step\": \"\",\n  \"clarification_needed\": false\n}",
+          "debugLabel": "",
+          "description": "common:core.module.input.description.Response content",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "nodeId": "irfKAbR8EsvBDRZ4",
+      "name": "Unrelated Request Response",
+      "intro": "Returns a safe structured response when the user request is unrelated to electronic product recommendations.",
+      "avatar": "core/workflow/template/reply",
+      "flowNodeType": "answerNode",
+      "position": {
+        "x": 3641,
+        "y": 60
+      },
+      "inputs": [
+        {
+          "key": "text",
+          "label": "common:core.module.input.label.Response content",
+          "valueType": "any",
+          "required": true,
+          "isRichText": false,
+          "placeholder": "common:core.module.input.description.Response content",
+          "maxLength": 100000,
+          "selectedType": "textarea",
+          "renderTypeList": [
+            "agentGenerated",
+            "textarea",
+            "reference"
+          ],
+          "value": "{\n  \"answer\": \"Sorry, MyTech only helps with electronic product recommendations. I can help with Laptop, Desktop, Smartphone, Tablet, Headphones, Monitor, Smartwatch, Mouse, and Keyboard.\",\n  \"recommendations\": [],\n  \"next_step\": \"\",\n  \"clarification_needed\": false\n}",
+          "debugLabel": "",
+          "description": "common:core.module.input.description.Response content",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "nodeId": "cLOxjUrmsZO4aToG",
+      "name": "Help & Greeting Response",
+      "intro": "Returns MyTech's supported product categories and basic usage guidance for greetings and capability questions.",
+      "avatar": "core/workflow/template/reply",
+      "flowNodeType": "answerNode",
+      "position": {
+        "x": 3641,
+        "y": 450
+      },
+      "inputs": [
+        {
+          "key": "text",
+          "label": "common:core.module.input.label.Response content",
+          "valueType": "any",
+          "required": true,
+          "isRichText": false,
+          "placeholder": "common:core.module.input.description.Response content",
+          "maxLength": 100000,
+          "selectedType": "textarea",
+          "renderTypeList": [
+            "agentGenerated",
+            "textarea",
+            "reference"
+          ],
+          "value": "{\n  \"answer\": \"Hi! I'm MyTech. I can help you choose Laptop, Desktop, Smartphone, Tablet, Headphones, Monitor, Smartwatch, Mouse, and Keyboard. Tell me what product you need, your budget in RMB, and your main usage, and I can recommend a suitable option.\",\n  \"recommendations\": [],\n  \"next_step\": \"Tell me what kind of device you are looking for.\",\n  \"clarification_needed\": false\n}",
+          "debugLabel": "",
+          "description": "common:core.module.input.description.Response content",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "nodeId": "eFBvwYEwOHscUxgq",
+      "name": "Clarification Router",
+      "intro": "Routes the conversation either to clarification or product retrieval based on whether required information is complete.",
+      "avatar": "core/workflow/template/ifelse",
+      "flowNodeType": "ifElseNode",
+      "showStatus": true,
+      "position": {
+        "x": 4545,
+        "y": -180.74464929440092
+      },
+      "inputs": [
+        {
+          "key": "ifElseList",
+          "label": "",
+          "valueType": "any",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": [
+            {
+              "condition": "AND",
+              "list": [
+                {
+                  "variable": [
+                    "VARIABLE_NODE_ID",
+                    "oRIBQRvl"
+                  ],
+                  "condition": "equalTo",
+                  "value": "true",
+                  "valueType": "input"
+                }
+              ],
+              "branchId": "cq3oeS74gxMxfQzZ"
+            }
+          ],
+          "debugLabel": "",
+          "toolDescription": "",
+          "canAgentGenerated": false
+        }
+      ],
+      "outputs": [
+        {
+          "id": "ifElseResult",
+          "key": "ifElseResult",
+          "type": "static",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "workflow:judgment_result",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "nodeId": "aLzbBILzQ9D2UP7s",
+      "name": "Clarification Assistant",
+      "intro": "Asks one focused clarification question when required product information such as category, budget, or main usage is missing.",
+      "avatar": "core/workflow/template/aiChat",
+      "flowNodeType": "chatNode",
+      "showStatus": true,
+      "position": {
+        "x": 5429.5,
+        "y": -938
+      },
+      "version": "4.9.7",
+      "inputs": [
+        {
+          "key": "modelId",
+          "label": "common:core.module.input.label.aiModel",
+          "valueType": "string",
+          "selectedType": "settingLLMModel",
+          "renderTypeList": [
+            "settingLLMModel",
+            "reference"
+          ],
+          "value": "6a9ba71d79f33eeee68c1557",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "temperature",
+          "label": "",
+          "valueType": "number",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "maxToken",
+          "label": "",
+          "valueType": "number",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "isResponseAnswerText",
+          "label": "",
+          "valueType": "boolean",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": true,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatQuoteRole",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": "system",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "quoteTemplate",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "quotePrompt",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatVision",
+          "label": "",
+          "valueType": "boolean",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": false,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatAudio",
+          "label": "",
+          "valueType": "boolean",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": false,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatVideo",
+          "label": "",
+          "valueType": "boolean",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": false,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatExtractFiles",
+          "label": "",
+          "valueType": "boolean",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": true,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatReasoning",
+          "label": "",
+          "valueType": "boolean",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": true,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatReasoningEffort",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatTopP",
+          "label": "",
+          "valueType": "number",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatStopSign",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatResponseFormat",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatJsonSchema",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "systemPrompt",
+          "label": "common:core.ai.Prompt",
+          "valueType": "string",
+          "isRichText": true,
+          "placeholder": "common:core.app.tip.chatNodeSystemPromptTip",
+          "maxLength": 100000,
+          "selectedType": "textarea",
+          "renderTypeList": [
+            "agentGenerated",
+            "textarea",
+            "reference"
+          ],
+          "value": "You are the clarification assistant for MyTech, an electronic product recommendation chatbot.\n\nThe current active product requests are:\n{{$VARIABLE_NODE_ID.zkIQmRTN$}}\n\nThe missing required fields are:\n{{$VARIABLE_NODE_ID.irltsRTo$}}\nAsk exactly ONE short and focused clarification question in English to obtain the most important missing information.\n\nRules:\n1. Do not recommend any product yet.\n2. Do not guess missing information.\n3. Do not ask for information that is already known.\n4. If there are multiple product requests, clearly indicate which product the question refers to.\n5. The required information for each product request is category, budget, and main usage.\n6. Keep the question natural and concise.\n7. Output only the clarification question.\n\nReturn ONLY valid JSON.\nDo not include Markdown, code fences, or any text outside the JSON object.\n\nUse exactly this structure:\n\n{\n  \"answer\": \"one short focused clarification question in English\",\n  \"recommendations\": [],\n  \"next_step\": \"\",\n  \"clarification_needed\": true\n}",
+          "debugLabel": "",
+          "description": "common:core.app.tip.systemPromptTip",
+          "toolDescription": ""
+        },
+        {
+          "key": "history",
+          "label": "common:core.module.input.label.chat history",
+          "valueType": "chatHistory",
+          "required": true,
+          "max": 50,
+          "min": 0,
+          "selectedType": "numberInput",
+          "renderTypeList": [
+            "agentGenerated",
+            "numberInput",
+            "reference"
+          ],
+          "value": 6,
+          "debugLabel": "",
+          "description": "workflow:max_dialog_rounds",
+          "toolDescription": ""
+        },
+        {
+          "key": "quoteQA",
+          "label": "",
+          "valueType": "datasetQuote",
+          "selectedType": "settingDatasetQuotePrompt",
+          "renderTypeList": [
+            "settingDatasetQuotePrompt"
+          ],
+          "debugLabel": "知识库引用",
+          "description": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "fileUrlList",
+          "label": "app:workflow.user_file_input",
+          "valueType": "arrayString",
+          "selectedType": "reference",
+          "renderTypeList": [
+            "agentGenerated",
+            "reference",
+            "JSONEditor"
+          ],
+          "debugLabel": "文件链接",
+          "description": "app:workflow.user_file_input_desc",
+          "toolDescription": "",
+          "defaultToAgentGenerated": true
+        },
+        {
+          "key": "userChatInput",
+          "label": "workflow:user_question",
+          "valueType": "string",
+          "required": true,
+          "selectedType": "reference",
+          "renderTypeList": [
+            "agentGenerated",
+            "reference",
+            "textarea"
+          ],
+          "value": [
+            "448745",
+            "userChatInput"
+          ],
+          "debugLabel": "",
+          "toolDescription": "user question",
+          "defaultToAgentGenerated": true
+        },
+        {
+          "key": "model",
+          "label": "common:core.module.input.label.aiModel",
+          "valueType": "string",
+          "selectedType": "settingLLMModel",
+          "renderTypeList": [
+            "settingLLMModel",
+            "reference"
+          ],
+          "value": "qwen-turbo",
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": [
+        {
+          "id": "history",
+          "key": "history",
+          "type": "static",
+          "valueType": "chatHistory",
+          "valueDesc": "{\n  obj: System | Human | AI;\n  value: string;\n}[]",
+          "label": "common:core.module.output.label.New context",
+          "description": "将本次回复内容拼接上历史记录，作为新的上下文返回",
+          "required": true
+        },
+        {
+          "id": "answerText",
+          "key": "answerText",
+          "type": "static",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "common:core.module.output.label.Ai response content",
+          "description": "将在 stream 回复完毕后触发",
+          "required": true
+        },
+        {
+          "id": "reasoningText",
+          "key": "reasoningText",
+          "type": "static",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "workflow:reasoning_content",
+          "description": "",
+          "required": false,
+          "invalid": true
+        },
+        {
+          "id": "system_error_text",
+          "key": "system_error_text",
+          "type": "error",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "workflow:error_text",
+          "description": ""
+        }
+      ],
+      "catchError": false
+    },
+    {
+      "nodeId": "tagxGUFuwllhR19r",
+      "name": "Knowledge Retrieval",
+      "intro": "Retrieves relevant product evidence from the MyTech knowledge base using the generated search queries.",
+      "avatar": "core/workflow/template/datasetSearch",
+      "flowNodeType": "datasetSearchNode",
+      "showStatus": true,
+      "position": {
+        "x": 6510,
+        "y": -344.2446492944009
+      },
+      "version": "4.17.0",
+      "inputs": [
+        {
+          "key": "datasets",
+          "label": "common:core.module.input.label.Select dataset",
+          "valueType": "selectDataset",
+          "required": true,
+          "selectedType": "selectDataset",
+          "renderTypeList": [
+            "selectDataset",
+            "reference"
+          ],
+          "valueDesc": "[\n  {\n    \"datasetId\": \"6693a4a6b69b7a9b0e37d9b0\"\n  }\n]",
+          "value": [],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "similarity",
+          "label": "",
+          "valueType": "number",
+          "selectedType": "selectDatasetParamsModal",
+          "renderTypeList": [
+            "selectDatasetParamsModal"
+          ],
+          "value": 0.4,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "limit",
+          "label": "",
+          "valueType": "number",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": 5000,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "searchMode",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": "embedding",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "embeddingWeight",
+          "label": "",
+          "valueType": "number",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": 0.5,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "usingReRank",
+          "label": "",
+          "valueType": "boolean",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": false,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "rerankModelId",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "rerankWeight",
+          "label": "",
+          "valueType": "number",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": 0.5,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "datasetSearchUsingExtensionQuery",
+          "label": "",
+          "valueType": "boolean",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": false,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "datasetSearchExtensionModelId",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "datasetSearchExtensionBg",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": "",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "authTmbId",
+          "label": "",
+          "valueType": "boolean",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": false,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "datasetSearchInput",
+          "label": "workflow:search_query",
+          "valueType": "arrayString",
+          "required": true,
+          "selectedType": "reference",
+          "renderTypeList": [
+            "agentGenerated",
+            "reference",
+            "textarea"
+          ],
+          "value": [
+            [
+              "evMBfmr3j2paOLIN",
+              "qLUQfhG0ILRX"
+            ]
+          ],
+          "debugLabel": "",
+          "toolDescription": "检索词或检索语句",
+          "defaultToAgentGenerated": true
+        },
+        {
+          "key": "collectionFilterVersion",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": "structured",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "collectionFilterMatch",
+          "label": "workflow:tag_filter",
+          "valueType": "string",
+          "selectedType": "datasetTagFilter",
+          "renderTypeList": [
+            "datasetTagFilter",
+            "reference"
+          ],
+          "debugLabel": "",
+          "description": "workflow:tag_filter_description",
+          "toolDescription": "",
+          "isPro": true
+        }
+      ],
+      "outputs": [
+        {
+          "id": "quoteQA",
+          "key": "quoteQA",
+          "type": "static",
+          "valueType": "datasetQuote",
+          "valueDesc": "{\n  id: string;\n  datasetId: string;\n  collectionId: string;\n  sourceName: string;\n  sourceId?: string;\n  q: string;\n  a: string\n}[]",
+          "label": "common:core.module.Dataset quote.label",
+          "description": "特殊数组格式，搜索结果为空时，返回空数组。"
+        },
+        {
+          "id": "system_error_text",
+          "key": "system_error_text",
+          "type": "error",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "workflow:error_text",
+          "description": ""
+        }
+      ],
+      "catchError": false
+    },
+    {
+      "nodeId": "iNTsE0ZHUg0tFRoW",
+      "name": "Recommendation Assistant",
+      "intro": "Generates grounded product recommendations from the active request state and retrieved knowledge-base evidence.",
+      "avatar": "core/workflow/template/aiChat",
+      "flowNodeType": "chatNode",
+      "showStatus": true,
+      "position": {
+        "x": 7305,
+        "y": -554.2446492944009
+      },
+      "version": "4.9.7",
+      "inputs": [
+        {
+          "key": "modelId",
+          "label": "common:core.module.input.label.aiModel",
+          "valueType": "string",
+          "selectedType": "settingLLMModel",
+          "renderTypeList": [
+            "settingLLMModel",
+            "reference"
+          ],
+          "value": "6a9ba71d79f33eeee68c1557",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "temperature",
+          "label": "",
+          "valueType": "number",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "maxToken",
+          "label": "",
+          "valueType": "number",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "isResponseAnswerText",
+          "label": "",
+          "valueType": "boolean",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": false,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatQuoteRole",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": "system",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "quoteTemplate",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "quotePrompt",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatVision",
+          "label": "",
+          "valueType": "boolean",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": true,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatAudio",
+          "label": "",
+          "valueType": "boolean",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": false,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatVideo",
+          "label": "",
+          "valueType": "boolean",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": false,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatExtractFiles",
+          "label": "",
+          "valueType": "boolean",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": true,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatReasoning",
+          "label": "",
+          "valueType": "boolean",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": true,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatReasoningEffort",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatTopP",
+          "label": "",
+          "valueType": "number",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatStopSign",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatResponseFormat",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatJsonSchema",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "systemPrompt",
+          "label": "common:core.ai.Prompt",
+          "valueType": "string",
+          "isRichText": true,
+          "placeholder": "common:core.app.tip.chatNodeSystemPromptTip",
+          "maxLength": 100000,
+          "selectedType": "textarea",
+          "renderTypeList": [
+            "agentGenerated",
+            "textarea",
+            "reference"
+          ],
+          "value": "You are MyTech, an electronic product recommendation chatbot.\n\nYou help general consumers who need simple purchase guidance.\n\n\nCURRENT ACTIVE STATE\n\nProduct requests:\n{{$VARIABLE_NODE_ID.zkIQmRTN$}}\n\nPrevious recommendations:\n{{$VARIABLE_NODE_ID.eUukvJqI$}}\n\nFollow-up intent:\n{{$VARIABLE_NODE_ID.x66hJwYK$}}\n\nKNOWLEDGE BASE AND RETRIEVAL RULES\n\nThe MyTech knowledge base is the approved source of product facts.\n\nUse the product evidence retrieved from the MyTech knowledge base for product names, categories, reference prices, main usages, key features, and sources.\n\nOnly recommend a product when its product record is supported by the retrieved knowledge base evidence.\n\nDo not invent or rely on outside product knowledge.\n\nRetrieval ranking is NOT recommendation ranking.\n\nA product appearing first in the retrieved results does not automatically make it the best recommendation.\n\nEvaluate the retrieved candidate products against the active request's:\n- category\n- hard budget\n- main usage\n- follow-up intent\n\n\nCATEGORY CONSISTENCY RULES\n\nThe category of each active product request is a hard constraint.\n\nOnly recommend a retrieved product whose category exactly matches the category of the corresponding active product request.\n\nNever change, reinterpret, or substitute the active product category simply because another retrieved product is cheaper, more expensive, more similar, or otherwise appears suitable.\n\nFor cheaper, more_expensive, or alternative follow-ups, preserve the existing active product category unless the user explicitly requests a different category.\n\nA cheaper Laptop must still be a Laptop.\nA cheaper Desktop must still be a Desktop.\nThe same rule applies to every supported category.\n\nNever recommend a product from a different category as a substitute for the requested category.\n\nIf no valid retrieved product exists in the same category, return no recommendation instead of using a product from another category.\n\nThe category value returned in recommendations must exactly match the category stated in the retrieved product record.\n\nDo not relabel a retrieved product as another category.\n\n\nBUDGET AND GROUNDING RULES\n\nThe user's hard budget always takes priority over retrieval similarity.\n\nNever recommend an over-budget product even when it has the highest retrieval similarity.\n\nTreat knowledge base prices as fixed reference prices for this classroom prototype, not live retailer prices.\n\nUse only facts explicitly supported by the retrieved knowledge base evidence.\n\nDo not invent product names, specifications, prices, sources, capabilities, availability, or unsupported usages.\n\nIf the retrieved evidence does not contain a valid product for a request, return no recommendation for that request.\n\nDo not create a product from model knowledge to compensate for missing retrieval evidence.\n\n\nYOUR TASK\n\nRecommend suitable electronic products based on each active request's category, budget, and main usage.\n\n\nRULES\n\nUse English only in all user-facing responses.\n\nUse RMB (¥) for all product prices and budgets.\n\nThe supported product categories are:\n\nLaptop\nDesktop\nSmartphone\nTablet\nHeadphones\nMonitor\nSmartwatch\nMouse\nKeyboard\n\nTreat the user's stated budget as a hard maximum unless the user explicitly agrees to increase it.\n\nNever present an over-budget product as a valid recommendation.\n\nAny stated budget remains a hard maximum even if the user uses approximate wording such as:\n\naround\nabout\napproximately\nroughly\n\nFor example:\n\n\"around ¥300\"\n\"about ¥300\"\n\"approximately ¥300\"\n\"roughly ¥300\"\n\nall mean that the recommendation price must be less than or equal to ¥300 unless the user explicitly agrees to increase the budget.\n\nDo not interpret approximate-budget wording as permission to exceed the stated numeric budget.\n\nIf no retrieved and approved product satisfies the stated budget, return no recommendation for that request instead of selecting a slightly over-budget product.\n\nFor multiple product requests, handle each request separately.\n\nDo not mix category, budget, or usage between requests.\n\nFor each active product request, return at most ONE recommendation.\n\nIf multiple valid retrieved products match a request, select the single best product based on the request's main usage and budget.\n\nDo not return multiple recommendations for the same product request or category.\n\nFor multiple product requests, return at most one recommendation for each separate request.\n\nFor a single product request, the recommendations array must contain either zero or one item.\n\n\nFOLLOW-UP INTENT RULES\n\ncheaper:\n\nRecommend a different valid retrieved product that:\n- belongs to the same category as the active product request\n- is cheaper than the previous recommendation\n- still respects the active hard budget\n- is supported for the active main usage by the retrieved evidence\n\nIf no cheaper valid product exists in the same category, return no recommendation.\n\nDo not switch to another category to find a cheaper product.\n\n\nmore_expensive:\n\nRecommend a different valid retrieved product that:\n- belongs to the same category as the active product request\n- is more expensive than the previous recommendation\n- still respects the active hard budget unless the user explicitly changed or increased it\n- is supported for the active main usage by the retrieved evidence\n\nIf no valid more expensive product exists in the same category while respecting the current hard budget, return no recommendation.\n\nDo not switch to another category to find a more expensive product.\n\n\nalternative:\n\nRecommend a different valid retrieved product that:\n- belongs to the same category as the active product request\n- is not the previous recommendation\n- respects the active hard budget\n- is supported for the active main usage by the retrieved evidence\n\nIf no valid alternative exists in the same category, return no recommendation.\n\nDo not switch to another category to provide an alternative.\n\n\nnone:\n\nMake the best recommendation for the current request.\n\n\nSELECTION RULES\n\nWhen multiple valid retrieved products exist, prioritize the single product that best matches the user's main usage and budget.\n\nSimilarity score alone must not determine the recommendation.\n\nA semantically stronger match must still be rejected if:\n- its category does not exactly match the active request\n- it exceeds the user's hard budget\n- its retrieved evidence does not support the requested usage\n\nBefore returning any recommendation, verify all of the following:\n\n1. The retrieved product category exactly matches the active request category.\n2. The retrieved product price does not exceed the active hard budget.\n3. The retrieved product evidence supports the active main usage.\n4. For cheaper, the product is different from and cheaper than the previous recommendation.\n5. For more_expensive, the product is different from and more expensive than the previous recommendation while respecting the current budget.\n6. For alternative, the product is different from the previous recommendation.\n7. Product name, price, category, and source exactly match the retrieved evidence.\n\nIf any required condition fails, do not return that product.\n\nIf no approved retrieved product matches a request, do not exceed the budget and do not change category.\n\nExplain that no valid match is available in the current MyTech reference data and suggest adjusting the budget or requirements.\n\nIn this recommendation branch, category, budget, and main usage are already complete.\n\nTherefore clarification_needed must always be false.\n\nDo not infer product capabilities that are not explicitly stated in the retrieved knowledge base evidence.\n\nDo not describe a product as suitable for the requested usage unless that usage or capability is explicitly supported by the retrieved knowledge base evidence.\n\nIf the cheapest retrieved product matching the requested category and usage is above the user's budget, return no recommendation.\n\nDo not relax the hard budget because the user's wording contains \"around\", \"about\", \"approximately\", \"roughly\", or similar expressions.\n\n\nLANGUAGE REQUIREMENT\n\nAll user-facing string values in the returned JSON MUST be written in English.\n\nThis applies to:\n- answer\n- reason\n- next_step\n\nDo not use Chinese or any other language in these fields.\n\nEven if retrieved knowledge, previous messages, system context, or other inputs contain Chinese, the final user-facing response must still be in English.\n\nProduct names and source names must remain exactly as stated in the retrieved knowledge base.\n\nDo not translate product names or source names unless the retrieved knowledge base already provides them in translated form.\n\n\nOUTPUT RULES\n\nReturn ONLY valid JSON.\n\nDo not include Markdown code fences, commentary, explanations, headings, or any text outside the JSON object.\n\nUse exact product names from the retrieved knowledge base evidence.\n\nUse the exact category from the retrieved knowledge base evidence.\n\nUse the exact reference price from the retrieved knowledge base evidence.\n\nUse the exact source from the retrieved knowledge base evidence.\n\nNever output a category that differs from the category in the retrieved product record.\n\nThe values of answer, reason, and next_step must be in English.\n\nclarification_needed must always be false in this recommendation branch.\n\n\nRETURN JSON IN EXACTLY THIS STRUCTURE\n\n{\n  \"answer\": \"string\",\n  \"recommendations\": [\n    {\n      \"category\": \"Laptop | Desktop | Smartphone | Tablet | Headphones | Monitor | Smartwatch | Mouse | Keyboard\",\n      \"recommended_product\": \"exact retrieved product name\",\n      \"price\": 0,\n      \"reason\": \"short beginner-friendly reason in English\",\n      \"source\": \"exact retrieved source\"\n    }\n  ],\n  \"next_step\": \"string in English\",\n  \"clarification_needed\": false\n}\n\n\nIf no recommendation should be returned, use:\n\n{\n  \"answer\": \"string in English\",\n  \"recommendations\": [],\n  \"next_step\": \"string in English\",\n  \"clarification_needed\": false\n}",
+          "debugLabel": "",
+          "description": "common:core.app.tip.systemPromptTip",
+          "toolDescription": ""
+        },
+        {
+          "key": "history",
+          "label": "common:core.module.input.label.chat history",
+          "valueType": "chatHistory",
+          "required": true,
+          "max": 50,
+          "min": 0,
+          "selectedType": "numberInput",
+          "renderTypeList": [
+            "agentGenerated",
+            "numberInput",
+            "reference"
+          ],
+          "value": 6,
+          "debugLabel": "",
+          "description": "workflow:max_dialog_rounds",
+          "toolDescription": ""
+        },
+        {
+          "key": "quoteQA",
+          "label": "",
+          "valueType": "datasetQuote",
+          "selectedType": "settingDatasetQuotePrompt",
+          "renderTypeList": [
+            "settingDatasetQuotePrompt"
+          ],
+          "value": [
+            "tagxGUFuwllhR19r",
+            "quoteQA"
+          ],
+          "debugLabel": "知识库引用",
+          "description": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "fileUrlList",
+          "label": "app:workflow.user_file_input",
+          "valueType": "arrayString",
+          "selectedType": "reference",
+          "renderTypeList": [
+            "agentGenerated",
+            "reference",
+            "JSONEditor"
+          ],
+          "debugLabel": "文件链接",
+          "description": "app:workflow.user_file_input_desc",
+          "toolDescription": "",
+          "defaultToAgentGenerated": true
+        },
+        {
+          "key": "userChatInput",
+          "label": "workflow:user_question",
+          "valueType": "string",
+          "required": true,
+          "selectedType": "reference",
+          "renderTypeList": [
+            "agentGenerated",
+            "reference",
+            "textarea"
+          ],
+          "value": [
+            "448745",
+            "userChatInput"
+          ],
+          "debugLabel": "",
+          "toolDescription": "user question",
+          "defaultToAgentGenerated": true
+        },
+        {
+          "key": "model",
+          "label": "common:core.module.input.label.aiModel",
+          "valueType": "string",
+          "selectedType": "settingLLMModel",
+          "renderTypeList": [
+            "settingLLMModel",
+            "reference"
+          ],
+          "value": "qwen-turbo",
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": [
+        {
+          "id": "history",
+          "key": "history",
+          "type": "static",
+          "valueType": "chatHistory",
+          "valueDesc": "{\n  obj: System | Human | AI;\n  value: string;\n}[]",
+          "label": "common:core.module.output.label.New context",
+          "description": "将本次回复内容拼接上历史记录，作为新的上下文返回",
+          "required": true
+        },
+        {
+          "id": "answerText",
+          "key": "answerText",
+          "type": "static",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "common:core.module.output.label.Ai response content",
+          "description": "将在 stream 回复完毕后触发",
+          "required": true
+        },
+        {
+          "id": "reasoningText",
+          "key": "reasoningText",
+          "type": "static",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "workflow:reasoning_content",
+          "description": "",
+          "required": false,
+          "invalid": true
+        },
+        {
+          "id": "system_error_text",
+          "key": "system_error_text",
+          "type": "error",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "workflow:error_text",
+          "description": ""
+        }
+      ],
+      "catchError": false
+    },
+    {
+      "nodeId": "qJnK807UNriMndON",
+      "name": "Response Validation & Normalization",
+      "intro": "Validates recommendation output against budget, category, follow-up, and consistency rules, then normalizes the final JSON response.",
+      "avatar": "core/workflow/template/codeRun",
+      "flowNodeType": "code",
+      "showStatus": true,
+      "position": {
+        "x": 8175,
+        "y": -616.2446492944009
+      },
+      "inputs": [
+        {
+          "key": "system_addInputParam",
+          "label": "",
+          "valueType": "dynamic",
+          "required": false,
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "selectedType": "addInputParam",
+          "renderTypeList": [
+            "addInputParam"
+          ],
+          "debugLabel": "",
+          "description": "workflow:these_variables_will_be_input_parameters_for_code_execution",
+          "toolDescription": "",
+          "canAgentGenerated": false
+        },
+        {
+          "key": "codeType",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": "js",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "code",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "custom",
+          "renderTypeList": [
+            "custom"
+          ],
+          "value": "function main({\n  raw_json,\n  active_requests,\n  previous_recommendations,\n  follow_up_intent\n}) {\n  let text = String(raw_json || \"\").trim();\n\n  text = text\n    .replace(/^```json\\s*/i, \"\")\n    .replace(/^```\\s*/i, \"\")\n    .replace(/\\s*```$/i, \"\")\n    .trim();\n\n  let data;\n\n  try {\n    data = JSON.parse(text);\n  } catch (e) {\n    const firstBrace = text.indexOf(\"{\");\n    const lastBrace = text.lastIndexOf(\"}\");\n\n    if (firstBrace !== -1 && lastBrace > firstBrace) {\n      try {\n        data = JSON.parse(text.slice(firstBrace, lastBrace + 1));\n      } catch (e2) {\n        return invalidResult(\n          \"Invalid JSON returned by the recommendation model.\"\n        );\n      }\n    } else {\n      return invalidResult(\n        \"Invalid JSON returned by the recommendation model.\"\n      );\n    }\n  }\n\n  const answer =\n    typeof data.answer === \"string\" ? data.answer : \"\";\n\n  const recommendations =\n    Array.isArray(data.recommendations)\n      ? data.recommendations\n      : [];\n\n  const next_step =\n    typeof data.next_step === \"string\"\n      ? data.next_step\n      : \"\";\n\n  // Recommendation branch = required information already complete.\n  const clarification_needed = false;\n\n  const requests =\n    Array.isArray(active_requests)\n      ? active_requests\n      : [];\n\n  const previous =\n    Array.isArray(previous_recommendations)\n      ? previous_recommendations\n      : [];\n\n  const intent =\n    String(follow_up_intent || \"none\")\n      .trim()\n      .toLowerCase();\n\n  /*\n   * Static validation catalogue for the current MyTech classroom prototype.\n   * The knowledge base remains the recommendation source.\n   * This catalogue is only a deterministic safety layer for validating\n   * product identity, category, reference price and source.\n   */\n  const PRODUCT_CATALOG = {\n    \"Lenovo Xiaoxin 14 (2025, Ryzen 7 H255, 16GB/512GB)\": {\n      category: \"Laptop\",\n      price: 5799,\n      source: \"Lenovo Official Store\"\n    },\n    \"HUAWEI MateBook 14\": {\n      category: \"Laptop\",\n      price: 6599,\n      source: \"Huawei Official Website\"\n    },\n    \"Lenovo Xiaoxin Pro 14 (Ryzen 7 H255, 32GB/1TB)\": {\n      category: \"Laptop\",\n      price: 8999,\n      source: \"Lenovo Official Store\"\n    },\n\n    \"Lenovo Tianyi 510S (Core i3-14100, 16GB/512GB)\": {\n      category: \"Desktop\",\n      price: 4099,\n      source: \"Lenovo Official Store\"\n    },\n    \"Lenovo Tianyi 510S (Core i5-14400, 16GB/512GB)\": {\n      category: \"Desktop\",\n      price: 5099,\n      source: \"Lenovo Official Store\"\n    },\n    \"Apple Mac mini (M4 Pro)\": {\n      category: \"Desktop\",\n      price: 10999,\n      source: \"Apple China\"\n    },\n\n    \"HUAWEI nova 14 活力版\": {\n      category: \"Smartphone\",\n      price: 2399,\n      source: \"Huawei Official Website\"\n    },\n    \"HONOR 400 Pro (12GB/256GB)\": {\n      category: \"Smartphone\",\n      price: 3399,\n      source: \"HONOR Official Launch Information\"\n    },\n    \"Apple iPhone 17 (256GB)\": {\n      category: \"Smartphone\",\n      price: 6799,\n      source: \"Apple China\"\n    },\n\n    \"HUAWEI MatePad 11.5 S (2025)\": {\n      category: \"Tablet\",\n      price: 2199,\n      source: \"Huawei Official Website\"\n    },\n    \"HUAWEI MatePad 11.5 (2026)\": {\n      category: \"Tablet\",\n      price: 2599,\n      source: \"Huawei Official Website\"\n    },\n    \"Apple iPad Air 11-inch (M3, Wi-Fi)\": {\n      category: \"Tablet\",\n      price: 4799,\n      source: \"Apple China\"\n    },\n\n    \"Sony WH-CH520\": {\n      category: \"Headphones\",\n      price: 350,\n      source: \"Sony / JD Reference\"\n    },\n    \"Apple AirPods Pro 3\": {\n      category: \"Headphones\",\n      price: 1899,\n      source: \"Apple China\"\n    },\n    \"Sony WH-1000XM6\": {\n      category: \"Headphones\",\n      price: 4799,\n      source: \"Sony China\"\n    },\n\n    \"AOC Q27G40E\": {\n      category: \"Monitor\",\n      price: 879,\n      source: \"AOC China Official Store\"\n    },\n    \"REDMI G27Q 320Hz\": {\n      category: \"Monitor\",\n      price: 1199,\n      source: \"JD / Market Reference\"\n    },\n    \"LG UltraGear 27GS95QE\": {\n      category: \"Monitor\",\n      price: 3499,\n      source: \"LG China / Market Reference\"\n    },\n\n    \"HUAWEI WATCH GT 5 (41mm)\": {\n      category: \"Smartwatch\",\n      price: 1488,\n      source: \"Huawei Official Website\"\n    },\n    \"Apple Watch SE 3\": {\n      category: \"Smartwatch\",\n      price: 1999,\n      source: \"Apple China\"\n    },\n    \"HUAWEI WATCH 5\": {\n      category: \"Smartwatch\",\n      price: 2699,\n      source: \"Huawei Official Website\"\n    },\n\n    \"Logitech M240\": {\n      category: \"Mouse\",\n      price: 109,\n      source: \"JD Reference\"\n    },\n    \"Logitech G304 LIGHTSPEED\": {\n      category: \"Mouse\",\n      price: 229,\n      source: \"JD / Market Reference\"\n    },\n    \"Logitech MX Master 3S\": {\n      category: \"Mouse\",\n      price: 429,\n      source: \"Logitech / Market Reference\"\n    },\n\n    \"Logitech K848\": {\n      category: \"Keyboard\",\n      price: 249,\n      source: \"JD / Market Reference\"\n    },\n    \"Logitech Signature K650\": {\n      category: \"Keyboard\",\n      price: 299,\n      source: \"Logitech / JD Reference\"\n    },\n    \"Logitech MX Keys S\": {\n      category: \"Keyboard\",\n      price: 529,\n      source: \"Logitech / JD Reference\"\n    }\n  };\n\n  let validation_ok = true;\n  let validation_error = \"\";\n\n  const seenCategories = new Set();\n\n  // Do not allow more recommendations than active product requests.\n  if (recommendations.length > requests.length) {\n    return invalidResult(\n      \"Validation violation: more recommendations were returned than active product requests.\"\n    );\n  }\n\n  for (const rec of recommendations) {\n    if (!rec || typeof rec !== \"object\") {\n      validation_ok = false;\n      validation_error =\n        \"Validation violation: recommendation must be an object.\";\n      break;\n    }\n\n    const productName =\n      typeof rec.recommended_product === \"string\"\n        ? rec.recommended_product.trim()\n        : \"\";\n\n    const recCategory =\n      typeof rec.category === \"string\"\n        ? rec.category.trim()\n        : \"\";\n\n    const recSource =\n      typeof rec.source === \"string\"\n        ? rec.source.trim()\n        : \"\";\n\n    const price = Number(rec.price);\n\n    // 1. Product identity validation\n    const approvedProduct = PRODUCT_CATALOG[productName];\n\n    if (!approvedProduct) {\n      validation_ok = false;\n      validation_error =\n        `Product validation violation: \"${productName || \"Unknown product\"}\" ` +\n        `is not an approved MyTech product.`;\n      break;\n    }\n\n    // 2. Product-category validation\n    if (\n      approvedProduct.category.toLowerCase() !==\n      recCategory.toLowerCase()\n    ) {\n      validation_ok = false;\n      validation_error =\n        `Category validation violation: \"${productName}\" is a ` +\n        `${approvedProduct.category}, not a ${recCategory || \"missing category\"}.`;\n      break;\n    }\n\n    // 3. Active-request category validation\n    const request = requests.find(\n      r =>\n        String(r.category || \"\")\n          .trim()\n          .toLowerCase() ===\n        approvedProduct.category.toLowerCase()\n    );\n\n    if (!request) {\n      validation_ok = false;\n      validation_error =\n        `Category validation violation: \"${productName}\" belongs to ` +\n        `${approvedProduct.category}, but there is no active request for that category.`;\n      break;\n    }\n\n    // 4. Prevent duplicate recommendations for the same category\n    const categoryKey =\n      approvedProduct.category.toLowerCase();\n\n    if (seenCategories.has(categoryKey)) {\n      validation_ok = false;\n      validation_error =\n        `Validation violation: multiple recommendations were returned for ` +\n        `${approvedProduct.category}.`;\n      break;\n    }\n\n    seenCategories.add(categoryKey);\n\n    // 5. Exact reference-price validation\n    if (\n      !Number.isFinite(price) ||\n      price !== approvedProduct.price\n    ) {\n      validation_ok = false;\n      validation_error =\n        `Price validation violation: \"${productName}\" must use the approved ` +\n        `reference price of ¥${approvedProduct.price}.`;\n      break;\n    }\n\n    // 6. Exact source validation\n    if (recSource !== approvedProduct.source) {\n      validation_ok = false;\n      validation_error =\n        `Source validation violation: \"${productName}\" must use the approved ` +\n        `source \"${approvedProduct.source}\".`;\n      break;\n    }\n\n    // 7. Hard-budget validation\n    const budget = Number(request.budget);\n\n    if (\n      Number.isFinite(budget) &&\n      price > budget\n    ) {\n      validation_ok = false;\n      validation_error =\n        `Budget violation: ${productName} costs ¥${price}, ` +\n        `but the active budget is ¥${budget}.`;\n      break;\n    }\n\n    // Find previous recommendation using the verified category,\n    // not the model-provided category alone.\n    const previousRec = previous.find(\n      r =>\n        String(r.category || \"\")\n          .trim()\n          .toLowerCase() ===\n        approvedProduct.category.toLowerCase()\n    );\n\n    // 8. Follow-up validation\n    if (previousRec) {\n      const previousPrice = Number(previousRec.price);\n\n      if (\n        intent === \"cheaper\" &&\n        Number.isFinite(previousPrice) &&\n        price >= previousPrice\n      ) {\n        validation_ok = false;\n        validation_error =\n          \"Follow-up violation: cheaper recommendation must cost less than the previous recommendation.\";\n        break;\n      }\n\n      if (\n        intent === \"more_expensive\" &&\n        Number.isFinite(previousPrice) &&\n        price <= previousPrice\n      ) {\n        validation_ok = false;\n        validation_error =\n          \"Follow-up violation: more_expensive recommendation must cost more than the previous recommendation.\";\n        break;\n      }\n\n      if (\n        intent === \"alternative\" &&\n        productName.toLowerCase() ===\n        String(previousRec.recommended_product || \"\")\n          .trim()\n          .toLowerCase()\n      ) {\n        validation_ok = false;\n        validation_error =\n          \"Follow-up violation: alternative recommendation must be a different product.\";\n        break;\n      }\n\n      if (\n        intent === \"cheaper\" ||\n        intent === \"more_expensive\" ||\n        intent === \"alternative\"\n      ) {\n        const previousCategory =\n          String(previousRec.category || \"\")\n            .trim()\n            .toLowerCase();\n\n        if (\n          previousCategory &&\n          previousCategory !==\n            approvedProduct.category.toLowerCase()\n        ) {\n          validation_ok = false;\n          validation_error =\n            \"Follow-up category violation: follow-up recommendations must remain in the same product category.\";\n          break;\n        }\n      }\n    }\n  }\n\n  const normalized = {\n    answer,\n    recommendations,\n    next_step,\n    clarification_needed\n  };\n\n  return {\n    answer,\n    recommendations,\n    next_step,\n    clarification_needed,\n    validation_ok,\n    validation_error,\n    normalized_json: JSON.stringify(normalized)\n  };\n\n  function invalidResult(message) {\n    return {\n      answer: \"\",\n      recommendations: [],\n      next_step: \"\",\n      clarification_needed: false,\n      validation_ok: false,\n      validation_error: message,\n      normalized_json: \"\"\n    };\n  }\n}",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "raw_json",
+          "label": "raw_json",
+          "valueType": "string",
+          "required": true,
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "selectedType": "reference",
+          "renderTypeList": [
+            "reference"
+          ],
+          "value": [
+            "iNTsE0ZHUg0tFRoW",
+            "answerText"
+          ],
+          "canAgentGenerated": false,
+          "canEdit": true
+        },
+        {
+          "key": "active_requests",
+          "label": "active_requests",
+          "valueType": "arrayObject",
+          "required": true,
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "selectedType": "reference",
+          "renderTypeList": [
+            "reference"
+          ],
+          "value": [
+            "VARIABLE_NODE_ID",
+            "zkIQmRTN"
+          ],
+          "canAgentGenerated": false,
+          "canEdit": true
+        },
+        {
+          "key": "previous_recommendations",
+          "label": "previous_recommendations",
+          "valueType": "arrayObject",
+          "required": true,
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "selectedType": "reference",
+          "renderTypeList": [
+            "reference"
+          ],
+          "value": [
+            "VARIABLE_NODE_ID",
+            "eUukvJqI"
+          ],
+          "canAgentGenerated": false,
+          "canEdit": true
+        },
+        {
+          "key": "follow_up_intent",
+          "label": "follow_up_intent",
+          "valueType": "string",
+          "required": true,
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "selectedType": "reference",
+          "renderTypeList": [
+            "reference"
+          ],
+          "value": [
+            "VARIABLE_NODE_ID",
+            "x66hJwYK"
+          ],
+          "canAgentGenerated": false,
+          "canEdit": true
+        }
+      ],
+      "outputs": [
+        {
+          "id": "system_rawResponse",
+          "key": "system_rawResponse",
+          "type": "static",
+          "valueType": "object",
+          "valueDesc": "",
+          "label": "workflow:full_response_data",
+          "description": ""
+        },
+        {
+          "id": "error",
+          "key": "error",
+          "type": "error",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "workflow:error_text",
+          "description": ""
+        },
+        {
+          "id": "system_addOutputParam",
+          "key": "system_addOutputParam",
+          "type": "dynamic",
+          "valueType": "dynamic",
+          "valueDesc": "",
+          "label": "",
+          "description": "将代码中 return 的对象作为输出，传递给后续的节点。变量名需要对应 return 的 key",
+          "customFieldConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDefaultValue": false,
+            "showDescription": false
+          }
+        },
+        {
+          "id": "qLUQfhG0ILRX",
+          "key": "answer",
+          "type": "dynamic",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "answer",
+          "description": ""
+        },
+        {
+          "id": "gR0mkQpJ4Og8",
+          "key": "recommendations",
+          "type": "dynamic",
+          "valueType": "arrayObject",
+          "valueDesc": "",
+          "label": "recommendations",
+          "description": ""
+        },
+        {
+          "id": "m4g7eo",
+          "key": "next_step",
+          "type": "dynamic",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "next_step",
+          "description": ""
+        },
+        {
+          "id": "wk3XV6",
+          "key": "clarification_needed",
+          "type": "dynamic",
+          "valueType": "boolean",
+          "valueDesc": "",
+          "label": "clarification_needed",
+          "description": ""
+        },
+        {
+          "id": "cFwCsP",
+          "key": "validation_ok",
+          "type": "dynamic",
+          "valueType": "boolean",
+          "valueDesc": "",
+          "label": "validation_ok",
+          "description": ""
+        },
+        {
+          "id": "l07T8q",
+          "key": "validation_error",
+          "type": "dynamic",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "validation_error",
+          "description": ""
+        },
+        {
+          "id": "mb1bdp",
+          "key": "normalized_json",
+          "type": "dynamic",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "normalized_json",
+          "description": ""
+        }
+      ],
+      "catchError": false
+    },
+    {
+      "nodeId": "wrpdRNHlsuiNHVQA",
+      "name": "Validation Router",
+      "intro": "Routes validated recommendation output to either the success path or a safe fallback response.",
+      "avatar": "core/workflow/template/ifelse",
+      "flowNodeType": "ifElseNode",
+      "showStatus": true,
+      "position": {
+        "x": 9015,
+        "y": -144
+      },
+      "inputs": [
+        {
+          "key": "ifElseList",
+          "label": "",
+          "valueType": "any",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": [
+            {
+              "condition": "AND",
+              "list": [
+                {
+                  "variable": [
+                    "qJnK807UNriMndON",
+                    "cFwCsP"
+                  ],
+                  "condition": "equalTo",
+                  "value": "true",
+                  "valueType": "input"
+                }
+              ],
+              "branchId": "eXjNCoCOPu3HbTg8"
+            }
+          ],
+          "debugLabel": "",
+          "toolDescription": "",
+          "canAgentGenerated": false
+        }
+      ],
+      "outputs": [
+        {
+          "id": "ifElseResult",
+          "key": "ifElseResult",
+          "type": "static",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "workflow:judgment_result",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "nodeId": "kwf3AIYyYZnAujyW",
+      "name": "Recommendation State Update",
+      "intro": "Stores the latest validated recommendations for use in contextual follow-up requests.",
+      "avatar": "core/workflow/template/variableUpdate",
+      "flowNodeType": "variableUpdate",
+      "showStatus": false,
+      "position": {
+        "x": 9945,
+        "y": -420
+      },
+      "inputs": [
+        {
+          "key": "updateList",
+          "label": "",
+          "valueType": "any",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": [
+            {
+              "variable": [
+                "VARIABLE_NODE_ID",
+                "eUukvJqI"
+              ],
+              "value": [
+                [
+                  "qJnK807UNriMndON",
+                  "gR0mkQpJ4Og8"
+                ]
+              ],
+              "valueType": "arrayObject",
+              "renderType": "reference",
+              "arrayMode": "equal"
+            }
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "nodeId": "rEAPWGhomOQpeoFW",
+      "name": "Validation Fallback Response",
+      "intro": "Returns a safe structured response when the generated recommendation fails validation.",
+      "avatar": "core/workflow/template/reply",
+      "flowNodeType": "answerNode",
+      "position": {
+        "x": 9945,
+        "y": 227
+      },
+      "inputs": [
+        {
+          "key": "text",
+          "label": "common:core.module.input.label.Response content",
+          "valueType": "any",
+          "required": true,
+          "isRichText": false,
+          "placeholder": "common:core.module.input.description.Response content",
+          "maxLength": 100000,
+          "selectedType": "textarea",
+          "renderTypeList": [
+            "agentGenerated",
+            "textarea",
+            "reference"
+          ],
+          "value": "{\n  \"answer\": \"Sorry, I could not produce a valid recommendation that satisfies the current budget and requirements.\",\n  \"recommendations\": [],\n  \"next_step\": \"Please adjust your budget or requirements and try again.\",\n  \"clarification_needed\": false\n}",
+          "debugLabel": "",
+          "description": "common:core.module.input.description.Response content",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "nodeId": "g0XnV4TXVNeoEYPT",
+      "name": "Final Structured Response",
+      "intro": "Returns the validated and normalized JSON response to the user.",
+      "avatar": "core/workflow/template/reply",
+      "flowNodeType": "answerNode",
+      "position": {
+        "x": 11160,
+        "y": -364
+      },
+      "inputs": [
+        {
+          "key": "text",
+          "label": "common:core.module.input.label.Response content",
+          "valueType": "any",
+          "required": true,
+          "isRichText": false,
+          "placeholder": "common:core.module.input.description.Response content",
+          "maxLength": 100000,
+          "selectedType": "reference",
+          "renderTypeList": [
+            "agentGenerated",
+            "textarea",
+            "reference"
+          ],
+          "value": [
+            "qJnK807UNriMndON",
+            "mb1bdp"
+          ],
+          "debugLabel": "",
+          "description": "common:core.module.input.description.Response content",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "nodeId": "evMBfmr3j2paOLIN",
+      "name": "Retrieval Query Builder",
+      "intro": "Builds structured knowledge-base search queries from the active product requests, follow-up intent, previous recommendations, and current user message.",
+      "avatar": "core/workflow/template/codeRun",
+      "flowNodeType": "code",
+      "showStatus": true,
+      "position": {
+        "x": 5429.5,
+        "y": 315
+      },
+      "inputs": [
+        {
+          "key": "system_addInputParam",
+          "label": "",
+          "valueType": "dynamic",
+          "required": false,
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "selectedType": "addInputParam",
+          "renderTypeList": [
+            "addInputParam"
+          ],
+          "debugLabel": "",
+          "description": "workflow:these_variables_will_be_input_parameters_for_code_execution",
+          "toolDescription": "",
+          "canAgentGenerated": false
+        },
+        {
+          "key": "codeType",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "hidden",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": "js",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "code",
+          "label": "",
+          "valueType": "string",
+          "selectedType": "custom",
+          "renderTypeList": [
+            "custom"
+          ],
+          "value": "function main({\n  user_question,\n  active_requests,\n  follow_up_intent,\n  previous_recommendations\n}) {\n  const requests = Array.isArray(active_requests) ? active_requests : [];\n  const previous = Array.isArray(previous_recommendations)\n    ? previous_recommendations\n    : [];\n\n  const queries = requests.map((request, index) => {\n    const category = request?.category || \"\";\n    const budget = request?.budget ?? \"\";\n    const mainUsage = request?.main_usage || \"\";\n\n    const previousItem = previous[index] || previous.find(\n      item => item?.category === category\n    );\n\n    const previousProduct = previousItem?.recommended_product || \"\";\n    const previousPrice = previousItem?.price ?? \"\";\n\n    return [\n      `User request: ${user_question || \"\"}`,\n      `Active category: ${category}`,\n      budget !== \"\" ? `Hard budget: RMB ${budget}` : \"\",\n      mainUsage ? `Main usage: ${mainUsage}` : \"\",\n      `Follow-up intent: ${follow_up_intent || \"none\"}`,\n      previousProduct ? `Previous recommendation: ${previousProduct}` : \"\",\n      previousPrice !== \"\" ? `Previous price: RMB ${previousPrice}` : \"\",\n      `Retrieve products from the SAME category: ${category}`\n    ]\n      .filter(Boolean)\n      .join(\". \");\n  });\n\n  return {\n    retrieval_queries:\n      queries.length > 0\n        ? queries\n        : [String(user_question || \"\")]\n  };\n}",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "user_question",
+          "label": "user_question",
+          "valueType": "string",
+          "required": true,
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "selectedType": "reference",
+          "renderTypeList": [
+            "reference"
+          ],
+          "value": [
+            "448745",
+            "userChatInput"
+          ],
+          "canAgentGenerated": false,
+          "canEdit": true
+        },
+        {
+          "key": "active_requests",
+          "label": "active_requests",
+          "valueType": "arrayObject",
+          "required": true,
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "selectedType": "reference",
+          "renderTypeList": [
+            "reference"
+          ],
+          "value": [
+            "VARIABLE_NODE_ID",
+            "zkIQmRTN"
+          ],
+          "canAgentGenerated": false,
+          "canEdit": true
+        },
+        {
+          "key": "follow_up_intent",
+          "label": "follow_up_intent",
+          "valueType": "string",
+          "required": true,
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "selectedType": "reference",
+          "renderTypeList": [
+            "reference"
+          ],
+          "value": [
+            "VARIABLE_NODE_ID",
+            "x66hJwYK"
+          ],
+          "canAgentGenerated": false,
+          "canEdit": true
+        },
+        {
+          "key": "previous_recommendations",
+          "label": "previous_recommendations",
+          "valueType": "arrayObject",
+          "required": true,
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "selectedType": "reference",
+          "renderTypeList": [
+            "reference"
+          ],
+          "value": [
+            "VARIABLE_NODE_ID",
+            "eUukvJqI"
+          ],
+          "canAgentGenerated": false,
+          "canEdit": true
+        }
+      ],
+      "outputs": [
+        {
+          "id": "system_rawResponse",
+          "key": "system_rawResponse",
+          "type": "static",
+          "valueType": "object",
+          "valueDesc": "",
+          "label": "workflow:full_response_data",
+          "description": ""
+        },
+        {
+          "id": "error",
+          "key": "error",
+          "type": "error",
+          "valueType": "string",
+          "valueDesc": "",
+          "label": "workflow:error_text",
+          "description": ""
+        },
+        {
+          "id": "system_addOutputParam",
+          "key": "system_addOutputParam",
+          "type": "dynamic",
+          "valueType": "dynamic",
+          "valueDesc": "",
+          "label": "",
+          "description": "将代码中 return 的对象作为输出，传递给后续的节点。变量名需要对应 return 的 key",
+          "customFieldConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDefaultValue": false,
+            "showDescription": false
+          }
+        },
+        {
+          "id": "qLUQfhG0ILRX",
+          "key": "retrieval_queries",
+          "type": "dynamic",
+          "valueType": "arrayString",
+          "valueDesc": "",
+          "label": "retrieval_queries",
+          "description": ""
+        }
+      ],
+      "catchError": false
+    }
+  ],
+  "edges": [
+    {
+      "source": "448745",
+      "target": "o92mVeWzf02489Q2",
+      "sourceHandle": "448745-source-right",
+      "targetHandle": "o92mVeWzf02489Q2-target-left"
+    },
+    {
+      "source": "o92mVeWzf02489Q2",
+      "target": "pcta8CyBWPIfyJ15",
+      "sourceHandle": "o92mVeWzf02489Q2-source-right",
+      "targetHandle": "pcta8CyBWPIfyJ15-target-left"
+    },
+    {
+      "source": "pcta8CyBWPIfyJ15",
+      "target": "y641hB3ildC7AsuP",
+      "sourceHandle": "pcta8CyBWPIfyJ15-source-right",
+      "targetHandle": "y641hB3ildC7AsuP-target-left"
+    },
+    {
+      "source": "y641hB3ildC7AsuP",
+      "target": "tVqEyTvHnHG9GG1D",
+      "sourceHandle": "y641hB3ildC7AsuP-source-ez6SYCKnzlr5MQt3",
+      "targetHandle": "tVqEyTvHnHG9GG1D-target-left"
+    },
+    {
+      "source": "y641hB3ildC7AsuP",
+      "target": "tkCKIXzj7te874Od",
+      "sourceHandle": "y641hB3ildC7AsuP-source-oZIEJGxWNeVYLAAs",
+      "targetHandle": "tkCKIXzj7te874Od-target-left"
+    },
+    {
+      "source": "y641hB3ildC7AsuP",
+      "target": "irfKAbR8EsvBDRZ4",
+      "sourceHandle": "y641hB3ildC7AsuP-source-a7qMok3Xm40sFqSJ",
+      "targetHandle": "irfKAbR8EsvBDRZ4-target-left"
+    },
+    {
+      "source": "y641hB3ildC7AsuP",
+      "target": "cLOxjUrmsZO4aToG",
+      "sourceHandle": "y641hB3ildC7AsuP-source-ELSE",
+      "targetHandle": "cLOxjUrmsZO4aToG-target-left"
+    },
+    {
+      "source": "tVqEyTvHnHG9GG1D",
+      "target": "eFBvwYEwOHscUxgq",
+      "sourceHandle": "tVqEyTvHnHG9GG1D-source-right",
+      "targetHandle": "eFBvwYEwOHscUxgq-target-left"
+    },
+    {
+      "source": "eFBvwYEwOHscUxgq",
+      "target": "aLzbBILzQ9D2UP7s",
+      "sourceHandle": "eFBvwYEwOHscUxgq-source-cq3oeS74gxMxfQzZ",
+      "targetHandle": "aLzbBILzQ9D2UP7s-target-left"
+    },
+    {
+      "source": "tagxGUFuwllhR19r",
+      "target": "iNTsE0ZHUg0tFRoW",
+      "sourceHandle": "tagxGUFuwllhR19r-source-right",
+      "targetHandle": "iNTsE0ZHUg0tFRoW-target-left"
+    },
+    {
+      "source": "iNTsE0ZHUg0tFRoW",
+      "target": "qJnK807UNriMndON",
+      "sourceHandle": "iNTsE0ZHUg0tFRoW-source-right",
+      "targetHandle": "qJnK807UNriMndON-target-left"
+    },
+    {
+      "source": "qJnK807UNriMndON",
+      "target": "wrpdRNHlsuiNHVQA",
+      "sourceHandle": "qJnK807UNriMndON-source-right",
+      "targetHandle": "wrpdRNHlsuiNHVQA-target-left"
+    },
+    {
+      "source": "wrpdRNHlsuiNHVQA",
+      "target": "kwf3AIYyYZnAujyW",
+      "sourceHandle": "wrpdRNHlsuiNHVQA-source-eXjNCoCOPu3HbTg8",
+      "targetHandle": "kwf3AIYyYZnAujyW-target-left"
+    },
+    {
+      "source": "wrpdRNHlsuiNHVQA",
+      "target": "rEAPWGhomOQpeoFW",
+      "sourceHandle": "wrpdRNHlsuiNHVQA-source-ELSE",
+      "targetHandle": "rEAPWGhomOQpeoFW-target-left"
+    },
+    {
+      "source": "kwf3AIYyYZnAujyW",
+      "target": "g0XnV4TXVNeoEYPT",
+      "sourceHandle": "kwf3AIYyYZnAujyW-source-right",
+      "targetHandle": "g0XnV4TXVNeoEYPT-target-left"
+    },
+    {
+      "source": "eFBvwYEwOHscUxgq",
+      "target": "evMBfmr3j2paOLIN",
+      "sourceHandle": "eFBvwYEwOHscUxgq-source-ELSE",
+      "targetHandle": "evMBfmr3j2paOLIN-target-left"
+    },
+    {
+      "source": "evMBfmr3j2paOLIN",
+      "target": "tagxGUFuwllhR19r",
+      "sourceHandle": "evMBfmr3j2paOLIN-source-right",
+      "targetHandle": "tagxGUFuwllhR19r-target-left"
+    }
+  ],
+  "chatConfig": {
+    "welcomeText": "",
+    "welcomeConfig": {
+      "welcomeText": ""
+    },
+    "variables": [
+      {
+        "key": "zkIQmRTN",
+        "label": "product_requests",
+        "valueType": "arrayObject",
+        "required": false,
+        "type": "internal",
+        "description": ""
+      },
+      {
+        "key": "eUukvJqI",
+        "label": "last_recommendations",
+        "valueType": "arrayObject",
+        "required": false,
+        "defaultValue": "",
+        "type": "internal",
+        "description": ""
+      },
+      {
+        "key": "oRIBQRvl",
+        "label": "clarification_needed",
+        "valueType": "boolean",
+        "required": false,
+        "defaultValue": "",
+        "type": "internal",
+        "description": ""
+      },
+      {
+        "key": "irltsRTo",
+        "label": "missing_fields",
+        "valueType": "arrayString",
+        "required": false,
+        "defaultValue": "",
+        "type": "internal",
+        "description": ""
+      },
+      {
+        "key": "x66hJwYK",
+        "label": "follow_up_intent",
+        "valueType": "string",
+        "required": false,
+        "defaultValue": "",
+        "type": "internal",
+        "description": ""
+      }
+    ],
+    "questionGuide": {
+      "open": false
+    },
+    "ttsConfig": {
+      "type": "web"
+    },
+    "whisperConfig": {
+      "open": false,
+      "autoSend": false,
+      "autoTTSResponse": false
+    },
+    "scheduledTriggerConfig": {
+      "cronString": "",
+      "timezone": "Asia/Hong_Kong",
+      "defaultPrompt": ""
+    },
+    "entryPoints": []
+  },
+  "type": "advanced",
+  "name": "MyTech — Grounded RAG Product Recommendation Assistant",
+  "intro": ""
+}
