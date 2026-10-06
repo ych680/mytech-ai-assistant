@@ -295,6 +295,8 @@ MyTech is currently a local classroom / portfolio prototype.
 
 No real API keys or `.env` files should ever be committed to this repository.
 
+Deployment-specific FastGPT endpoints, application IDs, model IDs, and knowledge-base identifiers are intentionally omitted from the public portfolio version. Configure your own values through `.env` and re-bind the model / knowledge base after importing the workflow.
+
 The `.gitignore` configuration excludes local environment files, while `.env.example` documents the required configuration without containing credentials.
 
 ## Project Status
