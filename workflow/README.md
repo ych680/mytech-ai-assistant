@@ -99,3 +99,16 @@ Model availability may depend on the FastGPT deployment being used.
 - Product facts must be grounded in retrieved knowledge-base evidence.
 - The validation layer rejects inconsistent, over-budget, or unsupported recommendations.
 - API credentials are not included in the exported workflow.
+
+## Portfolio Export Sanitization
+
+Deployment-specific identifiers have been intentionally removed from the public portfolio export.
+
+After importing the workflow into your own FastGPT deployment:
+
+1. Re-select a compatible LLM (for example, Qwen-turbo) in the model nodes.
+2. Create or import your own knowledge base.
+3. Bind that knowledge base to the **Knowledge Retrieval** node.
+4. Save and publish the workflow in your own environment.
+
+No API credentials, private deployment URLs, application IDs, or original knowledge-base identifiers are included in this portfolio export.
