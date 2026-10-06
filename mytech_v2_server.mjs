@@ -8,10 +8,8 @@ import { isPlainObject, normaliseOutput, parseFastGptResponse, validateOutput } 
 const APP_DIRECTORY = dirname(fileURLToPath(import.meta.url));
 const PORT = Number.parseInt(process.env.PORT || "8787", 10);
 const FASTGPT_API_KEY = process.env.FASTGPT_API_KEY?.trim() || "";
-const FASTGPT_API_URL = process.env.FASTGPT_API_URL?.trim()
-  || "https://maas.eduhk.hk/api/v1/chat/completions";
-const FASTGPT_APP_ID = process.env.FASTGPT_APP_ID?.trim()
-  || "6aad55fef3a04b75eac14536";
+const FASTGPT_API_URL = process.env.FASTGPT_API_URL?.trim() || "";
+const FASTGPT_APP_ID = process.env.FASTGPT_APP_ID?.trim() || "";
 const FASTGPT_URL_IS_VALID = isAllowedFastGptUrl(FASTGPT_API_URL);
 const MAXIMUM_REQUEST_BYTES = 1_000_000;
 const MAXIMUM_CHAT_ID_LENGTH = 128;
