@@ -26,5 +26,5 @@ jobs:
           node --check mytech_v2_server.mjs
           node --check mytech_response.mjs
 
-      - name: Run response tests
-        run: node --test tests/response.test.mjs
+      - name: Run response and frontend recovery tests
+        run: node --test tests/response.test.mjs tests/frontend-recovery.test.mjs

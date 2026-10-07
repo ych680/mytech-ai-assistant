@@ -473,7 +473,8 @@
       gap: 8px;
     }
 
-    .prompt-button {
+    .prompt-button,
+    .recovery-button {
       min-height: 34px;
       padding: 7px 11px;
       border: 1px solid #d8d6d1;
@@ -487,11 +488,17 @@
       transition: color 150ms ease, border-color 150ms ease, background 150ms ease, transform 150ms ease;
     }
 
-    .prompt-button:hover:not(:disabled) {
+    .prompt-button:hover:not(:disabled),
+    .recovery-button:hover:not(:disabled) {
       border-color: #aaa7a1;
       background: #f1f0ed;
       color: #1c1c1c;
       transform: translateY(-1px);
+    }
+
+    .recovery-button:disabled {
+      opacity: 0.5;
+      cursor: default;
     }
 
     .composer-row {
@@ -982,6 +989,7 @@
     let activeAbortController = null;
     let modelHistory = [];
     let fastGptChatId = "";
+    let activeRecovery = null;
 
     const sessionContext = {
       activeCategories: [],
@@ -1102,6 +1110,37 @@
       }
 
       scrollToNewest();
+      return bubble;
+    }
+
+    function refreshRecoveryAvailability() {
+      if (!activeRecovery) return;
+      activeRecovery.button.disabled = isGenerating || !datasetReady
+        || inputElement.value.length > 0 || activeRecovery.requestVersion !== requestVersion;
+    }
+
+    function invalidateRecovery() {
+      if (activeRecovery) activeRecovery.button.disabled = true;
+      activeRecovery = null;
+    }
+
+    function createRecoveryAction(bubble, text, version) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "recovery-button";
+      button.textContent = "Edit and try again";
+      const recovery = { button, text, requestVersion: version };
+      activeRecovery = recovery;
+      button.addEventListener("click", () => {
+        if (activeRecovery !== recovery || recovery.requestVersion !== requestVersion
+          || isGenerating || !datasetReady || inputElement.value.length > 0) return;
+        inputElement.value = recovery.text;
+        autoResizeInput();
+        inputElement.focus({ preventScroll: true });
+        refreshRecoveryAvailability();
+      });
+      bubble.appendChild(button);
+      refreshRecoveryAvailability();
     }
 
     function addStructuredResponse(response) {
@@ -1188,6 +1227,7 @@
 
     function setGenerating(value) {
       isGenerating = value;
+      refreshRecoveryAvailability();
       setControlsDisabled(value || !datasetReady);
       messagesElement.setAttribute("aria-busy", String(value));
       if (value) {
@@ -1617,6 +1657,7 @@
       const text = inputElement.value.trim();
       if (!text || isGenerating || !datasetReady) return;
 
+      invalidateRecovery();
       addUserMessage(text);
       inputElement.value = "";
       autoResizeInput();
@@ -1647,7 +1688,8 @@
         await thinkingDelay;
         if (currentRequest !== requestVersion || error.name === "AbortError") return;
         thinkingMessage.remove();
-        addTextResponse(safeErrorResponse(error));
+        const bubble = addTextResponse(safeErrorResponse(error));
+        createRecoveryAction(bubble, text, currentRequest);
       } finally {
         if (currentRequest === requestVersion) {
           activeAbortController = null;
@@ -1658,6 +1700,7 @@
     }
 
     function resetConversation() {
+      invalidateRecovery();
       requestVersion += 1;
       if (activeAbortController) {
         activeAbortController.abort();
@@ -1775,7 +1818,10 @@
       }
     }
 
-    inputElement.addEventListener("input", autoResizeInput);
+    inputElement.addEventListener("input", () => {
+      autoResizeInput();
+      refreshRecoveryAvailability();
+    });
     inputElement.addEventListener("keydown", (event) => {
       if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
         event.preventDefault();
