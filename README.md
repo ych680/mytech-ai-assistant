@@ -1,314 +1,148 @@
 # MyTech v2 — Grounded RAG Product Recommendation Assistant
 
-MyTech v2 is an electronic product recommendation assistant developed as part of postgraduate AI coursework. The current implementation combines a browser interface, a Node.js backend with server-side API key handling, and a published FastGPT workflow with grounded RAG retrieval, conversation-state handling, deterministic validation, and structured JSON responses.
+[![Tests](https://github.com/ych680/mytech-ai-assistant/actions/workflows/tests.yml/badge.svg)](https://github.com/ych680/mytech-ai-assistant/actions/workflows/tests.yml)
 
-## Architecture
+MyTech v2 is an electronic product recommendation chatbot developed as a postgraduate AI coursework team project. Users describe a device, maximum budget, and main usage; the assistant retrieves reference product evidence, asks for missing requirements, and returns validated recommendations rather than relying on unrestricted model output.
 
-```text
-Browser Frontend
-        ↓
-Node.js Server
-        ↓
-FastGPT Published Workflow
-        ↓
-State Extraction & Routing
-        ↓
-Knowledge Base Retrieval (RAG)
-        ↓
-Grounded Recommendation Generation
-        ↓
-Deterministic Validation
-        ↓
-Structured JSON Response
-        ↓
-Product Card Rendering
-```
-
-The browser calls the same-origin `/api/mytech` endpoint. The server calls FastGPT and validates the structured response; the browser validates it again before rendering product cards. The FastGPT API key remains server-side and must never be exposed to the browser, HTML, or client-side JavaScript.
-
-Each conversation uses a stable, non-secret `chatId` so follow-up requests can reuse conversation context.
+The locally runnable prototype combines a **browser frontend**, a **Node.js backend**, and a **FastGPT RAG workflow**. It covers **9 product categories and 27 reference products**, with deterministic response validation and **16 automated tests**. These counts describe the project's scope, not recommendation accuracy or production reliability.
 
 ## Demo
 
 ### Chatbot Interface
 
-The frontend uses a minimal editorial-style interface with starter prompts, conversation reset, generation status, and structured product-card rendering.
+Starter prompts, generation status, conversation restart, and product cards support the recommendation flow.
 
 ![MyTech Chatbot UI](docs/screenshots/mytech-chatbot-ui.png)
 
 ### Multi-product Recommendation
 
-MyTech can process multiple product requests in a single message while keeping each product's category, budget, and usage requirements separate.
-
-Example:
+Each product request keeps its own category, budget, and usage requirements. For example:
 
 > I need a laptop under RMB 6000 for study and a mouse under RMB 300 for gaming.
 
 ![MyTech Multi-product Recommendation Demo](docs/screenshots/mytech-multi-product-demo.png)
 
-## Supported Features
+These screenshots show earlier local demonstrations; they do not capture every current feature. There is no public production deployment.
 
-- Nine product categories: Laptop, Desktop, Smartphone, Tablet, Headphones, Monitor, Smartwatch, Mouse, and Keyboard.
-- Multi-turn conversation and clarification of missing or ambiguous requirements.
-- Multiple product requests with separate category, budget, and usage constraints.
-- Hard-budget protection.
-- Cheaper / more expensive / alternative follow-up requests.
-- State-aware retrieval query generation.
-- Grounded RAG retrieval through the FastGPT Knowledge Base / Dataset Search.
-- Structured JSON output and validated product-card rendering.
-- Deterministic category, price, source, and follow-up validation.
-- Safe fallback responses for invalid generated output.
-- Restart / conversation reset with a fresh FastGPT `chatId`.
+## Key Features
 
-## FastGPT Workflow
+- **Grounded recommendations:** FastGPT retrieves product evidence from the MyTech knowledge base before recommendation generation.
+- **Supported categories:** Laptop, Desktop, Smartphone, Tablet, Headphones, Monitor, Smartwatch, Mouse, and Keyboard.
+- **Conversation handling:** Multi-turn clarification, separate requirements for multi-product requests, and contextual cheaper, more expensive, or alternative follow-ups.
+- **Hard-budget enforcement:** Deterministic checks reject recommendations above the active maximum budget.
+- **Structured responses:** JSON output is validated for product identity, category, exact reference price, source consistency, and response fields before card rendering.
+- **Restart and safe errors:** Restart clears local conversation state and rotates the FastGPT `chatId`. Failed requests, timeouts, and unusable model output display an error without unvalidated product cards; invalid workflow recommendations use a fallback branch.
+- **Failed request recovery:** “Edit and try again” restores the submitted message to the composer, resizes it, and focuses it for editing. It makes no request and does not alter conversation state. Existing drafts, including whitespace, are protected; another submission or Restart invalidates older recovery actions.
 
-The portfolio FastGPT workflow is included in:
+## System Architecture
 
 ```text
-workflow/mytech-fastgpt-workflow.json
+Browser Frontend → Node.js Backend → FastGPT Workflow
+                                      ↓
+                            State Extraction and Routing
+                                      ↓
+                            Knowledge Base Retrieval (RAG)
+                                      ↓
+                            Grounded Recommendation Generation
+                                      ↓
+                            Workflow Validation and Normalization
+                                      ↓
+Node.js Response Validation → Browser Validation → Product Card Rendering
 ```
 
-The workflow contains the node configuration, prompts, routing logic, conversation-state handling, JavaScript guards, retrieval query generation, recommendation generation, validation logic, and workflow connections.
+The browser submits requests to the same-origin `/api/mytech` endpoint. The backend calls FastGPT with server-side credentials and a conversation `chatId`; FastGPT manages workflow conversation variables for follow-ups. Validation is applied at three points, with different responsibilities:
 
-Detailed workflow documentation and screenshots are available in:
+| Layer | Implemented checks |
+|---|---|
+| FastGPT workflow | Product identity, category and active-request consistency, exact price and source, hard budgets, duplicate categories, and follow-up constraints. |
+| Node.js response helpers | JSON parsing and response shape, catalogue identity/category/price, source when supplied, active budgets, recognized usage tags, and selected unsupported live-price/availability claims. |
+| Browser | Response shape and catalogue checks, active budget/usage constraints, contextual follow-up checks, and selected unsupported live-price/availability claims before rendering. |
 
-```text
-workflow/README.md
+Retrieval supplies evidence; validation checks defined rules against reference data. These checks do not establish that every generated explanation is correct.
+
+The response contract contains `answer`, `recommendations[]`, `next_step`, and `clarification_needed`. See the [workflow documentation](workflow/README.md) for the full pipeline, routing branches, and JSON example.
+
+### Knowledge and Local References
+
+The [knowledge-base source](knowledge/MyTech_Product_Knowledge_v1.md) groups each product's name, category, reference price, usage, features, and source for FastGPT retrieval. The [local JSON catalogue](mytech_v1_product_dataset.json) supplies backend/browser validation data and card details; the workflow also contains a static validation catalogue.
+
+The [system prompt file](mytech_v1_system_prompt.txt) is still loaded during server and browser initialization. Keep it and the JSON catalogue alongside the application files. The published FastGPT workflow contains the model-node prompts used for generation.
+
+## Testing & CI
+
+The project has **16 automated tests**, using Node.js built-ins without a testing framework or additional packages:
+
+| Suite | Tests | Coverage |
+|---|---:|---|
+| [Response tests](tests/response.test.mjs) | 8 | FastGPT message extraction, JSON parsing/error codes, optional-source normalization, field validation, valid no-result/clarification responses, catalogue mismatches, budget boundaries, and recognized usage constraints. |
+| [Frontend recovery tests](tests/frontend-recovery.test.mjs) | 8 | Recovery creation, exact submitted-text restoration, resize/focus, no extra request or state changes on restore, draft/generation protection, stale-action invalidation, restart-aborted/late failures, and subsequent submission through validation. |
+
+Run both suites locally from the repository root:
+
+```bash
+node --test tests/response.test.mjs tests/frontend-recovery.test.mjs
 ```
 
-### Main Workflow
+The frontend suite executes the actual inline script in `node:vm`, skipping automatic initialization and using minimal DOM stubs and a fake model adapter. Neither suite requires credentials, a running server, or real FastGPT calls.
 
-```text
-Workflow Start
-      ↓
-State Extraction
-      ↓
-State Normalization & Guard
-      ↓
-Scope Router
-      ↓
-Conversation State Update
-      ↓
-Clarification Router
-      ├── Missing information
-      │        ↓
-      │  Clarification Assistant
-      │
-      └── Complete request
-               ↓
-        Retrieval Query Builder
-               ↓
-        Knowledge Retrieval
-               ↓
-        Recommendation Assistant
-               ↓
-        Response Validation & Normalization
-               ↓
-        Validation Router
-          ├── Valid
-          │     ↓
-          │ Recommendation State Update
-          │     ↓
-          │ Final Structured Response
-          │
-          └── Invalid
-                ↓
-          Validation Fallback Response
-```
+[GitHub Actions](.github/workflows/tests.yml) runs on pull requests and pushes to `main`, using Node.js 24. It checks the syntax of `mytech_v2_server.mjs` and `mytech_response.mjs`, then runs both suites.
 
-The workflow also contains dedicated branches for unsupported product categories, help / greeting requests, and unrelated requests.
+These tests cover defined response-helper and recovery behavior. They do not prove live FastGPT availability, measure real-world recommendation accuracy, verify browser layout, or replace full end-to-end testing with a live model.
 
-## Grounded RAG Knowledge Base
+## My Contribution
 
-The FastGPT Knowledge Base is the grounded product-fact retrieval source used by the published workflow.
+MyTech is a postgraduate team coursework project. As the repository maintainer, I led most of the core implementation: product and workflow design, FastGPT workflow configuration and API integration, frontend/backend integration, testing and troubleshooting, automated tests and GitHub CI improvements, and ongoing repository maintenance. Other team members participated in testing, reproducing workflow configurations, and related project activities.
 
-The portfolio knowledge-base source is included in:
+## Setup and Reproducibility
 
-```text
-knowledge/MyTech_Product_Knowledge_v1.md
-```
+Prerequisites: Node.js **20.6 or newer** for the documented `--env-file` command, and access to a FastGPT deployment with suitable models and a knowledge base. CI uses Node.js 24. The local application uses Node.js built-ins; no package installation is required.
 
-The knowledge base contains 27 reference products across nine supported categories. Each product record keeps the product name, category, reference price, usage, key features, and source together for retrieval.
+1. **Import the workflow.** Import [workflow/mytech-fastgpt-workflow.json](workflow/mytech-fastgpt-workflow.json) into your FastGPT deployment.
+2. **Select the models.** The export retains these intended model names, but its account-specific `modelId` values are empty:
 
-The exported FastGPT workflow does not package the linked knowledge base itself. After importing the workflow:
+   | Node | Intended model |
+   |---|---|
+   | State Extraction | `glm-5.3-flash` |
+   | Clarification Assistant | `glm-5.3-flash` |
+   | Recommendation Assistant | `deepseek-v4.1-flash` |
 
-1. Create a FastGPT knowledge base.
-2. Import `knowledge/MyTech_Product_Knowledge_v1.md`.
-3. Open the **Knowledge Retrieval** node.
-4. Bind the newly created knowledge base.
-5. Save and publish the workflow.
+   Re-select each model after import. Availability depends on the deployment; if a listed model is unavailable, choose a compatible model and verify workflow behavior in that environment.
+3. **Import and bind the knowledge base.** Create a FastGPT knowledge base, import [knowledge/MyTech_Product_Knowledge_v1.md](knowledge/MyTech_Product_Knowledge_v1.md), and bind it to **Knowledge Retrieval**. The export intentionally has no dataset binding; its dataset-description ID is `REPLACE_AFTER_IMPORT`. Save and publish the configured workflow.
+4. **Configure the local environment.** From the repository root, copy the placeholder template:
 
-## Retrieval and Local References
-
-The **FastGPT Knowledge Base** is the current grounded product-fact retrieval source used by the published workflow.
-
-`mytech_v1_product_dataset.json` remains a required local validation/reference dataset containing 27 products. The application checks recommendations against it and uses its product details to render cards.
-
-`mytech_v1_system_prompt.txt` remains a required local runtime/reference file loaded during current initialization. Keep both local files alongside the server and HTML file.
-
-## Validation and Safety
-
-MyTech does not rely only on LLM output.
-
-The workflow applies deterministic checks for:
-
-- supported product categories
-- product identity
-- category consistency
-- exact reference prices
-- source consistency
-- hard-budget compliance
-- duplicate-category recommendations
-- cheaper / more expensive / alternative follow-up constraints
-
-FastGPT content is parsed as structured JSON with:
-
-- `answer`
-- `recommendations[]`
-- `next_step`
-- `clarification_needed`
-
-Invalid, empty, malformed, timed-out, or failed responses display a safe error state without rendering unvalidated product cards.
-
-Prices are fixed RMB reference prices for this coursework prototype; live retailer prices and stock availability are not supported.
-
-## Structured Response Contract
-
-Successful recommendation responses follow this general structure:
-
-```json
-{
-  "answer": "string",
-  "recommendations": [
-    {
-      "category": "Laptop",
-      "recommended_product": "Exact product name",
-      "price": 5799,
-      "reason": "Short grounded recommendation reason.",
-      "source": "Reference source"
-    }
-  ],
-  "next_step": "string",
-  "clarification_needed": false
-}
-```
-
-For multiple product requests, the `recommendations` array can contain one validated recommendation for each separate request.
-
-## Model Configuration
-
-The portfolio workflow uses **Qwen-turbo** for:
-
-- state extraction
-- clarification
-- grounded recommendation generation
-
-Model availability may vary between FastGPT deployments.
-
-## Project Structure
-
-```text
-MyTech_v2/
-├── docs/
-│   └── screenshots/
-│       ├── mytech-chatbot-ui.png
-│       └── mytech-multi-product-demo.png
-├── knowledge/
-│   └── MyTech_Product_Knowledge_v1.md
-├── workflow/
-│   ├── mytech-fastgpt-workflow.json
-│   ├── README.md
-│   ├── workflow-overview-1.png
-│   ├── workflow-overview-2.png
-│   └── workflow-overview-3.png
-├── MyTech_Chatbot_v2.html
-├── mytech_v2_server.mjs
-├── mytech_v1_product_dataset.json
-├── mytech_v1_system_prompt.txt
-├── .env.example
-├── .gitignore
-└── README.md
-```
-
-Local `.env` files are intentionally excluded from version control.
-
-## Project Files
-
-- `MyTech_Chatbot_v2.html` — browser interface, conversation state, response validation, and product-card rendering.
-- `mytech_v2_server.mjs` — Node.js server, server-side FastGPT connection, and response validation.
-- `mytech_v1_product_dataset.json` — required local product validation/reference dataset.
-- `mytech_v1_system_prompt.txt` — required local runtime/reference prompt file.
-- `knowledge/MyTech_Product_Knowledge_v1.md` — RAG knowledge-base source.
-- `workflow/mytech-fastgpt-workflow.json` — exported FastGPT workflow configuration.
-- `workflow/README.md` — workflow architecture, screenshots, and import instructions.
-- `docs/screenshots/` — portfolio screenshots showing the chatbot interface and multi-product recommendation behavior.
-- `.env.example` — environment configuration template.
-- `.gitignore` — excludes local environment files, dependencies, logs, and generated files.
-
-## Setup
-
-1. Install Node.js 20.6+.
-2. Copy `.env.example` to `.env` in the project directory.
-3. Fill in your own FastGPT configuration:
-
-   ```text
-   FASTGPT_API_KEY
-   FASTGPT_API_URL
-   FASTGPT_APP_ID
+   ```bash
+   cp .env.example .env
    ```
 
-4. Import `workflow/mytech-fastgpt-workflow.json` into FastGPT.
-5. Create a knowledge base using `knowledge/MyTech_Product_Knowledge_v1.md` and bind it to the **Knowledge Retrieval** node.
-6. Run:
+   Set `FASTGPT_API_KEY`, `FASTGPT_API_URL`, and `FASTGPT_APP_ID` for your published workflow. `PORT` defaults to `8787`. The backend accepts HTTPS endpoints, or HTTP endpoints on localhost/loopback. The template's example endpoint is not a working deployment.
+5. **Run locally:**
 
    ```bash
    node --env-file=.env mytech_v2_server.mjs
    ```
 
-7. Open [http://127.0.0.1:8787](http://127.0.0.1:8787).
+6. Open [http://127.0.0.1:8787](http://127.0.0.1:8787), or the port configured in `.env`. The server binds to `127.0.0.1`.
 
-Never commit your real `.env` file.
+The portable export omits API credentials, account-specific model IDs, and concrete knowledge-base IDs. Keep credentials server-side and never commit real environment files. [.gitignore](.gitignore) excludes local `.env` files and backups; [.env.example](.env.example) contains placeholders only.
 
-## Testing
+## Repository Guide
 
-The project has been tested for:
-
-- normal single-product recommendations
-- contextual follow-up requests
-- clarification of missing information
-- unsupported product categories
-- hard-budget enforcement
-- multi-product requests
-- structured JSON rendering
-- conversation reset and state handling
+| File or directory | Purpose |
+|---|---|
+| [MyTech_Chatbot_v2.html](MyTech_Chatbot_v2.html) | Browser UI, local conversation constraints, validation, card rendering, and failed request recovery. |
+| [mytech_v2_server.mjs](mytech_v2_server.mjs) | Local HTTP server and server-side FastGPT integration. |
+| [mytech_response.mjs](mytech_response.mjs) | Response parsing, normalization, and deterministic validation helpers. |
+| [workflow/](workflow/README.md) | Portable workflow export, architecture documentation, and workflow screenshots. |
+| [knowledge/MyTech_Product_Knowledge_v1.md](knowledge/MyTech_Product_Knowledge_v1.md) | Knowledge-base import source. |
+| [mytech_v1_product_dataset.json](mytech_v1_product_dataset.json) | Local validation catalogue and card data. |
+| [mytech_v1_system_prompt.txt](mytech_v1_system_prompt.txt) | Required runtime/reference prompt file. |
+| [tests/response.test.mjs](tests/response.test.mjs), [tests/frontend-recovery.test.mjs](tests/frontend-recovery.test.mjs) | Dependency-free automated tests. |
+| [.github/workflows/tests.yml](.github/workflows/tests.yml) | Syntax checks and automated test CI. |
+| [docs/screenshots/](docs/screenshots/) | Local demonstration screenshots. |
 
 ## Prototype Limitations
 
-MyTech is currently a local classroom / portfolio prototype.
-
-- Product prices are fixed RMB reference prices rather than live retailer prices.
-- Product availability and stock are not checked in real time.
-- The knowledge base contains a deliberately limited reference dataset.
-- Public deployment would require additional protections such as authentication, rate limiting, monitoring, and production-grade secret management.
-
-## Security
-
-No real API keys or `.env` files should ever be committed to this repository.
-
-Deployment-specific FastGPT endpoints, application IDs, model IDs, and knowledge-base identifiers are intentionally omitted from the public portfolio version. Configure your own values through `.env` and re-bind the model / knowledge base after importing the workflow.
-
-The `.gitignore` configuration excludes local environment files, while `.env.example` documents the required configuration without containing credentials.
-
-## Project Status
-
-**MyTech v2 — Portfolio Workflow Snapshot**
-
-The current portfolio version includes:
-
-- FastGPT workflow export
-- grounded RAG knowledge base
-- contextual conversation state
-- state-aware retrieval
-- deterministic category and budget guards
-- structured response validation
-- browser-based product recommendation interface
+- Prices are fixed RMB reference values; live retailer pricing, inventory, and purchasing are not supported.
+- The classroom catalogue contains only 27 products. Recommendations are limited by that dataset and the configured retrieval/model behavior.
+- Running recommendations requires a configured external FastGPT workflow, available models, and the imported knowledge base. The “FastGPT Ready” status checks configuration, not live connectivity.
+- The project is a local coursework/portfolio prototype, with no public production deployment. Public hosting would require authentication, rate limiting, monitoring, and appropriate secret management and operational controls.
