@@ -8,7 +8,7 @@ The locally runnable prototype combines a **browser frontend**, a **Node.js back
 
 ## Demo
 
-[Watch on YouTube: MyTech v2 | RAG Product Recommendation Chatbot — Project Demo](https://youtu.be/9Jwxje5Aj6w)
+[Watch on YouTube: MyTech v2 | RAG Product Recommendation Chatbot — Project Demo](https://youtu.be/0BjV3ngw40w)
 
 This approximately 67-second demo shows multi-product recommendations, contextual follow-ups, multi-turn clarification, and hard-budget constraints with no-match handling.
 
