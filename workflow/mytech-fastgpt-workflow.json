@@ -183,7 +183,7 @@
             "selectLLMModel",
             "reference"
           ],
-          "value": "qwen-turbo",
+          "value": "glm-5.3-flash",
           "debugLabel": "",
           "toolDescription": ""
         }
@@ -1304,7 +1304,7 @@
             "settingLLMModel",
             "reference"
           ],
-          "value": "qwen-turbo",
+          "value": "glm-5.3-flash",
           "debugLabel": "",
           "toolDescription": ""
         }
@@ -1339,7 +1339,7 @@
           "label": "workflow:reasoning_content",
           "description": "",
           "required": false,
-          "invalid": true
+          "invalid": false
         },
         {
           "id": "system_error_text",
@@ -1885,7 +1885,7 @@
             "settingLLMModel",
             "reference"
           ],
-          "value": "qwen-turbo",
+          "value": "deepseek-v4.1-flash",
           "debugLabel": "",
           "toolDescription": ""
         }
@@ -1920,7 +1920,7 @@
           "label": "workflow:reasoning_content",
           "description": "",
           "required": false,
-          "invalid": true
+          "invalid": false
         },
         {
           "id": "system_error_text",
