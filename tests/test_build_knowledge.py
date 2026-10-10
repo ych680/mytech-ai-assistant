@@ -22,7 +22,7 @@ class KnowledgeBuilderTests(unittest.TestCase):
         cls.source_bytes = builder.DEFAULT_DATASET.read_bytes()
         cls.knowledge_bytes = KNOWLEDGE.read_bytes()
         cls.catalogue = json.loads(cls.source_bytes)
-        cls.legacy = cls.knowledge_bytes.decode("utf-8")
+        cls.legacy = KNOWLEDGE.read_text(encoding="utf-8")
 
     def setUp(self):
         self.dataset = deepcopy(self.catalogue)
@@ -167,7 +167,9 @@ class KnowledgeBuilderTests(unittest.TestCase):
         ):
             text = self.legacy.replace("Source: Lenovo Official Store", replacement, 1)
             self.assertTrue(builder.check_knowledge(self.dataset, text))
-        self.assertTrue(builder.check_knowledge(self.dataset, self.legacy.replace("Tier: Entry\n", "", 1)))
+        text = self.legacy.replace("Tier: Entry\n", "", 1)
+        self.assertNotEqual(text, self.legacy)
+        self.assertTrue(builder.check_knowledge(self.dataset, text))
         self.assertTrue(builder.check_knowledge(self.dataset, ""))
 
     def test_invalid_dataset_never_creates_output(self):
