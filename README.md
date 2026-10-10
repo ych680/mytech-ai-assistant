@@ -93,6 +93,48 @@ The frontend suite executes the actual inline script in `node:vm`, skipping auto
 
 These tests cover defined response-helper and recovery behavior. They do not prove live FastGPT availability, measure real-world recommendation accuracy, verify browser layout, or replace full end-to-end testing with a live model.
 
+## Python Tooling with uv
+
+The catalogue validator and knowledge builder are independent, standard-library-only
+Python tools. They use Python 3.12 and `unittest`; no Python packages are needed.
+The chatbot continues to run on Node.js and FastGPT.
+
+With [uv](https://docs.astral.sh/uv/getting-started/installation/) installed
+(verified with uv 0.13.0), run these commands from the repository root on either
+Windows PowerShell or macOS Terminal:
+
+```sh
+uv sync --locked --managed-python
+uv run --locked python -B -m unittest discover -s tests -p "test_*.py" -v
+uv run --locked python -B tools/validate_products.py --strict-v1
+uv run --locked python -B tools/build_knowledge.py --check knowledge/MyTech_Product_Knowledge_v1.md
+```
+
+uv downloads a managed Python if needed and creates or reuses the project-local
+`.venv`; activation is unnecessary. `.python-version` selects the 3.12 series,
+while `pyproject.toml` excludes Python 3.13 and newer. Patch versions may differ
+between machines; `uv.lock` records the project dependency resolution, not an
+exact Python interpreter build. `package = false` prevents building or installing
+the repository as a Python package. Keep the lockfile with the configuration.
+
+To run tests directly with an existing environment, without syncing it:
+
+```powershell
+# Windows PowerShell
+.\.venv\Scripts\python.exe -B -m unittest discover -s tests -p "test_*.py" -v
+```
+
+```sh
+# macOS Terminal
+./.venv/bin/python -B -m unittest discover -s tests -p "test_*.py" -v
+```
+
+Keep `.venv` local to each machine; do not copy it between operating systems.
+It and Python caches remain ignored by Git. `uv sync` normally removes packages
+not declared by the project; use `uv sync --locked --managed-python --inexact` if
+an existing environment contains extra packages that must be retained.
+The knowledge command above only checks the existing file; it does not rebuild it.
+
 ## My Contribution
 
 MyTech is a postgraduate team coursework project. As the repository maintainer, I led most of the core implementation: product and workflow design, FastGPT workflow configuration and API integration, frontend/backend integration, testing and troubleshooting, automated tests and GitHub CI improvements, and ongoing repository maintenance. Other team members participated in testing, reproducing workflow configurations, and related project activities.
