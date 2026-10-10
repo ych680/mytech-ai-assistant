@@ -31,3 +31,8 @@ Desktop.ini
 
 # Local editor settings
 .vscode/
+
+# Python environments and caches
+.venv/
+__pycache__/
+*.py[cod]

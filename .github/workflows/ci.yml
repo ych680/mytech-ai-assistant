@@ -1,0 +1,51 @@
+name: Cross-platform CI
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Validate (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10
+        with:
+          version: '0.13.0'
+          enable-cache: false
+
+      - name: Synchronize Python environment
+        run: uv sync --locked --managed-python
+
+      - name: Run Python tests
+        run: uv run --locked python -B -m unittest discover -s tests -p "test_*.py" -v
+
+      - name: Validate product catalogue
+        run: uv run --locked python -B tools/validate_products.py --strict-v1
+
+      - name: Check knowledge consistency
+        run: uv run --locked python -B tools/build_knowledge.py --check knowledge/MyTech_Product_Knowledge_v1.md
+
+      - name: Run Node.js tests
+        run: node --test tests/response.test.mjs tests/frontend-recovery.test.mjs
