@@ -378,7 +378,19 @@ class RunnerTests(unittest.TestCase):
         for forbidden in (runner.OFFLINE_MARKER, "Authorization", "Bearer ", "hidden-reasoning-test-sentinel",
                           str(fixtures.DATASET_SOURCE.parent), "headers", "request_object"):
             self.assertNotIn(forbidden, serialized)
-        self.assertEqual(set(case["tool_calls"][0]), {"transport_invocation", "script_step", "id", "name"})
+        self.assertEqual(set(case["tool_calls"][0]), {
+            "transport_invocation", "script_step", "id", "name",
+            "authorized_tool_name", "authorized_arguments"})
+
+    def test_rejected_name_and_arguments_have_distinct_safe_authorization_evidence(self):
+        for identifier, flags in (("AE-09", (False, False)), ("AE-10", (True, False))):
+            case = runner.run_scenario(identifier)
+            good, rejected = case["tool_calls"]
+            self.assertTrue(good["authorized_tool_name"])
+            self.assertTrue(good["authorized_arguments"])
+            self.assertEqual((rejected["authorized_tool_name"], rejected["authorized_arguments"]), flags)
+            self.assertNotIn("other_knowledge", json.dumps(case))
+            self.assertEqual(case["actual"]["tool_results"], [])
 
     def test_cli_verifies_contracts_without_task_scoring_or_report_files(self):
         with redirect_stdout(io.StringIO()) as output:

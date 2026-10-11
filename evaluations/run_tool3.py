@@ -81,7 +81,8 @@ def _response(step):
 class ScriptedTransport:
     """Injected local transport, not an HTTP client.
 
-    Observations contain only response-emitted tool names/IDs and step numbers.
+    Observations contain response-emitted names/IDs, step numbers and authorization
+    booleans derived from the advertised trusted schemas. Arguments are discarded.
     Incoming headers, request bodies, request objects and intermediate assistant
     content are never retained. Consumed raw response bodies are discarded.
     Empty/truncated scripts are permitted here so exhaustion is observable;
@@ -123,11 +124,24 @@ class ScriptedTransport:
         self.steps_consumed += 1
         if response.status == 200:
             message = json.loads(response.body)["choices"][0]["message"]
+            schemas = {item["function"]["name"]: item["function"]["parameters"]
+                       for item in adapter.tool_definitions()}
             for call in message.get("tool_calls", []):
+                name = call["function"]["name"]
+                arguments = json.loads(call["function"]["arguments"])
+                schema = schemas.get(name)
+                authorized_arguments = bool(schema is not None
+                    and type(arguments) is dict
+                    and set(arguments) == set(schema["required"])
+                    and all(type(value) is str
+                            and value in schema["properties"][key]["enum"]
+                            for key, value in arguments.items()))
                 self.tool_calls.append({
                     "transport_invocation": self.transport_invocations,
                     "script_step": self.steps_consumed,
-                    "id": call["id"], "name": call["function"]["name"],
+                    "id": call["id"], "name": name,
+                    "authorized_tool_name": schema is not None,
+                    "authorized_arguments": authorized_arguments,
                 })
         return response
 
