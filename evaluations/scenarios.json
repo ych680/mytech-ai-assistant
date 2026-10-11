@@ -1,0 +1,1661 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_version": "1.0.0",
+  "scenarios": [
+    {
+      "id": "AE-01",
+      "version": "1.0.0",
+      "scenario_type": "tool_task",
+      "request": "Run validate_products on the selected dataset. Do not check knowledge.",
+      "fixture_id": "F0",
+      "script": [
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "v1",
+              "name": "validate_products",
+              "arguments": {
+                "dataset": "selected_dataset"
+              }
+            }
+          ]
+        },
+        {
+          "type": "final",
+          "text": "Dataset validation passed: 27 products across 9 categories."
+        }
+      ],
+      "required_operations": [
+        {
+          "operation": "explicit_validate_products",
+          "acceptable_results": [
+            {
+              "name": "validate_products",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        }
+      ],
+      "acceptable_plans": [
+        {
+          "rounds": [
+            [
+              "validate_products"
+            ]
+          ],
+          "ordering": "exact"
+        }
+      ],
+      "expected": {
+        "orchestration": {
+          "status": "completed",
+          "code": "ok",
+          "execution_status": "success",
+          "api_requests": 2,
+          "tool_rounds": 1
+        },
+        "tool_results": [
+          {
+            "tool_call_id": "v1",
+            "name": "validate_products",
+            "status": "success",
+            "code": "ok"
+          }
+        ],
+        "operation_handling": [
+          {
+            "operation": "explicit_validate_products",
+            "state": "met"
+          }
+        ],
+        "task_verdict": "pass",
+        "evaluation_expectation_verdict": "pass",
+        "reason_codes": [
+          "requirements_met"
+        ]
+      },
+      "human_review": {
+        "required": false,
+        "scope": "none",
+        "state": "not_required",
+        "anticipated_outcome": null
+      }
+    },
+    {
+      "id": "AE-02",
+      "version": "1.0.0",
+      "scenario_type": "tool_task",
+      "request": "Check whether the selected knowledge matches the dataset. A separate validator call is unnecessary.",
+      "fixture_id": "F0",
+      "script": [
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "k1",
+              "name": "check_knowledge",
+              "arguments": {
+                "dataset": "selected_dataset",
+                "knowledge": "selected_knowledge"
+              }
+            }
+          ]
+        },
+        {
+          "type": "final",
+          "text": "All 27 knowledge records are consistent with the validated dataset."
+        }
+      ],
+      "required_operations": [
+        {
+          "operation": "knowledge_inspection",
+          "acceptable_results": [
+            {
+              "name": "check_knowledge",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        }
+      ],
+      "acceptable_plans": [
+        {
+          "rounds": [
+            [
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "exact"
+        }
+      ],
+      "expected": {
+        "orchestration": {
+          "status": "completed",
+          "code": "ok",
+          "execution_status": "success",
+          "api_requests": 2,
+          "tool_rounds": 1
+        },
+        "tool_results": [
+          {
+            "tool_call_id": "k1",
+            "name": "check_knowledge",
+            "status": "success",
+            "code": "ok"
+          }
+        ],
+        "operation_handling": [
+          {
+            "operation": "knowledge_inspection",
+            "state": "met"
+          }
+        ],
+        "task_verdict": "pass",
+        "evaluation_expectation_verdict": "pass",
+        "reason_codes": [
+          "requirements_met"
+        ]
+      },
+      "human_review": {
+        "required": false,
+        "scope": "none",
+        "state": "not_required",
+        "anticipated_outcome": null
+      }
+    },
+    {
+      "id": "AE-03",
+      "version": "1.0.0",
+      "scenario_type": "tool_task",
+      "request": "Execute both validate_products and check_knowledge, then report their results.",
+      "fixture_id": "F0",
+      "script": [
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "v1",
+              "name": "validate_products",
+              "arguments": {
+                "dataset": "selected_dataset"
+              }
+            },
+            {
+              "id": "k1",
+              "name": "check_knowledge",
+              "arguments": {
+                "dataset": "selected_dataset",
+                "knowledge": "selected_knowledge"
+              }
+            }
+          ]
+        },
+        {
+          "type": "final",
+          "text": "Dataset validation passed; all 27 knowledge records are consistent."
+        }
+      ],
+      "required_operations": [
+        {
+          "operation": "explicit_validate_products",
+          "acceptable_results": [
+            {
+              "name": "validate_products",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        },
+        {
+          "operation": "knowledge_inspection",
+          "acceptable_results": [
+            {
+              "name": "check_knowledge",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        }
+      ],
+      "acceptable_plans": [
+        {
+          "rounds": [
+            [
+              "validate_products",
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "any_within_round"
+        },
+        {
+          "rounds": [
+            [
+              "validate_products"
+            ],
+            [
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "exact"
+        },
+        {
+          "rounds": [
+            [
+              "check_knowledge"
+            ],
+            [
+              "validate_products"
+            ]
+          ],
+          "ordering": "exact"
+        }
+      ],
+      "expected": {
+        "orchestration": {
+          "status": "completed",
+          "code": "ok",
+          "execution_status": "success",
+          "api_requests": 2,
+          "tool_rounds": 1
+        },
+        "tool_results": [
+          {
+            "tool_call_id": "v1",
+            "name": "validate_products",
+            "status": "success",
+            "code": "ok"
+          },
+          {
+            "tool_call_id": "k1",
+            "name": "check_knowledge",
+            "status": "success",
+            "code": "ok"
+          }
+        ],
+        "operation_handling": [
+          {
+            "operation": "explicit_validate_products",
+            "state": "met"
+          },
+          {
+            "operation": "knowledge_inspection",
+            "state": "met"
+          }
+        ],
+        "task_verdict": "pass",
+        "evaluation_expectation_verdict": "pass",
+        "reason_codes": [
+          "requirements_met"
+        ]
+      },
+      "human_review": {
+        "required": false,
+        "scope": "none",
+        "state": "not_required",
+        "anticipated_outcome": null
+      }
+    },
+    {
+      "id": "AE-04",
+      "version": "1.0.0",
+      "scenario_type": "no_tool_question",
+      "request": "What does a knowledge consistency check compare? Do not inspect any files.",
+      "fixture_id": "F0",
+      "script": [
+        {
+          "type": "final",
+          "text": "It compares product records in local knowledge with the selected dataset."
+        }
+      ],
+      "required_operations": [],
+      "acceptable_plans": [
+        {
+          "rounds": [],
+          "ordering": "exact"
+        }
+      ],
+      "expected": {
+        "orchestration": {
+          "status": "completed",
+          "code": "no_tools_executed",
+          "execution_status": "not_run",
+          "api_requests": 1,
+          "tool_rounds": 0
+        },
+        "tool_results": [],
+        "operation_handling": [],
+        "task_verdict": "pending_review",
+        "evaluation_expectation_verdict": "pass",
+        "reason_codes": [
+          "no_tools_needed",
+          "human_review_required"
+        ]
+      },
+      "human_review": {
+        "required": true,
+        "scope": "answer_correctness",
+        "state": "pending",
+        "anticipated_outcome": "pass"
+      }
+    },
+    {
+      "id": "AE-05",
+      "version": "1.0.0",
+      "scenario_type": "tool_task",
+      "request": "Inspect the selected dataset and tell me whether it is valid.",
+      "fixture_id": "F0",
+      "script": [
+        {
+          "type": "final",
+          "text": "Your dataset is valid."
+        }
+      ],
+      "required_operations": [
+        {
+          "operation": "dataset_validation",
+          "acceptable_results": [
+            {
+              "name": "validate_products",
+              "status": "success",
+              "code": "ok"
+            },
+            {
+              "name": "check_knowledge",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        }
+      ],
+      "acceptable_plans": [
+        {
+          "rounds": [
+            [
+              "validate_products"
+            ]
+          ],
+          "ordering": "exact"
+        }
+      ],
+      "expected": {
+        "orchestration": {
+          "status": "completed",
+          "code": "no_tools_executed",
+          "execution_status": "not_run",
+          "api_requests": 1,
+          "tool_rounds": 0
+        },
+        "tool_results": [],
+        "operation_handling": [
+          {
+            "operation": "dataset_validation",
+            "state": "missing"
+          }
+        ],
+        "task_verdict": "fail",
+        "evaluation_expectation_verdict": "pass",
+        "reason_codes": [
+          "tools_required_bypass",
+          "missing_required_operation"
+        ]
+      },
+      "human_review": {
+        "required": false,
+        "scope": "none",
+        "state": "not_required",
+        "anticipated_outcome": null
+      }
+    },
+    {
+      "id": "AE-06",
+      "version": "1.0.0",
+      "scenario_type": "tool_task",
+      "request": "Run validate_products and report any invalid product fields.",
+      "fixture_id": "FD",
+      "script": [
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "v1",
+              "name": "validate_products",
+              "arguments": {
+                "dataset": "selected_dataset"
+              }
+            }
+          ]
+        },
+        {
+          "type": "final",
+          "text": "Validation failed: LAP-001 has an invalid price_rmb value."
+        }
+      ],
+      "required_operations": [
+        {
+          "operation": "explicit_validate_products",
+          "acceptable_results": [
+            {
+              "name": "validate_products",
+              "status": "failed",
+              "code": "dataset_invalid"
+            }
+          ],
+          "acceptable_blocks": []
+        }
+      ],
+      "acceptable_plans": [
+        {
+          "rounds": [
+            [
+              "validate_products"
+            ]
+          ],
+          "ordering": "exact"
+        }
+      ],
+      "expected": {
+        "orchestration": {
+          "status": "completed",
+          "code": "tool_execution_failed",
+          "execution_status": "failed",
+          "api_requests": 2,
+          "tool_rounds": 1
+        },
+        "tool_results": [
+          {
+            "tool_call_id": "v1",
+            "name": "validate_products",
+            "status": "failed",
+            "code": "dataset_invalid"
+          }
+        ],
+        "operation_handling": [
+          {
+            "operation": "explicit_validate_products",
+            "state": "met"
+          }
+        ],
+        "task_verdict": "pass",
+        "evaluation_expectation_verdict": "pass",
+        "reason_codes": [
+          "expected_dataset_invalid"
+        ]
+      },
+      "human_review": {
+        "required": false,
+        "scope": "none",
+        "state": "not_required",
+        "anticipated_outcome": null
+      }
+    },
+    {
+      "id": "AE-07",
+      "version": "1.0.0",
+      "scenario_type": "tool_task",
+      "request": "Check whether the knowledge agrees with the dataset and report discrepancies.",
+      "fixture_id": "FK",
+      "script": [
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "k1",
+              "name": "check_knowledge",
+              "arguments": {
+                "dataset": "selected_dataset",
+                "knowledge": "selected_knowledge"
+              }
+            }
+          ]
+        },
+        {
+          "type": "final",
+          "text": "The knowledge price for LAP-001 differs from the dataset."
+        }
+      ],
+      "required_operations": [
+        {
+          "operation": "knowledge_inspection",
+          "acceptable_results": [
+            {
+              "name": "check_knowledge",
+              "status": "failed",
+              "code": "knowledge_inconsistent"
+            }
+          ],
+          "acceptable_blocks": []
+        }
+      ],
+      "acceptable_plans": [
+        {
+          "rounds": [
+            [
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "exact"
+        }
+      ],
+      "expected": {
+        "orchestration": {
+          "status": "completed",
+          "code": "tool_execution_failed",
+          "execution_status": "failed",
+          "api_requests": 2,
+          "tool_rounds": 1
+        },
+        "tool_results": [
+          {
+            "tool_call_id": "k1",
+            "name": "check_knowledge",
+            "status": "failed",
+            "code": "knowledge_inconsistent"
+          }
+        ],
+        "operation_handling": [
+          {
+            "operation": "knowledge_inspection",
+            "state": "met"
+          }
+        ],
+        "task_verdict": "pass",
+        "evaluation_expectation_verdict": "pass",
+        "reason_codes": [
+          "expected_knowledge_inconsistent"
+        ]
+      },
+      "human_review": {
+        "required": false,
+        "scope": "none",
+        "state": "not_required",
+        "anticipated_outcome": null
+      }
+    },
+    {
+      "id": "AE-08",
+      "version": "1.0.0",
+      "scenario_type": "tool_task",
+      "request": "Execute both tools. If the dataset is invalid, report that the knowledge check was blocked.",
+      "fixture_id": "FD",
+      "script": [
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "v1",
+              "name": "validate_products",
+              "arguments": {
+                "dataset": "selected_dataset"
+              }
+            },
+            {
+              "id": "k1",
+              "name": "check_knowledge",
+              "arguments": {
+                "dataset": "selected_dataset",
+                "knowledge": "selected_knowledge"
+              }
+            }
+          ]
+        },
+        {
+          "type": "final",
+          "text": "Dataset validation failed; knowledge checking was skipped because the dataset is invalid."
+        }
+      ],
+      "required_operations": [
+        {
+          "operation": "explicit_validate_products",
+          "acceptable_results": [
+            {
+              "name": "validate_products",
+              "status": "failed",
+              "code": "dataset_invalid"
+            }
+          ],
+          "acceptable_blocks": []
+        },
+        {
+          "operation": "knowledge_inspection",
+          "acceptable_results": [
+            {
+              "name": "check_knowledge",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": [
+            {
+              "name": "check_knowledge",
+              "status": "skipped",
+              "code": "dataset_invalid"
+            }
+          ]
+        }
+      ],
+      "acceptable_plans": [
+        {
+          "rounds": [
+            [
+              "validate_products",
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "any_within_round"
+        },
+        {
+          "rounds": [
+            [
+              "validate_products"
+            ],
+            [
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "exact"
+        },
+        {
+          "rounds": [
+            [
+              "check_knowledge"
+            ],
+            [
+              "validate_products"
+            ]
+          ],
+          "ordering": "exact"
+        }
+      ],
+      "expected": {
+        "orchestration": {
+          "status": "completed",
+          "code": "tool_execution_failed",
+          "execution_status": "failed",
+          "api_requests": 2,
+          "tool_rounds": 1
+        },
+        "tool_results": [
+          {
+            "tool_call_id": "v1",
+            "name": "validate_products",
+            "status": "failed",
+            "code": "dataset_invalid"
+          },
+          {
+            "tool_call_id": "k1",
+            "name": "check_knowledge",
+            "status": "skipped",
+            "code": "dataset_invalid"
+          }
+        ],
+        "operation_handling": [
+          {
+            "operation": "explicit_validate_products",
+            "state": "met"
+          },
+          {
+            "operation": "knowledge_inspection",
+            "state": "blocked_expected"
+          }
+        ],
+        "task_verdict": "pass",
+        "evaluation_expectation_verdict": "pass",
+        "reason_codes": [
+          "expected_dataset_invalid",
+          "expected_dependency_block"
+        ]
+      },
+      "human_review": {
+        "required": false,
+        "scope": "none",
+        "state": "not_required",
+        "anticipated_outcome": null
+      }
+    },
+    {
+      "id": "AE-09",
+      "version": "1.0.0",
+      "scenario_type": "tool_task",
+      "request": "Execute both dataset validation and knowledge consistency checking.",
+      "fixture_id": "F0",
+      "script": [
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "v1",
+              "name": "validate_products",
+              "arguments": {
+                "dataset": "selected_dataset"
+              }
+            },
+            {
+              "id": "g1",
+              "name": "generate_knowledge",
+              "arguments": {
+                "dataset": "selected_dataset"
+              }
+            }
+          ]
+        }
+      ],
+      "required_operations": [
+        {
+          "operation": "explicit_validate_products",
+          "acceptable_results": [
+            {
+              "name": "validate_products",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        },
+        {
+          "operation": "knowledge_inspection",
+          "acceptable_results": [
+            {
+              "name": "check_knowledge",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        }
+      ],
+      "acceptable_plans": [
+        {
+          "rounds": [
+            [
+              "validate_products",
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "any_within_round"
+        },
+        {
+          "rounds": [
+            [
+              "validate_products"
+            ],
+            [
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "exact"
+        },
+        {
+          "rounds": [
+            [
+              "check_knowledge"
+            ],
+            [
+              "validate_products"
+            ]
+          ],
+          "ordering": "exact"
+        }
+      ],
+      "expected": {
+        "orchestration": {
+          "status": "failed",
+          "code": "invalid_tool_calls",
+          "execution_status": "not_run",
+          "api_requests": 1,
+          "tool_rounds": 0
+        },
+        "tool_results": [],
+        "operation_handling": [
+          {
+            "operation": "explicit_validate_products",
+            "state": "missing"
+          },
+          {
+            "operation": "knowledge_inspection",
+            "state": "missing"
+          }
+        ],
+        "task_verdict": "fail",
+        "evaluation_expectation_verdict": "pass",
+        "reason_codes": [
+          "unsupported_tool",
+          "missing_required_operation"
+        ]
+      },
+      "human_review": {
+        "required": false,
+        "scope": "none",
+        "state": "not_required",
+        "anticipated_outcome": null
+      }
+    },
+    {
+      "id": "AE-10",
+      "version": "1.0.0",
+      "scenario_type": "tool_task",
+      "request": "Execute both tools using only the selected resources.",
+      "fixture_id": "F0",
+      "script": [
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "v1",
+              "name": "validate_products",
+              "arguments": {
+                "dataset": "selected_dataset"
+              }
+            },
+            {
+              "id": "kbad",
+              "name": "check_knowledge",
+              "arguments": {
+                "dataset": "selected_dataset",
+                "knowledge": "other_knowledge"
+              }
+            }
+          ]
+        }
+      ],
+      "required_operations": [
+        {
+          "operation": "explicit_validate_products",
+          "acceptable_results": [
+            {
+              "name": "validate_products",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        },
+        {
+          "operation": "knowledge_inspection",
+          "acceptable_results": [
+            {
+              "name": "check_knowledge",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        }
+      ],
+      "acceptable_plans": [
+        {
+          "rounds": [
+            [
+              "validate_products",
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "any_within_round"
+        },
+        {
+          "rounds": [
+            [
+              "validate_products"
+            ],
+            [
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "exact"
+        },
+        {
+          "rounds": [
+            [
+              "check_knowledge"
+            ],
+            [
+              "validate_products"
+            ]
+          ],
+          "ordering": "exact"
+        }
+      ],
+      "expected": {
+        "orchestration": {
+          "status": "failed",
+          "code": "invalid_tool_calls",
+          "execution_status": "not_run",
+          "api_requests": 1,
+          "tool_rounds": 0
+        },
+        "tool_results": [],
+        "operation_handling": [
+          {
+            "operation": "explicit_validate_products",
+            "state": "missing"
+          },
+          {
+            "operation": "knowledge_inspection",
+            "state": "missing"
+          }
+        ],
+        "task_verdict": "fail",
+        "evaluation_expectation_verdict": "pass",
+        "reason_codes": [
+          "unauthorized_arguments",
+          "missing_required_operation"
+        ]
+      },
+      "human_review": {
+        "required": false,
+        "scope": "none",
+        "state": "not_required",
+        "anticipated_outcome": null
+      }
+    },
+    {
+      "id": "AE-11",
+      "version": "1.0.0",
+      "scenario_type": "tool_task",
+      "request": "First run validate_products. After receiving its result, run check_knowledge, then summarize.",
+      "fixture_id": "F0",
+      "script": [
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "v1",
+              "name": "validate_products",
+              "arguments": {
+                "dataset": "selected_dataset"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "k1",
+              "name": "check_knowledge",
+              "arguments": {
+                "dataset": "selected_dataset",
+                "knowledge": "selected_knowledge"
+              }
+            }
+          ]
+        },
+        {
+          "type": "final",
+          "text": "Both checks passed."
+        }
+      ],
+      "required_operations": [
+        {
+          "operation": "explicit_validate_products",
+          "acceptable_results": [
+            {
+              "name": "validate_products",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        },
+        {
+          "operation": "knowledge_inspection",
+          "acceptable_results": [
+            {
+              "name": "check_knowledge",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        }
+      ],
+      "acceptable_plans": [
+        {
+          "rounds": [
+            [
+              "validate_products"
+            ],
+            [
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "exact"
+        }
+      ],
+      "expected": {
+        "orchestration": {
+          "status": "completed",
+          "code": "ok",
+          "execution_status": "success",
+          "api_requests": 3,
+          "tool_rounds": 2
+        },
+        "tool_results": [
+          {
+            "tool_call_id": "v1",
+            "name": "validate_products",
+            "status": "success",
+            "code": "ok"
+          },
+          {
+            "tool_call_id": "k1",
+            "name": "check_knowledge",
+            "status": "success",
+            "code": "ok"
+          }
+        ],
+        "operation_handling": [
+          {
+            "operation": "explicit_validate_products",
+            "state": "met"
+          },
+          {
+            "operation": "knowledge_inspection",
+            "state": "met"
+          }
+        ],
+        "task_verdict": "pass",
+        "evaluation_expectation_verdict": "pass",
+        "reason_codes": [
+          "requirements_met"
+        ]
+      },
+      "human_review": {
+        "required": false,
+        "scope": "none",
+        "state": "not_required",
+        "anticipated_outcome": null
+      }
+    },
+    {
+      "id": "AE-12",
+      "version": "1.0.0",
+      "scenario_type": "tool_task",
+      "request": "Execute both validate_products and check_knowledge.",
+      "fixture_id": "F0",
+      "script": [
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "v1",
+              "name": "validate_products",
+              "arguments": {
+                "dataset": "selected_dataset"
+              }
+            }
+          ]
+        },
+        {
+          "type": "final",
+          "text": "Dataset validation passed; I did not check knowledge."
+        }
+      ],
+      "required_operations": [
+        {
+          "operation": "explicit_validate_products",
+          "acceptable_results": [
+            {
+              "name": "validate_products",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        },
+        {
+          "operation": "knowledge_inspection",
+          "acceptable_results": [
+            {
+              "name": "check_knowledge",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        }
+      ],
+      "acceptable_plans": [
+        {
+          "rounds": [
+            [
+              "validate_products",
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "any_within_round"
+        },
+        {
+          "rounds": [
+            [
+              "validate_products"
+            ],
+            [
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "exact"
+        },
+        {
+          "rounds": [
+            [
+              "check_knowledge"
+            ],
+            [
+              "validate_products"
+            ]
+          ],
+          "ordering": "exact"
+        }
+      ],
+      "expected": {
+        "orchestration": {
+          "status": "completed",
+          "code": "ok",
+          "execution_status": "success",
+          "api_requests": 2,
+          "tool_rounds": 1
+        },
+        "tool_results": [
+          {
+            "tool_call_id": "v1",
+            "name": "validate_products",
+            "status": "success",
+            "code": "ok"
+          }
+        ],
+        "operation_handling": [
+          {
+            "operation": "explicit_validate_products",
+            "state": "met"
+          },
+          {
+            "operation": "knowledge_inspection",
+            "state": "missing"
+          }
+        ],
+        "task_verdict": "fail",
+        "evaluation_expectation_verdict": "pass",
+        "reason_codes": [
+          "missing_required_operation"
+        ]
+      },
+      "human_review": {
+        "required": false,
+        "scope": "none",
+        "state": "not_required",
+        "anticipated_outcome": null
+      }
+    },
+    {
+      "id": "AE-13",
+      "version": "1.0.0",
+      "scenario_type": "tool_task",
+      "request": "Run validate_products once. Do not check knowledge.",
+      "fixture_id": "F0",
+      "script": [
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "v1",
+              "name": "validate_products",
+              "arguments": {
+                "dataset": "selected_dataset"
+              }
+            },
+            {
+              "id": "v2",
+              "name": "validate_products",
+              "arguments": {
+                "dataset": "selected_dataset"
+              }
+            },
+            {
+              "id": "k1",
+              "name": "check_knowledge",
+              "arguments": {
+                "dataset": "selected_dataset",
+                "knowledge": "selected_knowledge"
+              }
+            }
+          ]
+        },
+        {
+          "type": "final",
+          "text": "Validation was run twice and knowledge was checked."
+        }
+      ],
+      "required_operations": [
+        {
+          "operation": "explicit_validate_products",
+          "acceptable_results": [
+            {
+              "name": "validate_products",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        }
+      ],
+      "acceptable_plans": [
+        {
+          "rounds": [
+            [
+              "validate_products"
+            ]
+          ],
+          "ordering": "exact"
+        }
+      ],
+      "expected": {
+        "orchestration": {
+          "status": "completed",
+          "code": "ok",
+          "execution_status": "success",
+          "api_requests": 2,
+          "tool_rounds": 1
+        },
+        "tool_results": [
+          {
+            "tool_call_id": "v1",
+            "name": "validate_products",
+            "status": "success",
+            "code": "ok"
+          },
+          {
+            "tool_call_id": "v2",
+            "name": "validate_products",
+            "status": "success",
+            "code": "ok"
+          },
+          {
+            "tool_call_id": "k1",
+            "name": "check_knowledge",
+            "status": "success",
+            "code": "ok"
+          }
+        ],
+        "operation_handling": [
+          {
+            "operation": "explicit_validate_products",
+            "state": "met"
+          }
+        ],
+        "task_verdict": "fail",
+        "evaluation_expectation_verdict": "pass",
+        "reason_codes": [
+          "redundant_calls",
+          "unnecessary_calls"
+        ]
+      },
+      "human_review": {
+        "required": false,
+        "scope": "none",
+        "state": "not_required",
+        "anticipated_outcome": null
+      }
+    },
+    {
+      "id": "AE-14",
+      "version": "1.0.0",
+      "scenario_type": "tool_task",
+      "request": "Execute both tools and summarize their results.",
+      "fixture_id": "F0",
+      "script": [
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "v1",
+              "name": "validate_products",
+              "arguments": {
+                "dataset": "selected_dataset"
+              }
+            }
+          ]
+        },
+        {
+          "type": "http_error",
+          "status": 502
+        }
+      ],
+      "required_operations": [
+        {
+          "operation": "explicit_validate_products",
+          "acceptable_results": [
+            {
+              "name": "validate_products",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        },
+        {
+          "operation": "knowledge_inspection",
+          "acceptable_results": [
+            {
+              "name": "check_knowledge",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        }
+      ],
+      "acceptable_plans": [
+        {
+          "rounds": [
+            [
+              "validate_products",
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "any_within_round"
+        },
+        {
+          "rounds": [
+            [
+              "validate_products"
+            ],
+            [
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "exact"
+        },
+        {
+          "rounds": [
+            [
+              "check_knowledge"
+            ],
+            [
+              "validate_products"
+            ]
+          ],
+          "ordering": "exact"
+        }
+      ],
+      "expected": {
+        "orchestration": {
+          "status": "failed",
+          "code": "http_error_502",
+          "execution_status": "success",
+          "api_requests": 2,
+          "tool_rounds": 1
+        },
+        "tool_results": [
+          {
+            "tool_call_id": "v1",
+            "name": "validate_products",
+            "status": "success",
+            "code": "ok"
+          }
+        ],
+        "operation_handling": [
+          {
+            "operation": "explicit_validate_products",
+            "state": "met"
+          },
+          {
+            "operation": "knowledge_inspection",
+            "state": "missing"
+          }
+        ],
+        "task_verdict": "fail",
+        "evaluation_expectation_verdict": "pass",
+        "reason_codes": [
+          "provider_failure",
+          "missing_required_operation",
+          "final_delivery_missing"
+        ]
+      },
+      "human_review": {
+        "required": false,
+        "scope": "none",
+        "state": "not_required",
+        "anticipated_outcome": null
+      }
+    },
+    {
+      "id": "AE-15",
+      "version": "1.0.0",
+      "scenario_type": "tool_task",
+      "request": "Run validate_products and explain its actual result.",
+      "fixture_id": "FD",
+      "script": [
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "v1",
+              "name": "validate_products",
+              "arguments": {
+                "dataset": "selected_dataset"
+              }
+            }
+          ]
+        },
+        {
+          "type": "final",
+          "text": "Validation passed; all 27 products are valid."
+        }
+      ],
+      "required_operations": [
+        {
+          "operation": "explicit_validate_products",
+          "acceptable_results": [
+            {
+              "name": "validate_products",
+              "status": "failed",
+              "code": "dataset_invalid"
+            }
+          ],
+          "acceptable_blocks": []
+        }
+      ],
+      "acceptable_plans": [
+        {
+          "rounds": [
+            [
+              "validate_products"
+            ]
+          ],
+          "ordering": "exact"
+        }
+      ],
+      "expected": {
+        "orchestration": {
+          "status": "completed",
+          "code": "tool_execution_failed",
+          "execution_status": "failed",
+          "api_requests": 2,
+          "tool_rounds": 1
+        },
+        "tool_results": [
+          {
+            "tool_call_id": "v1",
+            "name": "validate_products",
+            "status": "failed",
+            "code": "dataset_invalid"
+          }
+        ],
+        "operation_handling": [
+          {
+            "operation": "explicit_validate_products",
+            "state": "met"
+          }
+        ],
+        "task_verdict": "pending_review",
+        "evaluation_expectation_verdict": "pass",
+        "reason_codes": [
+          "expected_dataset_invalid",
+          "human_review_required"
+        ]
+      },
+      "human_review": {
+        "required": true,
+        "scope": "explanation_consistency",
+        "state": "pending",
+        "anticipated_outcome": "fail"
+      }
+    },
+    {
+      "id": "AE-16",
+      "version": "1.0.0",
+      "scenario_type": "tool_task",
+      "request": "Execute both tools once, then summarize.",
+      "fixture_id": "F0",
+      "script": [
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "v1",
+              "name": "validate_products",
+              "arguments": {
+                "dataset": "selected_dataset"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "k1",
+              "name": "check_knowledge",
+              "arguments": {
+                "dataset": "selected_dataset",
+                "knowledge": "selected_knowledge"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "calls": [
+            {
+              "id": "v2",
+              "name": "validate_products",
+              "arguments": {
+                "dataset": "selected_dataset"
+              }
+            }
+          ]
+        }
+      ],
+      "required_operations": [
+        {
+          "operation": "explicit_validate_products",
+          "acceptable_results": [
+            {
+              "name": "validate_products",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        },
+        {
+          "operation": "knowledge_inspection",
+          "acceptable_results": [
+            {
+              "name": "check_knowledge",
+              "status": "success",
+              "code": "ok"
+            }
+          ],
+          "acceptable_blocks": []
+        }
+      ],
+      "acceptable_plans": [
+        {
+          "rounds": [
+            [
+              "validate_products",
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "any_within_round"
+        },
+        {
+          "rounds": [
+            [
+              "validate_products"
+            ],
+            [
+              "check_knowledge"
+            ]
+          ],
+          "ordering": "exact"
+        },
+        {
+          "rounds": [
+            [
+              "check_knowledge"
+            ],
+            [
+              "validate_products"
+            ]
+          ],
+          "ordering": "exact"
+        }
+      ],
+      "expected": {
+        "orchestration": {
+          "status": "failed",
+          "code": "execution_limit_reached",
+          "execution_status": "success",
+          "api_requests": 3,
+          "tool_rounds": 2
+        },
+        "tool_results": [
+          {
+            "tool_call_id": "v1",
+            "name": "validate_products",
+            "status": "success",
+            "code": "ok"
+          },
+          {
+            "tool_call_id": "k1",
+            "name": "check_knowledge",
+            "status": "success",
+            "code": "ok"
+          }
+        ],
+        "operation_handling": [
+          {
+            "operation": "explicit_validate_products",
+            "state": "met"
+          },
+          {
+            "operation": "knowledge_inspection",
+            "state": "met"
+          }
+        ],
+        "task_verdict": "fail",
+        "evaluation_expectation_verdict": "pass",
+        "reason_codes": [
+          "execution_limit",
+          "redundant_calls",
+          "final_delivery_missing"
+        ]
+      },
+      "human_review": {
+        "required": false,
+        "scope": "none",
+        "state": "not_required",
+        "anticipated_outcome": null
+      }
+    }
+  ]
+}
