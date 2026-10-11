@@ -1,10 +1,11 @@
 # MyTech v2 — Grounded RAG Product Recommendation Assistant
 
 [![Tests](https://github.com/ych680/mytech-ai-assistant/actions/workflows/tests.yml/badge.svg)](https://github.com/ych680/mytech-ai-assistant/actions/workflows/tests.yml)
+[![Cross-platform CI](https://github.com/ych680/mytech-ai-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/ych680/mytech-ai-assistant/actions/workflows/ci.yml)
 
 MyTech v2 is an electronic product recommendation chatbot developed as a postgraduate AI coursework team project. Users describe a device, maximum budget, and main usage; the assistant retrieves reference product evidence, asks for missing requirements, and returns validated recommendations rather than relying on unrestricted model output.
 
-The locally runnable prototype combines a **browser frontend**, a **Node.js backend**, and a **FastGPT RAG workflow**. It covers **9 product categories and 27 reference products**, with deterministic response validation and **16 automated tests**. These counts describe the project's scope, not recommendation accuracy or production reliability.
+The locally runnable prototype combines a **browser frontend**, a **Node.js backend**, and a **FastGPT RAG workflow**. It covers **9 product categories and 27 reference products**, with deterministic response validation. Three independent Python tooling capabilities extend the repository with dataset validation, RAG knowledge preparation, and native LLM tool orchestration. The repository contains **90 Python tests and 16 Node.js tests**; these counts describe automated checks, not real-model accuracy or production reliability.
 
 ## Demo
 
@@ -40,6 +41,8 @@ These screenshots show earlier local demonstrations; they do not capture every c
 
 ## System Architecture
 
+### Consumer-facing Chatbot
+
 ```text
 Browser Frontend → Node.js Backend → FastGPT Workflow
                                       ↓
@@ -72,16 +75,42 @@ The [knowledge-base source](knowledge/MyTech_Product_Knowledge_v1.md) groups eac
 
 The [system prompt file](mytech_v1_system_prompt.txt) is still loaded during server and browser initialization. Keep it and the JSON catalogue alongside the application files. The published FastGPT workflow contains the model-node prompts used for generation.
 
+### Independent Python Tools and Agent
+
+| Capability | Purpose |
+|---|---|
+| **Tool 1 — Product Dataset Validator** | [Validates JSON catalogue structure and product fields](tools/validate_products.py), including duplicate identities, prices, categories, and optional strict compatibility with the 27-product classroom catalogue. |
+| **Tool 2 — RAG Knowledge Builder and Consistency Checker** | [Generates deterministic Markdown or checks existing knowledge against the dataset](tools/build_knowledge.py). Generation creates a new file without overwriting existing files; checking is read-only. |
+| **Tool 3 — Native LLM Tool Orchestrator** | [Coordinates TokenProxy native tool calls](tools/tool3_tokenproxy.py) through an [allowlisted Python executor](tools/tool3_executor.py), then feeds structured tool results back to the model for an explanation. |
+
+Tool 3 operates independently from the consumer-facing chatbot. Its model can request only `validate_products` and `check_knowledge`; it cannot invoke Tool 2's file-generation operation.
+
+```text
+Local request → Python orchestrator ↔ TokenProxy LLM (native tool_calls)
+                       ↓                         ↑
+              Allowlisted executor → Tool-result feedback
+                       ↓
+              Dataset validation / Knowledge consistency check
+```
+
+The bounded loop allows at most three completion attempts, two tool rounds, and eight total tool calls. Structured execution results remain separate from the model's explanation. See [Tool 3 architecture and security](docs/tool3-architecture.md) for the protocol, limits, and opt-in live CLI.
+
+A **manually performed TokenProxy live smoke test**, reported by the maintainer, successfully executed both tools: **27 products in 9 categories validated**, **27 knowledge records consistent**, using **3 API requests and 2 tool rounds**. This verifies that integration for the demonstrated request; it is separate from offline tests and CI, and does not measure general tool-selection or explanation accuracy.
+
 ## Testing & CI
 
-The project has **16 automated tests**, using Node.js built-ins without a testing framework or additional packages:
+The project contains **90 Python tests** using standard-library `unittest` and **16 Node.js tests** using Node.js built-ins, without additional testing packages:
 
 | Suite | Tests | Coverage |
 |---|---:|---|
+| [Product validator](tests/test_product_tools.py) | 15 | Dataset structure, duplicate JSON keys and identities, finite numbers, prices, dates, strict-v1 rules, and read-only CLI behavior. |
+| [Knowledge builder/checker](tests/test_build_knowledge.py) | 12 | Deterministic generation, legacy/generated formats, escaping, field and record drift, read-only checks, and overwrite protection. |
+| [Tool 3 executor](tests/test_tool3_executor.py) | 29 | Exact call envelopes, allowlisted resources, batch rejection, validation prerequisites, resource limits, result statuses, and no network/subprocess execution. |
+| [Tool 3 TokenProxy orchestration](tests/test_tool3_tokenproxy.py) | 34 | Scripted provider responses with the real executor, native message ordering, multi-round limits, provider failures, bounded diagnostics, and mocked live-CLI acceptance. |
 | [Response tests](tests/response.test.mjs) | 8 | FastGPT message extraction, JSON parsing/error codes, optional-source normalization, field validation, valid no-result/clarification responses, catalogue mismatches, budget boundaries, and recognized usage constraints. |
 | [Frontend recovery tests](tests/frontend-recovery.test.mjs) | 8 | Recovery creation, exact submitted-text restoration, resize/focus, no extra request or state changes on restore, draft/generation protection, stale-action invalidation, restart-aborted/late failures, and subsequent submission through validation. |
 
-Run both suites locally from the repository root:
+Run both Node.js suites locally from the repository root; Python commands are in [Python Tooling with uv](#python-tooling-with-uv):
 
 ```bash
 node --test tests/response.test.mjs tests/frontend-recovery.test.mjs
@@ -89,15 +118,21 @@ node --test tests/response.test.mjs tests/frontend-recovery.test.mjs
 
 The frontend suite executes the actual inline script in `node:vm`, skipping automatic initialization and using minimal DOM stubs and a fake model adapter. Neither suite requires credentials, a running server, or real FastGPT calls.
 
-[GitHub Actions](.github/workflows/tests.yml) runs on pull requests and pushes to `main`, using Node.js 24. It checks the syntax of `mytech_v2_server.mjs` and `mytech_response.mjs`, then runs both suites.
+[GitHub Actions](https://github.com/ych680/mytech-ai-assistant/actions) provides two workflows, both using Node.js 24:
 
-These tests cover defined response-helper and recovery behavior. They do not prove live FastGPT availability, measure real-world recommendation accuracy, verify browser layout, or replace full end-to-end testing with a live model.
+| Workflow | Triggers | Checks |
+|---|---|---|
+| [Cross-platform CI](.github/workflows/ci.yml) | Pull requests targeting `main` | All Python and Node.js suites, strict catalogue validation, and knowledge consistency on **Ubuntu, Windows, and macOS**, with Python 3.12 and uv 0.13.0. |
+| [Response tests](.github/workflows/tests.yml) | Pull requests and pushes to `main` | Server/response-helper syntax checks and both Node.js suites on Ubuntu. |
+
+The badges and Actions run history show CI results for their associated revisions. The cross-platform workflow currently does not run on pushes to `main`. Its checks are offline with respect to FastGPT and TokenProxy; environment setup may download the runtime/tooling.
+
+The 90 Python tests verify deterministic tooling and mocked provider behavior, including the live CLI through mocks; they do not measure real-model accuracy. The manually verified TokenProxy smoke test above provides separate live integration evidence. Neither the automated suites nor that smoke test establish broad recommendation accuracy, live FastGPT availability, browser layout correctness, or production reliability.
 
 ## Python Tooling with uv
 
-The catalogue validator and knowledge builder are independent, standard-library-only
-Python tools. They use Python 3.12 and `unittest`; no Python packages are needed.
-The chatbot continues to run on Node.js and FastGPT.
+All three Python tooling capabilities use Python 3.12 and the standard library;
+no Python packages are needed. The chatbot continues to run on Node.js and FastGPT.
 
 With [uv](https://docs.astral.sh/uv/getting-started/installation/) installed
 (verified with uv 0.13.0), run these commands from the repository root on either
@@ -133,7 +168,27 @@ Keep `.venv` local to each machine; do not copy it between operating systems.
 It and Python caches remain ignored by Git. `uv sync` normally removes packages
 not declared by the project; use `uv sync --locked --managed-python --inexact` if
 an existing environment contains extra packages that must be retained.
-The knowledge command above only checks the existing file; it does not rebuild it.
+The tests, validator, and knowledge check above need no API credentials and make no
+FastGPT or TokenProxy calls. The knowledge command only checks the existing file;
+it does not rebuild it. Initial `uv sync` may require internet access for setup;
+the existing-environment commands avoid that synchronization step.
+
+### Optional Tool 3 Live Smoke Test
+
+To deliberately repeat the fixed live integration demonstration after setting up
+Python, run from the repository root in a terminal supporting hidden input:
+
+```sh
+uv run --locked python -B -m tools.tool3_tokenproxy --live
+```
+
+This command calls the real TokenProxy API. It prompts for the API key using hidden
+`getpass` input, does not read credentials from files or environment variables, and
+does not accept the key as a command-line argument. It exits if secure hidden entry
+is unavailable. Without `--live`, the CLI only displays help and makes no API call.
+It prints structured results and exits successfully only when orchestration completes
+and both named tools have successful execution records. Request/round counts can
+vary within the limits; the reported manual run used three requests and two rounds.
 
 ## My Contribution
 
@@ -182,8 +237,11 @@ The portable export omits API credentials, account-specific model IDs, and concr
 | [knowledge/MyTech_Product_Knowledge_v1.md](knowledge/MyTech_Product_Knowledge_v1.md) | Knowledge-base import source. |
 | [mytech_v1_product_dataset.json](mytech_v1_product_dataset.json) | Local validation catalogue and card data. |
 | [mytech_v1_system_prompt.txt](mytech_v1_system_prompt.txt) | Required runtime/reference prompt file. |
-| [tests/response.test.mjs](tests/response.test.mjs), [tests/frontend-recovery.test.mjs](tests/frontend-recovery.test.mjs) | Dependency-free automated tests. |
-| [.github/workflows/tests.yml](.github/workflows/tests.yml) | Syntax checks and automated test CI. |
+| [tools/validate_products.py](tools/validate_products.py), [tools/build_knowledge.py](tools/build_knowledge.py) | Independent product validation and RAG knowledge preparation/checking. |
+| [tools/tool3_tokenproxy.py](tools/tool3_tokenproxy.py), [tools/tool3_executor.py](tools/tool3_executor.py) | Native LLM orchestration and allowlisted read-only execution. |
+| [docs/tool3-architecture.md](docs/tool3-architecture.md) | Agent architecture, security boundaries, and manual live verification. |
+| [tests/](tests/) | 90 Python tests and 16 Node.js tests. |
+| [.github/workflows/ci.yml](.github/workflows/ci.yml), [.github/workflows/tests.yml](.github/workflows/tests.yml) | Cross-platform checks and Node.js syntax/test CI. |
 | [docs/screenshots/](docs/screenshots/) | Local demonstration screenshots. |
 
 ## Prototype Limitations
@@ -191,4 +249,6 @@ The portable export omits API credentials, account-specific model IDs, and concr
 - Prices are fixed RMB reference values; live retailer pricing, inventory, and purchasing are not supported.
 - The classroom catalogue contains only 27 products. Recommendations are limited by that dataset and the configured retrieval/model behavior.
 - Running recommendations requires a configured external FastGPT workflow, available models, and the imported knowledge base. The “FastGPT Ready” status checks configuration, not live connectivity.
+- Tool 3 requires TokenProxy only for live orchestration and remains separate from the chatbot. Its executor allows two read-only operations; arbitrary shell commands, model-selected paths, and file-writing actions are unsupported. Controlled Knowledge Generation / Phase 3 is not implemented.
+- Tool 3's structured statuses are execution evidence; its generated explanation is not independently fact-checked. Real-model task-completion and tool-selection accuracy have not been benchmarked. Local JSON/Markdown consistency checks do not verify the deployed FastGPT knowledge base or the workflow's static catalogue.
 - The project is a local coursework/portfolio prototype, with no public production deployment. Public hosting would require authentication, rate limiting, monitoring, and appropriate secret management and operational controls.
