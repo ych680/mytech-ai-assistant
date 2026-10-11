@@ -288,7 +288,10 @@ class ReportingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             output = Path(root) / "selected" / "reports"
             paths = reporter.write_report(self.report, output_dir=output)
-            self.assertEqual(set(output.iterdir()), set(paths))
+            self.assertEqual(
+                {p.resolve() for p in output.iterdir()},
+                {p.resolve() for p in paths},
+            )
             self.assertEqual(paths[0].name, reporter.JSON_FILENAME)
             self.assertEqual(paths[1].name, reporter.MARKDOWN_FILENAME)
             decoded = json.loads(paths[0].read_text(encoding="utf-8"))
