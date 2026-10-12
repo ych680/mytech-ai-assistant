@@ -59,12 +59,95 @@ test("preserves empty-content and malformed-JSON error codes", () => {
     assert.equal(extractFastGptContent(response), "");
     assert.throws(() => parseFastGptResponse(response), { message: "EMPTY_MODEL_OUTPUT" });
   }
-  for (const content of ["{", "not JSON", "```json\n{}\n```", "prefix {} suffix"]) {
+  for (const content of ["{", "not JSON", "prefix {} suffix"]) {
     assert.throws(() => parseFastGptResponse(envelope(content)), { message: "MODEL_OUTPUT_NOT_JSON" });
   }
   // Parsing accepts JSON values; validation is responsible for the object contract.
   assert.equal(parseFastGptResponse(envelope("null")), null);
   assert.deepEqual(validate(null), ["Output is not an object."]);
+});
+
+test("parses and validates plain or fenced recommendations and clarification with LF or CRLF", () => {
+  const clarification = {
+    answer: "What will you primarily use the laptop for?",
+    recommendations: [],
+    next_step: "",
+    clarification_needed: true
+  };
+  for (const expected of [output(), clarification]) {
+    for (const newline of ["\n", "\r\n"]) {
+      const text = JSON.stringify(expected, null, 2).replace(/\n/g, newline);
+      for (const document of [text, `\`\`\`json${newline}${text}${newline}\`\`\``]) {
+        for (const content of [document, ` \t\r\n${document}\r\n\t `]) {
+          const parsed = normaliseOutput(parseFastGptResponse(envelope(content)));
+          assert.deepEqual(parsed, expected);
+          assert.deepEqual(validate(parsed), []);
+        }
+      }
+    }
+  }
+});
+
+test("rejects prose, reasoning wrappers, and multiple documents or fenced blocks", () => {
+  const fenced = "```json\n{}\n```";
+  for (const content of [
+    `Here is JSON: ${fenced}`, `${fenced}\nExplanation`,
+    `<think>reasoning</think>\n${fenced}`, "<think>reasoning</think>\n{}",
+    `${fenced}\n${fenced}`, `${fenced}\n{}`, `{}\n${fenced}`,
+    "{}\n{}", "```json\n{}\n{}\n```"
+  ]) {
+    assert.throws(() => parseFastGptResponse(envelope(content)), { message: "MODEL_OUTPUT_NOT_JSON" });
+  }
+});
+
+test("rejects unsupported or malformed fences and invalid enclosed JSON", () => {
+  for (const content of [
+    "```\n{}\n```", "```javascript\n{}\n```", "```JSON\n{}\n```",
+    "~~~json\n{}\n~~~", "````json\n{}\n````", "```json {}\n```",
+    "```json\n{}```", "```json\n{}", "```json\n{}\n``",
+    "```json\n{}\n```suffix", "```json\r{}\r```",
+    "```json\n\n```", "```json\n \t\n```", "```json\n{\n```",
+    '```json\n{"answer":}\n```', '```json\n{"answer":"text",}\n```',
+    '```json\n{"answer":"text"}\n', '{"answer":}', '{"answer":"text",}'
+  ]) {
+    assert.throws(() => parseFastGptResponse(envelope(content)), { message: "MODEL_OUTPUT_NOT_JSON" });
+  }
+});
+
+test("parseable plain and fenced JSON must still satisfy the response contract", () => {
+  for (const value of [null, [], 42, true, "text", {}, { ...output(), extra: true }, { ...output(), recommendations: {} }]) {
+    const text = JSON.stringify(value);
+    for (const content of [text, `\`\`\`json\n${text}\n\`\`\``]) {
+      const parsed = normaliseOutput(parseFastGptResponse(envelope(content)));
+      assert.ok(validate(parsed).length > 0);
+    }
+  }
+});
+
+test("fence compatibility preserves recommendation safety checks through parse, normalize, and validate", () => {
+  const cases = [
+    [output([recommendation({ recommended_product: "Unknown product" })]), {}, {}, "Recommendation 1 is not in the approved dataset."],
+    [output([recommendation({ category: "Mouse" })]), {}, {}, "Recommendation 1 category does not match the dataset."],
+    [output([recommendation({ category: "Unsupported" })]), {}, {}, "Recommendation 1 category does not match the dataset."],
+    [output([recommendation({ price: product.price_rmb + 1 })]), {}, {}, "Recommendation 1 price does not match the dataset."],
+    [output([recommendation({ price: String(product.price_rmb) })]), {}, {}, "Recommendation 1 price does not match the dataset."],
+    [output([recommendation({ source: "Different source" })]), {}, {}, "Recommendation 1 source does not match the dataset."],
+    [output(), { [product.category]: product.price_rmb - 1 }, {}, "Recommendation 1 exceeds the active hard budget."],
+    [output(), {}, { [product.category]: "Gaming" }, "Recommendation 1 does not match the dataset usage tags."],
+    [{ ...output(), answer: "This is currently in stock." }, {}, {}, "Output contains an unsupported live price or availability claim."]
+  ];
+  for (const [value, budgets, usages, error] of cases) {
+    const text = JSON.stringify(value);
+    for (const content of [text, `\`\`\`json\n${text}\n\`\`\``]) {
+      const parsed = normaliseOutput(parseFastGptResponse(envelope(content)));
+      assert.deepEqual(validate(parsed, budgets, usages), [error]);
+    }
+  }
+  for (const source of [undefined, null, product.source]) {
+    const text = JSON.stringify(output([recommendation({ source })]));
+    const parsed = normaliseOutput(parseFastGptResponse(envelope(`\`\`\`json\n${text}\n\`\`\``)));
+    assert.deepEqual(validate(parsed, { [product.category]: product.price_rmb }, { [product.category]: "Study" }), []);
+  }
 });
 
 test("normalizes optional source while preserving current mutation behavior", () => {
