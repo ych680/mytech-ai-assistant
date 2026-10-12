@@ -117,8 +117,10 @@ export function extractFastGptContent(apiResponse) {
 export function parseFastGptResponse(apiResponse) {
   const outputText = extractFastGptContent(apiResponse);
   if (!outputText) throw new Error("EMPTY_MODEL_OUTPUT");
+  // Accept only a complete json fence; never extract JSON from surrounding prose.
+  const fenced = /^```json\r?\n([\s\S]*?)\r?\n```$/.exec(outputText);
   try {
-    return JSON.parse(outputText);
+    return JSON.parse(fenced ? fenced[1] : outputText);
   } catch {
     throw new Error("MODEL_OUTPUT_NOT_JSON");
   }
