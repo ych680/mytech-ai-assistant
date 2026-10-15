@@ -1192,10 +1192,7 @@
           productList.appendChild(card);
         });
 
-        const note = document.createElement("p");
-        note.className = "demo-note";
-        note.textContent = productDataset.price_note;
-        bubble.append(productList, note);
+        bubble.appendChild(productList);
       }
 
       if (response.next_step && response.next_step !== response.answer) {

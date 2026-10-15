@@ -264,3 +264,125 @@ test("restored text subsequently uses the existing request, validation, and rend
   assert.match(app.evaluate("JSON.stringify(modelHistory)"), /reference recommendation/);
   assert.equal(app.networkCalls, 0);
 });
+
+function descendants(element) {
+  return element.children.flatMap((child) => [child, ...descendants(child)]);
+}
+
+function elementsByClass(element, className) {
+  return descendants(element).filter((child) => child.className === className);
+}
+
+function assertNoPriceNote(element) {
+  assert.equal(elementsByClass(element, "demo-note").length, 0);
+  assert.equal(descendants(element).some((child) => child.textContent === dataset.price_note), false);
+}
+
+function assertProductCard(card, product, reason, priceText) {
+  for (const [className, expected] of [
+    ["product-name", product.product],
+    ["product-price", priceText],
+    ["product-meta", `${product.category} · ${product.tier} · Reference price`],
+    ["product-specs", product.key_features.join(" · ")],
+    ["product-reason", reason],
+    ["product-source", `Source: ${product.source}`]
+  ]) {
+    const elements = elementsByClass(card, className);
+    assert.equal(elements.length, 1, className);
+    assert.equal(elements[0].textContent, expected, className);
+  }
+}
+
+test("single recommendation retains its card, answer, and next step without the redundant price note", async () => {
+  const app = harness();
+  const product = dataset.products.find((item) => item.id === "LAP-001");
+  const output = {
+    answer: "Here is a laptop for study.",
+    recommendations: [{
+      category: product.category,
+      recommended_product: product.product,
+      price: product.price_rmb,
+      reason: "Suitable for study and office work.",
+      source: product.source
+    }],
+    next_step: "Tell me if you need another option.",
+    clarification_needed: false
+  };
+  app.respondWith(() => Promise.resolve(output));
+  await app.submit("I need a laptop under ¥6000 for study.");
+
+  const cards = elementsByClass(app.messages, "product-card");
+  assert.equal(cards.length, 1);
+  assertProductCard(cards[0], product, output.recommendations[0].reason, "¥5,799");
+  assert.deepEqual(elementsByClass(app.messages, "recommendation-intro").map((item) => item.textContent), [output.answer]);
+  assert.deepEqual(elementsByClass(app.messages, "next-step").map((item) => item.textContent), [output.next_step]);
+  assertNoPriceNote(app.messages);
+  assert.equal(app.recovery(), undefined);
+  assert.equal(app.networkCalls, 0);
+});
+
+test("multiple recommendations retain separate product details without the redundant price note", async () => {
+  const app = harness();
+  const products = ["LAP-001", "MOU-002"].map((id) => dataset.products.find((item) => item.id === id));
+  const output = {
+    answer: "Here are your laptop and mouse recommendations.",
+    recommendations: products.map((product) => ({
+      category: product.category,
+      recommended_product: product.product,
+      price: product.price_rmb,
+      reason: product.category === "Laptop" ? "Suitable for study." : "Suitable for gaming.",
+      source: product.source
+    })),
+    next_step: "Would you like to adjust either request?",
+    clarification_needed: false
+  };
+  app.respondWith(() => Promise.resolve(output));
+  await app.submit("I need a laptop under ¥6000 for study and a mouse under ¥300 for gaming.");
+
+  const cards = elementsByClass(app.messages, "product-card");
+  assert.equal(cards.length, 2);
+  cards.forEach((card, index) => {
+    assertProductCard(card, products[index], output.recommendations[index].reason, ["¥5,799", "¥229"][index]);
+  });
+  assert.deepEqual(elementsByClass(app.messages, "recommendation-intro").map((item) => item.textContent), [output.answer]);
+  assert.deepEqual(elementsByClass(app.messages, "next-step").map((item) => item.textContent), [output.next_step]);
+  assertNoPriceNote(app.messages);
+  assert.equal(app.recovery(), undefined);
+  assert.equal(app.networkCalls, 0);
+});
+
+for (const scenario of [
+  { name: "clarification", answer: "What is your maximum budget?", clarification_needed: true },
+  { name: "no-result", answer: "No matching product fits your requirements in the reference catalogue.", clarification_needed: false }
+]) {
+  test(`${scenario.name} renders its answer without cards or a price note and preserves next-step behavior`, async () => {
+    for (const nextStep of ["", scenario.answer, "Tell me your updated requirements."]) {
+      const app = harness();
+      const output = {
+        answer: scenario.answer,
+        recommendations: [],
+        next_step: nextStep,
+        clarification_needed: scenario.clarification_needed
+      };
+      app.respondWith(() => Promise.resolve(output));
+      await app.submit("I need a laptop for study.");
+
+      assert.equal(elementsByClass(app.messages, "product-card").length, 0);
+      assert.equal(elementsByClass(app.messages, "product-list").length, 0);
+      assert.deepEqual(elementsByClass(app.messages, "recommendation-intro").map((item) => item.textContent), [scenario.answer]);
+      assert.deepEqual(elementsByClass(app.messages, "next-step").map((item) => item.textContent),
+        nextStep && nextStep !== scenario.answer ? [nextStep] : []);
+      assertNoPriceNote(app.messages);
+      assert.equal(app.recovery(), undefined);
+      assert.equal(app.networkCalls, 0);
+    }
+  });
+}
+
+test("composer price disclosure and original dataset price note remain intact", () => {
+  const footer = html.match(/<footer class="composer-shell">[\s\S]*?<\/footer>/);
+  assert.ok(footer, "composer footer is present");
+  assert.ok(footer[0].includes("Reference product data · RMB (¥) · Not live retailer pricing"));
+  assert.equal(dataset.price_note,
+    "Fixed reference prices for the classroom prototype. They are not live retailer quotes. MyTech should describe them as reference prices.");
+});
