@@ -5,7 +5,7 @@
 
 MyTech v2 is an electronic product recommendation chatbot developed as a postgraduate AI coursework team project. Users describe a device, maximum budget, and main usage; the assistant retrieves reference product evidence, asks for missing requirements, and returns validated recommendations rather than relying on unrestricted model output.
 
-The locally runnable prototype combines a **browser frontend**, a **Node.js backend**, and a **FastGPT RAG workflow**. It covers **9 product categories and 27 reference products**, with deterministic response validation. Three independent Python tooling capabilities extend the repository with dataset validation, RAG knowledge preparation, and native LLM tool orchestration. A separate offline Agent Evaluation framework exercises Tool 3 under controlled responses. The repository contains **224 Python tests (90 existing tooling tests plus 134 Agent Evaluation tests) and 21 Node.js tests**; these counts describe automated checks, not real-model accuracy or production reliability.
+The locally runnable prototype combines a **browser frontend**, a **Node.js backend**, and a **FastGPT RAG workflow**. It covers **9 product categories and 27 reference products**, with deterministic response validation. Three independent Python tooling capabilities extend the repository with dataset validation, RAG knowledge preparation, and native LLM tool orchestration. A separate offline Agent Evaluation framework exercises Tool 3 under controlled responses. The repository contains **226 Python tests (90 existing tooling tests plus 134 Agent Evaluation tests plus 2 workflow graph tests) and 26 Node.js tests**; these counts describe automated checks, not real-model accuracy or production reliability.
 
 ## Demo
 
@@ -109,7 +109,7 @@ See the [evaluation guide](docs/agent-evaluation.md#running-offline-checks) for 
 
 ## Testing & CI
 
-The project contains **224 Python tests** using standard-library `unittest`: **90 existing tooling tests** and **134 Agent Evaluation tests**. There are also **21 Node.js tests** using Node.js built-ins, without additional testing packages:
+The project contains **226 Python tests** using standard-library `unittest`: **90 existing tooling tests**, **134 Agent Evaluation tests**, and **2 workflow graph tests**. There are also **26 Node.js tests** using Node.js built-ins, without additional testing packages:
 
 | Suite | Tests | Coverage |
 |---|---:|---|
@@ -121,8 +121,9 @@ The project contains **224 Python tests** using standard-library `unittest`: **9
 | [Evaluation Runner](tests/test_tool3_evaluation_runner.py) | 25 | All 16 actual offline execution paths, native call evidence, safe authorization flags, partial results, protocol/infrastructure failures, and no credential or live-provider access. |
 | [Evaluation Scoring Engine](tests/test_tool3_evaluation_scoring.py) | 43 | Operation handling, dependency blocks, plan alternatives/order, task versus expectation verdicts, human review, failure categories, and crafted-observation calibration. |
 | [Evaluation evidence reporting](tests/test_tool3_evaluation_reporting.py) | 38 | Versioned safe-field projection, JSON/Markdown consistency, derived totals, verified offline transport, explicit temporary output, overwrite refusal and write-failure rollback. |
+| [Workflow graph](tests/test_workflow_graph.py) | 2 | Portable Scope Router condition-to-target mappings, source/target handles, and help/unrelated reply semantics, checked offline. |
 | [Response tests](tests/response.test.mjs) | 13 | FastGPT message extraction, strict JSON fence compatibility and rejection cases, JSON parsing/error codes, optional-source normalization, field validation, valid no-result/clarification responses, catalogue mismatches, budget boundaries, and recognized usage constraints. |
-| [Frontend recovery tests](tests/frontend-recovery.test.mjs) | 8 | Recovery creation, exact submitted-text restoration, resize/focus, no extra request or state changes on restore, draft/generation protection, stale-action invalidation, restart-aborted/late failures, and subsequent submission through validation. |
+| [Frontend recovery tests](tests/frontend-recovery.test.mjs) | 13 | Recovery creation, exact submitted-text restoration, resize/focus, no extra request or state changes on restore, draft/generation protection, stale-action invalidation, restart-aborted/late failures, subsequent submission through validation, and reference-price disclosure without redundant card wording. |
 
 Run both Node.js suites locally from the repository root; Python commands are in [Python Tooling with uv](#python-tooling-with-uv):
 
@@ -141,7 +142,7 @@ The frontend suite executes the actual inline script in `node:vm`, skipping auto
 
 The badges and Actions run history show CI results for their associated revisions. The cross-platform workflow currently does not run on pushes to `main`. Its checks are offline with respect to FastGPT and TokenProxy; environment setup may download the runtime/tooling.
 
-The 224 Python tests verify deterministic tooling and scripted/mocked provider behavior, including the live CLI through mocks; they do not measure real-model accuracy. The existing cross-platform Python discovery command automatically includes all 134 evaluation tests, including temporary report generation; no additional workflow or duplicate smoke-test step is needed. The manually verified TokenProxy smoke test above provides separate live integration evidence. Neither the automated suites nor that smoke test establish broad recommendation accuracy, live FastGPT availability, browser layout correctness, or production reliability.
+The 226 Python tests verify deterministic tooling, scripted/mocked provider behavior, including the live CLI through mocks, and portable workflow routing; they do not measure real-model accuracy. The existing cross-platform Python discovery command automatically includes all 134 evaluation tests, including temporary report generation, and the two workflow graph tests; no additional workflow or duplicate smoke-test step is needed. The manually verified TokenProxy smoke test above provides separate live integration evidence. Neither the automated suites nor that smoke test establish broad recommendation accuracy, live FastGPT availability, browser layout correctness, or production reliability.
 
 ### MyTech v2 — User Acceptance Testing (UAT) & Bug Fix Summary
 
@@ -262,7 +263,7 @@ The portable export omits API credentials, account-specific model IDs, and concr
 | [docs/tool3-architecture.md](docs/tool3-architecture.md) | Agent architecture, security boundaries, and manual live verification. |
 | [evaluations/](evaluations/) | Scripted scenarios, isolated fixtures, offline Runner, deterministic scorer, and versioned evidence reporter. |
 | [docs/agent-evaluation.md](docs/agent-evaluation.md) | Offline evaluation architecture, scenario guide, report commands and interpretation, and security/reproducibility boundaries. |
-| [tests/](tests/) | 224 Python tests (90 tooling and 134 evaluation) and 21 Node.js tests. |
+| [tests/](tests/) | 226 Python tests (90 tooling, 134 evaluation, and 2 workflow graph) and 26 Node.js tests. |
 | [.github/workflows/ci.yml](.github/workflows/ci.yml), [.github/workflows/tests.yml](.github/workflows/tests.yml) | Cross-platform checks and Node.js syntax/test CI. |
 | [docs/screenshots/](docs/screenshots/) | Local demonstration screenshots. |
 
