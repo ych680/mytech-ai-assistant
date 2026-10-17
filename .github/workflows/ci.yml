@@ -48,4 +48,4 @@ jobs:
         run: uv run --locked python -B tools/build_knowledge.py --check knowledge/MyTech_Product_Knowledge_v1.md
 
       - name: Run Node.js tests
-        run: node --test tests/response.test.mjs tests/frontend-recovery.test.mjs
+        run: node --test tests/response.test.mjs tests/frontend-recovery.test.mjs tests/workflow-followup.test.mjs
