@@ -31,6 +31,8 @@ FRONTEND = ROOT / "aiep-candidate/site/index.html"
 WORKFLOW_TEMPLATE = ROOT / "tools/templates/mytech_current_working_portable.json"
 FRONTEND_VALIDATOR = ROOT / "tools/templates/v21_dataset_validation.js"
 USAGE_VALIDATOR = ROOT / "tools/templates/v21_usage_validation.js"
+FROZEN_USAGE_WORKFLOW = ROOT / "tools/templates/v21_working_actual_export_sanitized.json"
+FRONTEND_USAGE = ROOT / "tools/templates/v21_frontend_usage.js"
 VALIDATION_FAILURE = ROOT / "tools/templates/v21_validation_failure.js"
 USAGE_COMPATIBILITY = ROOT / "tools/templates/v21_usage_compatibility.json"
 RETRIEVAL_ID = "zWAw4oYVL1QMe8YX"
@@ -196,6 +198,15 @@ def apply_test_settings(workflow):
         field["value"] = value
 
 
+def usage_validator_text(*, repair=False):
+    """Keep accepted assets reproducible; new repair candidates opt in explicitly."""
+    current = USAGE_VALIDATOR.read_text(encoding="utf-8")
+    if repair:
+        return current
+    archived = validation_code(load_dataset(FROZEN_USAGE_WORKFLOW))["value"]
+    return archived[:archived.index("\nfunction main(")]
+
+
 def harden_validation_code(code):
     """Apply a reviewed TEST-only overlay without editing the stable workflow."""
     policy_marker = "  const USAGE_COMPATIBILITY = "
@@ -235,7 +246,7 @@ def harden_validation_code(code):
     code = replace_once(code, "    const approvedAnchor = PRODUCT_CATALOG[comparisonAnchor?.recommended_product];",
                         "    const approvedAnchor = Object.prototype.hasOwnProperty.call(PRODUCT_CATALOG, comparisonAnchor?.recommended_product)\n"
                         "      ? PRODUCT_CATALOG[comparisonAnchor.recommended_product] : null;")
-    return USAGE_VALIDATOR.read_text(encoding="utf-8") + "\n" + code
+    return usage_validator_text() + "\n" + code
 
 
 def json_text(value):
@@ -419,7 +430,7 @@ def replace_once(text, old, new):
     return text.replace(old, new, 1)
 
 
-def render_frontend(dataset):
+def render_frontend(dataset, *, repair_usage=False):
     text = FRONTEND.read_text(encoding="utf-8")
     pattern = r'(<script type="application/json" id="mytech-dataset">)([\s\S]*?)(</script>)'
     if len(re.findall(pattern, text)) != 1:
@@ -439,7 +450,7 @@ def render_frontend(dataset):
     settings = test_settings()
     injection = ("\n    const TEST_USAGE_POLICY = " + policy + ";\n"
                  "    const TEST_DEFAULT_TIMEOUT_MS = " + str(settings["browser_request_timeout_ms"]) + ";\n"
-                 + USAGE_VALIDATOR.read_text(encoding="utf-8") + "\n" + helpers + "\n" + runtime + "\n")
+                 + usage_validator_text(repair=repair_usage) + "\n" + helpers + "\n" + runtime + "\n")
     text = replace_once(text, '    "use strict";', '    "use strict";' + injection)
     text = replace_once(text, 'const HOSTED = /^project-', 'const HOSTED = LOCAL_TEST || /^project-')
     text = text.replace('!HOSTED && !apiKey', '!testConnectionAvailable()')
@@ -477,6 +488,33 @@ def render_frontend(dataset):
     text = replace_once(text, '        updateContextAfterResponse(response);', '        updateContextAfterResponse(response);\n        timingStatus = "validated";')
     text = replace_once(text, '        window.clearTimeout(timeout);',
                         '        window.clearTimeout(timeout);\n        emitTestTiming("turn", startedAt, timedOut ? "timeout" : currentRequest !== requestVersion ? "cancelled" : timingStatus);')
+    if repair_usage:
+        start = text.index("    function assignDetailsToCategories(")
+        end = text.index("    function updateSessionContext(", start)
+        text = text[:start] + FRONTEND_USAGE.read_text(encoding="utf-8") + "\n" + text[end:]
+        # The repair hook owns complete usage replies; the legacy keyword-only
+        # fallback must not mutate an inferred target before ownership is checked.
+        text = replace_once(text, '[["budget", budgetMatches], ["usage", usageMatches]]', '[["budget", budgetMatches]]')
+        text = replace_once(text, '      const budgetsByCategory = {};',
+                            '      const usageIssue = testUsageOwnershipIssue(text, mentioned, intent, explicitReset, cancellation);\n'
+                            '      const budgetsByCategory = {};')
+        text = replace_once(text, '      return {\n        startsNewFlow: explicitReset,',
+                            '      return {\n        usageClarificationNeeded: usageIssue,\n        startsNewFlow: explicitReset,')
+        text = replace_once(text, '      const visibleText = [',
+                            '      if (guard.usageClarificationNeeded && recommendations.length) errors.push("Please clarify usage ownership.");\n'
+                            '      const partial = checkPartialCatalogueRecommendations(output,\n'
+                            '        (guard.targetCategories.length ? guard.targetCategories : guard.activeCategories).map(category =>\n'
+                            '          ({ category, budget: guard.budgetsByCategory[category], main_usage: guard.usagesByCategory[category] })),\n'
+                            '        testUsageCatalogue, TEST_USAGE_POLICY);\n'
+                            '      if (!partial.valid) errors.push(partial.error);\n\n      const visibleText = [')
+        # Send the original turn through the existing chat so FastGPT retains
+        # its state for the clarification reply. Never invent backend context.
+        text = replace_once(text, '      const output = coerceStructuredOutput(rawResult);\n',
+                            '      const output = coerceStructuredOutput(rawResult);\n'
+                            '      if (guard.usageClarificationNeeded) throw new Error("USAGE_CLARIFICATION_REQUIRED");\n')
+        marker = '      else if (["MODEL_OUTPUT_VALIDATION_FAILED", "MODEL_OUTPUT_NOT_JSON", "EMPTY_MODEL_OUTPUT"].includes(error.message)) {'
+        text = replace_once(text, marker,
+                            '      else if (error.message === "USAGE_CLARIFICATION_REQUIRED") message = "Please clarify which intended usage belongs to each product; no recommendation was accepted.";\n' + marker)
     return text
 
 

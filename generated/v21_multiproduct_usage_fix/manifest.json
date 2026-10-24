@@ -1,0 +1,44 @@
+{
+  "status": "OFFLINE_ONLY_REVIEW_REQUIRED",
+  "default_deployment_changed": false,
+  "source_original": "workflow/v2.1/original/2026-10-24/workflow.sanitized.json",
+  "source_sha256": "3cbc07ab41542ae6a9280497ae8e629021444dc4bfe7b7755c98db27e36add15",
+  "workflow_changed_paths": [
+    "/nodes/11/inputs/2/value"
+  ],
+  "nodes": 20,
+  "edges": 18,
+  "prompts_models_history_rag_routing_and_memory_bindings": "Identical to the actual Original export",
+  "kb_binding": "Unverified: Original export omits dataset selection; bind and verify manually before any future use",
+  "published_revision": null,
+  "requests_executed_by_builder": 0,
+  "partial_response_policy": "Only catalogue-ineligible omitted categories, with explicit same-clause no-match explanations; never discard invalid returned products",
+  "upload_directory": "generated/v21_multiproduct_usage_fix/aiep/site",
+  "sources_sha256": {
+    "tools/build_v21_usage_repair.py": "cf43aa2fede528bc9a171deade7a7342ce3ce9a4ae2659ae4e442fe5d63da5ef",
+    "tools/sync_catalogue.py": "23ee95d55f6164c46fae02293058437dbb119c6d6adf7122a1a4fe47089ebc33",
+    "tools/build_aiep_test.py": "2002f8e60e14531eeed90f2c22436388c1ef4bb401be972fc353f2f9dbe4b11a",
+    "tools/templates/v21_usage_validation.js": "704d5101d6ae8a9881dbfebe94ad02a88da84f40867f991abac2dd01a380e4bd",
+    "tools/templates/v21_frontend_usage.js": "b92cbd5215438a516a1a8d92cecb7aabd2fc8fee6124b5b39ec0a3a869a458b2",
+    "tools/templates/v21_usage_compatibility.json": "684288eba7270d1b2d65a16f01990a357e117b80f213806e9aee1a723e683d44",
+    "tools/templates/v21_working_actual_export_sanitized.json": "3cbc07ab41542ae6a9280497ae8e629021444dc4bfe7b7755c98db27e36add15",
+    "aiep-candidate/site/index.html": "979e0e9c663a8cb9063e9cc6e3cc3373204156765b71c5a318f550f533d0cb35",
+    "tools/templates/v21_dataset_validation.js": "0f251f53f3198d7e8bc01223dc5c2d21cd44cc7237b7f88fcc048177f38eb8fb",
+    "tools/templates/v21_frontend_runtime.js": "f337ad26d463dad5f426a1901089f8d36a2064355074f9c5b9611ba7a81a7b1b",
+    "tools/templates/v21_test_settings.json": "6c48dd6f06e5da2767215871714be8d67525aa872724f8867bcd290f515a522c",
+    "mytech_v2_1_test_response.mjs": "457578d24283b5b23cbc8307fb41a25fc20936af845d42512221d4f42d9d6dea",
+    "tools/templates/v21_aiep_runtime.js": "a9582cf94dff462783a60e98b533a4983b2981121da70549693a88e4bed9b8aa",
+    "tools/templates/v21_aiep_transport.js": "cf5028aa1923199d6f579c29f6c75e26a0b22d56aed94f3be7902ac60b1f41fe",
+    "mytech_v2_1_test_adapter.mjs": "c4279f03a5fca43cd2692556efee9071399e332a113392d9cc8bedfe61c78e4f",
+    "mytech_v2_1_test_server.mjs": "03572653137157dc8b7a023013d06fb740dd862ebbf9a278e0f3b3b8a36a924d"
+  },
+  "outputs": {
+    "workflow-original-repair.json": "e41498899c13434c68ee3de9691cfd9d705ecc81ba4629ba5c241d622bae551c",
+    "local/index.html": "8d4c6c4b4ec1e25278ffe40fd34b1b72584c07658e7e85a3f8fd9303671d80a1",
+    "local/catalogue.json": "0e99d7df0238b67d321f729a6ecbe87ed35f16aec1c6e923f2d00e3d69bf85ac",
+    "local/mytech-fastgpt-workflow-v2_1-TEST.json": "e41498899c13434c68ee3de9691cfd9d705ecc81ba4629ba5c241d622bae551c",
+    "local/MyTech_Product_Knowledge_v2_1_TEST.md": "96bca468f19799fca9a17adfce1a37e2fa6fe8e099835f47a3b12c59931af4f4",
+    "aiep/site/index.html": "a1b10deadfe800d0450cd083a27967cf6e909e7afefca40ce62e8d4e51fb2a90",
+    "local/manifest.json": "5360bd265e797c9983b8efa82e4d25ba1eb51c6f880d3a229cc091e62b32863c"
+  }
+}
