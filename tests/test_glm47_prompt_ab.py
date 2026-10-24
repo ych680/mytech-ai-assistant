@@ -18,9 +18,27 @@ class Glm47PromptAbTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         raw = glm.DEFAULT_BASELINE.read_bytes()
-        cls.source, cls.review, cls.sha = json.loads(raw), json.loads(glm.DEFAULT_REVIEW.read_text()), glm.digest(raw)
+        cls.source, cls.review, cls.sha = json.loads(raw), json.loads(glm.DEFAULT_REVIEW.read_text(encoding="utf-8")), glm.digest(raw)
         cls.outputs = glm.render_outputs(cls.source, cls.review, cls.sha)
         cls.a, cls.b = json.loads(cls.outputs[glm.CONTROL]), json.loads(cls.outputs[glm.CANDIDATE])
+
+    def test_review_loading_preserves_unicode_with_a_cp1252_default(self):
+        read_text = Path.read_text
+
+        def cp1252_default(path, *args, **kwargs):
+            if path == glm.DEFAULT_REVIEW and not args and kwargs.get("encoding") is None:
+                return path.read_bytes().decode("cp1252")
+            return read_text(path, *args, **kwargs)
+
+        class LocaleProbe(Glm47PromptAbTests):
+            pass
+
+        with patch.object(Path, "read_text", cp1252_default):
+            LocaleProbe.setUpClass()
+        expected = json.loads(glm.DEFAULT_REVIEW.read_bytes())
+        self.assertIn("\u2014", expected["source_filename"])
+        self.assertEqual(LocaleProbe.review, expected)
+        self.assertEqual(LocaleProbe.outputs, self.outputs)
 
     def test_generated_package_matches_actual_source_review(self):
         self.assertEqual(glm.check_outputs(self.outputs, sync.ROOT / glm.OUTPUT_SUBDIR), [])

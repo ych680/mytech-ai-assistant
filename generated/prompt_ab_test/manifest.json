@@ -69,8 +69,8 @@
   },
   "binding_policy": "Both exports preserve blank portable model/dataset bindings. Operator must bind BOTH isolated apps to exactly the working models/settings and existing unchanged 54-product KB; actual live parity is not proven offline.",
   "sources_sha256": {
-    "tools/build_prompt_ab_test.py": "4ff913317e3ad64520e42060e2d7d2f13be76c2c0793d5e809b0c437d110adfb",
-    "tools/sync_catalogue.py": "47d5cce9b974159fd423ae64b195df7216f73d793ef232ac9c8a95415c0a0459",
+    "tools/build_prompt_ab_test.py": "060219adcdb3845ce746c9e92839f94cb4e20e84d27d14e503ae43c74165643c",
+    "tools/sync_catalogue.py": "a1e12414d641b80d75b07cb6f46c18e0bc47e7b617c9584f25d0a21f791143e0",
     "tools/templates/mytech_current_working_portable.json": "58be7b69fd8a644eb2dc0118b51567e973749cc5d371a24f7074e200504c08e1",
     "catalogue/mytech_products_v2_1_test.json": "0e99d7df0238b67d321f729a6ecbe87ed35f16aec1c6e923f2d00e3d69bf85ac",
     "tools/templates/v21_state_extraction_prompt.txt": "bf424dabe31613ee3d66505c5abdf081a85ca89d408aab3e9d1f3048db992c40",

@@ -179,7 +179,7 @@ def render_outputs():
                        "recommendation_max_tokens": sync.node_input(control, sync.RECOMMENDATION_ID, "maxToken")["value"],
                        "all_other_json_values_identical": True},
         "binding_policy": "Both exports preserve blank portable model/dataset bindings. Operator must bind BOTH isolated apps to exactly the working models/settings and existing unchanged 54-product KB; actual live parity is not proven offline.",
-        "sources_sha256": {str(path.relative_to(sync.ROOT)): digest(path.read_bytes()) for path in
+        "sources_sha256": {path.relative_to(sync.ROOT).as_posix(): digest(path.read_bytes()) for path in
                            (Path(__file__), sync.ROOT / "tools/sync_catalogue.py", sync.WORKFLOW_TEMPLATE, sync.TEST_DATASET, sync.STATE_EXTRACTION_PROMPT,
                             sync.RECOMMENDATION_PROMPT, sync.EXTRACTION_RULES,
                             sync.ROOT / sync.OUTPUT_SUBDIR / sync.WORKFLOW)},

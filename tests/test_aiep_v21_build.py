@@ -98,8 +98,8 @@ class AiepBuildTests(unittest.TestCase):
             outputs = aiep.render_outputs(self.dataset)
         self.assertNotIn(sync.WORKFLOW, outputs)
         html = outputs["site/index.html"].decode()
-        self.assertNotIn(sync.STATE_EXTRACTION_PROMPT.read_text(), html)
-        self.assertNotIn(sync.RECOMMENDATION_PROMPT.read_text(), html)
+        self.assertNotIn(sync.STATE_EXTRACTION_PROMPT.read_text(encoding="utf-8"), html)
+        self.assertNotIn(sync.RECOMMENDATION_PROMPT.read_text(encoding="utf-8"), html)
 
     def test_unified_catalogue_checker_detects_stale_aiep_upload(self):
         import contextlib

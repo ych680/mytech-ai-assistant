@@ -509,7 +509,7 @@ def render_outputs(dataset):
         "release_scope": "TEST ONLY — not approved for Current or production",
         "master": "catalogue/mytech_products_v2_1_test.json",
         "master_sha256": hashlib.sha256(json_text(dataset).encode("utf-8")).hexdigest(),
-        "workflow_template": str(WORKFLOW_TEMPLATE.relative_to(ROOT)),
+        "workflow_template": WORKFLOW_TEMPLATE.relative_to(ROOT).as_posix(),
         "workflow_template_sha256": hashlib.sha256(json_text(template).encode("utf-8")).hexdigest(),
         "test_settings": test_settings(),
         "prompt_optimization": prompt_optimization_metadata(template, workflow),

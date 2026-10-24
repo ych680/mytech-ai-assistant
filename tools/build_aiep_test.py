@@ -91,9 +91,9 @@ def render_outputs(dataset):
     page = render_aiep_frontend(dataset).encode("utf-8")
     manifest = {
         "release_scope": "Separate AIEP v2.1 TEST candidate; review required before upload",
-        "upload_directory": str(OUTPUT_SUBDIR / "site"),
+        "upload_directory": (OUTPUT_SUBDIR / "site").as_posix(),
         "upload_files": ["index.html"],
-        "master": str(sync.TEST_DATASET.relative_to(sync.ROOT)),
+        "master": sync.TEST_DATASET.relative_to(sync.ROOT).as_posix(),
         "master_sha256": hashlib.sha256(sync.json_text(dataset).encode("utf-8")).hexdigest(),
         "product_count": len(dataset["products"]),
         "supported_categories": dataset["supported_categories"],
@@ -101,7 +101,7 @@ def render_outputs(dataset):
                       "application_selection": "Configured project credential; no browser appId/model",
                       "binding_status": "UNVERIFIED — operator must confirm separate project maps to published v2.1 TEST",
                       "published_workflow_policy": "Keep currently published TEST unchanged; do not import generated shortened prompts"},
-        "sources_sha256": {str(path.relative_to(sync.ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
+        "sources_sha256": {path.relative_to(sync.ROOT).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
                            for path in (sync.FRONTEND, sync.ROOT / "tools/sync_catalogue.py", Path(__file__),
                                         sync.FRONTEND_VALIDATOR, sync.USAGE_VALIDATOR, sync.USAGE_COMPATIBILITY,
                                         sync.TEST_SETTINGS, sync.CITATION_HELPERS, RUNTIME, TRANSPORT)},
