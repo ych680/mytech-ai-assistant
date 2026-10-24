@@ -1,0 +1,17 @@
+{
+  "Gaming": ["gaming"],
+  "Study": ["study", "note-taking", "reading"],
+  "Office": ["office", "productivity", "multitasking", "home use"],
+  "Creative": ["creative", "content creation", "drawing"],
+  "Photography": ["photography"],
+  "Media": ["media", "entertainment", "video"],
+  "Music": ["music"],
+  "Calls": ["calls", "voice chat"],
+  "Travel": ["travel", "commute", "portable"],
+  "Fitness": ["fitness", "health tracking", "daily health", "running", "training", "outdoor sports"],
+  "Development": ["development"],
+  "Productivity": ["productivity", "office", "multitasking"],
+  "Typing": ["typing"],
+  "Noise cancellation": ["noise cancellation"],
+  "Daily": ["daily", "general use", "home use"]
+}

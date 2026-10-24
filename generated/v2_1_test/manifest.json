@@ -1,0 +1,93 @@
+{
+  "release_scope": "TEST ONLY — not approved for Current or production",
+  "master": "catalogue/mytech_products_v2_1_test.json",
+  "master_sha256": "0e99d7df0238b67d321f729a6ecbe87ed35f16aec1c6e923f2d00e3d69bf85ac",
+  "workflow_template": "tools/templates/mytech_current_working_portable.json",
+  "workflow_template_sha256": "58be7b69fd8a644eb2dc0118b51567e973749cc5d371a24f7074e200504c08e1",
+  "test_settings": {
+    "retrieval_similarity": 0.35,
+    "clarification_reasoning": false,
+    "clarification_max_tokens": 800,
+    "recommendation_max_tokens": 4096,
+    "browser_request_timeout_ms": 120000,
+    "model_strategy": {
+      "extraction": "Manually select an available fast lightweight model; verify structured extraction and multi-turn scenarios.",
+      "clarification": "Manually select an available lightweight instruction model; reasoning disabled.",
+      "recommendation": "Manually select glm-4.7 as the quality baseline if available in the TEST app; no availability assumed."
+    }
+  },
+  "prompt_optimization": {
+    "scope": "instruction text only; all models, histories, evidence and bindings unchanged",
+    "estimate_method": "ceil(characters / 4); 3-5 characters/token sensitivity range; not a GLM tokenizer or full request count",
+    "source_sha256": {
+      "v21_state_extraction_prompt.txt": "bf424dabe31613ee3d66505c5abdf081a85ca89d408aab3e9d1f3048db992c40",
+      "v21_recommendation_prompt.txt": "96539f784695b80d16f9013ea20f5b6e3098bef7b3ee450481d10966f6888e9c"
+    },
+    "original": {
+      "state_extraction": {
+        "characters": 11634,
+        "utf8_bytes": 11653,
+        "rough_tokens_chars_div_4": 2909,
+        "rough_tokens_chars_div_5_to_3": [
+          2327,
+          3878
+        ]
+      },
+      "recommendation": {
+        "characters": 11087,
+        "utf8_bytes": 11093,
+        "rough_tokens_chars_div_4": 2772,
+        "rough_tokens_chars_div_5_to_3": [
+          2218,
+          3696
+        ]
+      }
+    },
+    "optimized": {
+      "state_extraction": {
+        "characters": 5615,
+        "utf8_bytes": 5638,
+        "rough_tokens_chars_div_4": 1404,
+        "rough_tokens_chars_div_5_to_3": [
+          1123,
+          1872
+        ]
+      },
+      "recommendation": {
+        "characters": 5164,
+        "utf8_bytes": 5166,
+        "rough_tokens_chars_div_4": 1291,
+        "rough_tokens_chars_div_5_to_3": [
+          1033,
+          1722
+        ]
+      }
+    }
+  },
+  "extraction_reliability": {
+    "normalizer_node_id": "v21RmbInputNormalize",
+    "source_sha256": {
+      "v21_input_normalization.js": "26b7a7a3ad05f2092b11370ce7043c0eaed962657f9d3288a2f23dc51445043f",
+      "v21_scope_consistency.js": "00661d539879e60e0491a620dd9e85439f643a6615a00eb7dd269675e8df253e",
+      "v21_extraction_rules.txt": "459233fbf14de21ad65d2c1b07b66e54ad4f191f70f4ff6087b1cd35854a3857"
+    }
+  },
+  "product_count": 54,
+  "supported_categories": [
+    "Laptop",
+    "Desktop",
+    "Smartphone",
+    "Tablet",
+    "Headphones",
+    "Monitor",
+    "Smartwatch",
+    "Mouse",
+    "Keyboard"
+  ],
+  "outputs": {
+    "MyTech_Product_Knowledge_v2_1_TEST.md": "96bca468f19799fca9a17adfce1a37e2fa6fe8e099835f47a3b12c59931af4f4",
+    "mytech-fastgpt-workflow-v2_1-TEST.json": "5ad2d4662d9484006fc24059ef2133e3ead44ee5e80ae3e46d0616aa4f1546d9",
+    "index.html": "874da44557c22e00c082e0f57411ddffebbb16eee3e8647d426f22f9e790c50b",
+    "catalogue.json": "0e99d7df0238b67d321f729a6ecbe87ed35f16aec1c6e923f2d00e3d69bf85ac"
+  }
+}

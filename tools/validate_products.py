@@ -21,6 +21,11 @@ V1_CATEGORIES = (
 TIERS = ("Entry", "Mid-range", "Premium")
 ROOT_STRINGS = ("dataset_name", "version", "snapshot_date", "currency", "price_note")
 PRODUCT_STRINGS = ("id", "category", "product", "tier", "source")
+TEST_DATASET = DEFAULT_DATASET.parent / "catalogue" / "mytech_products_v2_1_test.json"
+ID_PREFIXES = dict(zip(V1_CATEGORIES, ("LAP", "DES", "PHO", "TAB", "AUD", "MON", "WAT", "MOU", "KEY")))
+TEST_REVIEW_STATUSES = (
+    "EXISTING BASELINE", "NEW CANDIDATE — provisional", "NEW CANDIDATE — unverified",
+)
 
 
 class _ObjectPairs(list):
@@ -55,7 +60,7 @@ def load_dataset(path):
     ))
 
 
-def validate_dataset(dataset, strict_v1=False):
+def validate_dataset(dataset, strict_v1=False, test_v21=False):
     """Return field-specific errors without mutating the supplied object."""
     errors = []
 
@@ -107,6 +112,9 @@ def validate_dataset(dataset, strict_v1=False):
             continue
         for field in PRODUCT_STRINGS:
             nonempty_string(product.get(field), f"{path}.{field}")
+        for field in ("review_status", "evidence_url", "price_evidence"):
+            if field in product:
+                nonempty_string(product[field], f"{path}.{field}")
         for field in ("main_usage", "key_features"):
             string_array(product.get(field), f"{path}.{field}")
         price = product.get("price_rmb")
@@ -139,6 +147,65 @@ def validate_dataset(dataset, strict_v1=False):
                 errors.append(f"products[{category}]: strict-v1 requires exactly three products")
             if any(sum(p.get("tier") == tier for p in members) != 1 for tier in TIERS):
                 errors.append(f"products[{category}].tier: strict-v1 requires one each of Entry, Mid-range, Premium")
+    if test_v21:
+        errors.extend(_validate_test_v21(dataset))
+    return errors
+
+
+def _validate_test_v21(dataset):
+    """Opt-in TEST policy; no count limit and no changes to strict-v1 behavior."""
+    errors = []
+    if dataset.get("version") != "2.1-TEST":
+        errors.append("version: test-v21 requires 2.1-TEST")
+    if "TEST" not in str(dataset.get("dataset_name", "")):
+        errors.append("dataset_name: test-v21 requires a TEST-only identity")
+    if "TEST" not in str(dataset.get("price_note", "")):
+        errors.append("price_note: test-v21 requires an explicit TEST disclosure")
+    if dataset.get("supported_categories") != list(V1_CATEGORIES):
+        errors.append("supported_categories: test-v21 requires the supported nine categories in order")
+    products = dataset.get("products")
+    if not isinstance(products, list):
+        return errors
+    baseline = {p["id"]: p for p in load_dataset(DEFAULT_DATASET)["products"]}
+    found, names = set(), set()
+    for index, product in enumerate(products):
+        if not isinstance(product, dict):
+            continue
+        path = f"products[{index}]"
+        identifier = product.get("id")
+        prefix = ID_PREFIXES.get(str(product.get("category")))
+        if not isinstance(identifier, str) or not re.fullmatch(rf"{prefix}-(?=[0-9]*[1-9])[0-9]{{3,9}}", identifier):
+            errors.append(f"{path}.id: must use its category prefix and a positive numeric suffix")
+        else:
+            found.add(identifier)
+        for field in PRODUCT_STRINGS:
+            value = product.get(field)
+            if isinstance(value, str) and value != value.strip():
+                errors.append(f"{path}.{field}: test-v21 disallows surrounding whitespace")
+        name = str(product.get("product", "")).strip().casefold()
+        if name in names or name in ("__proto__", "constructor", "prototype", "tostring", "hasownproperty"):
+            errors.append(f"{path}.product: ambiguous or reserved catalogue name")
+        names.add(name)
+        price = product.get("price_rmb")
+        if type(price) is int and price > 2 ** 53 - 1:
+            errors.append(f"{path}.price_rmb: must be exactly representable in JavaScript")
+        for field in ("review_status", "evidence_url", "price_evidence"):
+            if not isinstance(product.get(field), str) or not product[field].strip() or product[field] != product[field].strip():
+                errors.append(f"{path}.{field}: test-v21 requires non-empty review evidence")
+        status = product.get("review_status")
+        if status not in TEST_REVIEW_STATUSES:
+            errors.append(f"{path}.review_status: only baseline or provisional/unverified TEST candidates are allowed")
+        original = baseline.get(identifier) if isinstance(identifier, str) else None
+        if original is not None:
+            for field, value in original.items():
+                if product.get(field) != value:
+                    errors.append(f"{path}.{field}: existing baseline facts must remain unchanged")
+            if status != "EXISTING BASELINE":
+                errors.append(f"{path}.review_status: original product must retain EXISTING BASELINE")
+        elif status == "EXISTING BASELINE":
+            errors.append(f"{path}.review_status: a new product cannot claim baseline approval")
+    for identifier in sorted(baseline.keys() - found):
+        errors.append(f"products: missing baseline product {identifier}")
     return errors
 
 
@@ -146,6 +213,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET, help="UTF-8 JSON path (default: repository catalogue)")
     parser.add_argument("--strict-v1", action="store_true", help="enforce current v1 catalogue compatibility")
+    parser.add_argument("--test-v21", action="store_true", help="enforce TEST-only v2.1 identities, review evidence and baseline preservation")
     args = parser.parse_args(argv)
     try:
         dataset = load_dataset(args.dataset)
@@ -155,7 +223,7 @@ def main(argv=None):
     except (OSError, UnicodeError, ValueError, RecursionError) as error:
         print(f"ERROR: {args.dataset}: {error}", file=sys.stderr)
         return 1
-    errors = validate_dataset(dataset, strict_v1=args.strict_v1)
+    errors = validate_dataset(dataset, strict_v1=args.strict_v1, test_v21=args.test_v21)
     if errors:
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)

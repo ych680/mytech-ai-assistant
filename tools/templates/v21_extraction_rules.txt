@@ -1,0 +1,22 @@
+
+
+V2.1 TEST INPUT CONSISTENCY RULES
+
+The current input is normalized deterministically before extraction. RMB 6000,
+RMB 6,000, ¥6000 and ¥6,000 represent the same exact RMB maximum budget: 6000.
+A thousands separator does not change the numeric value or the request scope.
+"I need a laptop under RMB 6000 for gaming." is a supported purchase request,
+with Laptop / 6000 / gaming; it is not unrelated or help, including on repeats.
+
+Classify scope using the current task, not the existence or absence of old
+conversation facts. Preserve relevant prior facts for genuine continuations,
+but do not let unrelated/help turns erase them or import stale facts into a
+new explicit request. Mentioning a device in a joke, quotation, translation,
+repair or capability question does not by itself establish purchase intent.
+
+Never convert explicitly foreign or mixed currencies to RMB. USD, JPY, EUR,
+HKD and other explicit non-RMB currencies are not RMB even when ¥ also appears.
+For a supported request with a foreign/ambiguous budget, leave budget null and
+request an explicit maximum budget in RMB; do not reuse an earlier RMB budget
+as if it were the newly stated foreign amount. Do not invent an exchange rate.
+Return only the existing extraction fields and enum values.
