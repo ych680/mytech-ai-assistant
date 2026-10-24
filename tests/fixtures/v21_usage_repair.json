@@ -1,0 +1,167 @@
+{
+  "scope": "Offline fixtures; full catalogue identities are resolved by product ID, never inferred from abbreviated live descriptions",
+  "live_evidence": {
+    "message": "i need a laptop under ¥6,000 and a mouse under ¥1000 for gaming.",
+    "reported_requests": [{"category": "Laptop", "budget": 6000, "main_usage": "Gaming"}, {"category": "Mouse", "budget": 1000, "main_usage": "Gaming"}],
+    "reported_products": ["MECHREVO Jiaolong 16K", "Logitech G304 LIGHTSPEED"],
+    "reported_prices": [4999, 229],
+    "reported_clarification_needed": false,
+    "exact_final_json_captured": false,
+    "code_run_2_output_captured": false,
+    "aiep_response_identical_to_fastgpt_run_verified": false
+  },
+  "paired_live_control": {
+    "failed_input": "I need a laptop under ¥6,000 and a mouse under ¥1000 for gaming.",
+    "successful_input": "I need a laptop under ¥6,000 for gaming and a mouse under ¥1000 for gaming.",
+    "successful_cards_reported": true,
+    "successful_cards_include_reference_prices_reasons_sources": true,
+    "exact_response_bytes_captured": false
+  },
+  "cases": [
+    {
+      "id": "laptop-performance",
+      "message": "I need a laptop under RMB 6000 for gaming, good performance.",
+      "requests": [{"category": "Laptop", "budget": 6000, "main_usage": "gaming, good performance"}],
+      "products": ["LAP-005"], "answer": "This Gaming Laptop matches the catalogue usage and budget.", "valid": true
+    },
+    {
+      "id": "headphones-no-match",
+      "message": "I need headphones under RMB 800 for music and commuting, noise cancellation.",
+      "requests": [{"category": "Headphones", "budget": 800, "main_usage": "music and commuting, noise cancellation"}],
+      "products": [], "answer": "No Headphones in the catalogue match all requirements within RMB 800.", "valid": true
+    },
+    {
+      "id": "laptop-headphones-partial",
+      "message": "I need a laptop under RMB 6000 for gaming, good performance, and headphones under RMB 800 for music and commuting, noise cancellation.",
+      "requests": [{"category": "Laptop", "budget": 6000, "main_usage": "gaming, good performance"}, {"category": "Headphones", "budget": 800, "main_usage": "music and commuting, noise cancellation"}],
+      "products": ["LAP-005"], "answer": "The Gaming Laptop matches. No Headphones in the catalogue match all requirements within RMB 800.", "valid": true
+    },
+    {
+      "id": "shared-gaming-300",
+      "message": "I need a laptop under ¥6,000 and a mouse under ¥300 for gaming.",
+      "requests": [{"category": "Laptop", "budget": 6000, "main_usage": "gaming"}, {"category": "Mouse", "budget": 300, "main_usage": "gaming"}],
+      "products": ["LAP-005", "MOU-004"], "answer": "Both Gaming products fit their independent budgets.", "valid": true
+    },
+    {
+      "id": "shared-gaming-1000-live-evidence",
+      "message": "i need a laptop under ¥6,000 and a mouse under ¥1000 for gaming.",
+      "requests": [{"category": "Laptop", "budget": 6000, "main_usage": "Gaming"}, {"category": "Mouse", "budget": 1000, "main_usage": "Gaming"}],
+      "products": ["LAP-005", "MOU-002"], "answer": "Both Gaming products fit their independent budgets.", "valid": true
+    },
+    {
+      "id": "shared-gaming-1000-paired-failure",
+      "message": "I need a laptop under ¥6,000 and a mouse under ¥1000 for gaming.",
+      "requests": [{"category": "Laptop", "budget": 6000, "main_usage": "Gaming"}, {"category": "Mouse", "budget": 1000, "main_usage": "Gaming"}],
+      "products": ["LAP-005", "MOU-002"], "answer": "Both Gaming products fit their independent budgets.", "valid": true
+    },
+    {
+      "id": "explicit-gaming-1000-paired-success",
+      "message": "I need a laptop under ¥6,000 for gaming and a mouse under ¥1000 for gaming.",
+      "requests": [{"category": "Laptop", "budget": 6000, "main_usage": "Gaming"}, {"category": "Mouse", "budget": 1000, "main_usage": "Gaming"}],
+      "products": ["LAP-005", "MOU-002"], "answer": "Both Gaming products fit their independent budgets.", "valid": true
+    },
+    {
+      "id": "independent-usages",
+      "message": "I need a laptop for studying under RMB 6000 and a gaming mouse under RMB 300.",
+      "requests": [{"category": "Laptop", "budget": 6000, "main_usage": "studying"}, {"category": "Mouse", "budget": 300, "main_usage": "gaming"}],
+      "products": ["LAP-001", "MOU-004"], "answer": "The Study Laptop and Gaming Mouse each fit their requirements.", "valid": true
+    },
+    {
+      "id": "compound-headphones-not-reduced-to-music",
+      "message": "I need headphones under RMB 800 for music and commuting, noise cancellation.",
+      "requests": [{"category": "Headphones", "budget": 800, "main_usage": "music and commuting, noise cancellation"}],
+      "products": ["AUD-001"], "answer": "A music-only product is not an ANC match.", "valid": false
+    },
+    {
+      "id": "request-wrapper-shared-gaming",
+      "message": "Could you recommend a laptop under RMB 6000 and a mouse under RMB 300 for gaming?",
+      "requests": [{"category": "Laptop", "budget": 6000, "main_usage": "gaming"}, {"category": "Mouse", "budget": 300, "main_usage": "gaming"}],
+      "products": ["LAP-005", "MOU-004"], "answer": "Both Gaming products fit their independent budgets.", "valid": true
+    },
+    {
+      "id": "headphones-anc-still-over-budget",
+      "message": "I need headphones under RMB 800 for music and commuting, noise cancellation.",
+      "requests": [{"category": "Headphones", "budget": 800, "main_usage": "music and commuting, noise cancellation"}],
+      "products": ["AUD-005"], "answer": "Matching usage tags cannot override the RMB 800 hard limit.", "valid": false
+    },
+    {
+      "id": "wrong-gaming-laptop",
+      "message": "I need a laptop under RMB 6000 for gaming, good performance.",
+      "requests": [{"category": "Laptop", "budget": 6000, "main_usage": "gaming, good performance"}],
+      "products": ["LAP-001"], "answer": "Study tags cannot establish Gaming support.", "valid": false
+    },
+    {
+      "id": "invalid-batch-not-salvaged",
+      "message": "I need a laptop under RMB 6000 for gaming, good performance, and headphones under RMB 800 for music and commuting, noise cancellation.",
+      "requests": [{"category": "Laptop", "budget": 6000, "main_usage": "gaming, good performance"}, {"category": "Headphones", "budget": 800, "main_usage": "music and commuting, noise cancellation"}],
+      "products": ["LAP-005", "AUD-001"], "answer": "An unsafe Headphones recommendation must reject the entire returned batch.", "valid": false
+    }
+  ],
+  "context_corrections": [
+    {
+      "id": "composite-reply-800-rejects-stale-music",
+      "initial_message": "I need headphones under RMB 800 for music.",
+      "initial_products": ["AUD-001"],
+      "message": "music and commuting, noise cancellation",
+      "usage": "music and commuting, noise cancellation",
+      "budget": 800, "products": ["AUD-001"], "valid": false, "usage_clarification": false
+    },
+    {
+      "id": "composite-reply-1200-accepts-qualified-product",
+      "initial_message": "I need headphones under RMB 1200 for music.",
+      "initial_products": ["AUD-001"],
+      "message": "music and commuting, noise cancellation",
+      "usage": "music and commuting, noise cancellation",
+      "budget": 1200, "products": ["AUD-005"], "valid": true, "usage_clarification": false
+    },
+    {
+      "id": "missing-usage-composite-reply-1200",
+      "initial_message": "I need headphones under RMB 1200.",
+      "initial_products": [],
+      "message": "music and commuting, noise cancellation",
+      "usage": "music and commuting, noise cancellation",
+      "budget": 1200, "products": ["AUD-005"], "valid": true, "usage_clarification": false
+    },
+    {
+      "id": "explicit-unsupported-correction",
+      "initial_message": "I need headphones under RMB 1200 for music.",
+      "initial_products": ["AUD-001"],
+      "message": "Use it for quantum simulation instead.",
+      "usage": "quantum simulation",
+      "budget": 1200, "products": ["AUD-001"], "valid": false, "usage_clarification": true
+    },
+    {
+      "id": "explicit-composite-correction",
+      "initial_message": "I need headphones under RMB 1200 for music.",
+      "initial_products": ["AUD-001"],
+      "message": "Use it for music and commuting, noise cancellation instead.",
+      "usage": "music and commuting, noise cancellation",
+      "budget": 1200, "products": ["AUD-005"], "valid": true, "usage_clarification": false
+    },
+    {
+      "id": "explicit-unknown-qualifier-preserved",
+      "initial_message": "I need headphones under RMB 1200 for music.",
+      "initial_products": ["AUD-001"],
+      "message": "Use it for music and quantum simulation instead.",
+      "usage": "music and quantum simulation",
+      "budget": 1200, "products": ["AUD-001"], "valid": false, "usage_clarification": true
+    },
+    {
+      "id": "explicit-negation-preserved",
+      "initial_message": "I need headphones under RMB 1200 for music.",
+      "initial_products": ["AUD-001"],
+      "message": "Use it for music without noise cancellation instead.",
+      "usage": "music without noise cancellation",
+      "budget": 1200, "products": ["AUD-001"], "valid": false, "usage_clarification": true
+    },
+    {
+      "id": "explicit-supported-replacement",
+      "initial_message": "I need headphones under RMB 1200 for music and commuting, noise cancellation.",
+      "initial_products": ["AUD-005"],
+      "message": "Use it for music instead.",
+      "usage": "music",
+      "budget": 1200, "products": ["AUD-001"], "valid": true, "usage_clarification": false
+    }
+  ],
+  "rejected_usages": ["good performance", "gaming and quantum simulation", "gaming, excellent performance", "not gaming", "gaming but not gaming", "gaming or study", "gaming without latency", "gaming at 240 fps", "gaming and not study", "music without noise cancellation"]
+}
