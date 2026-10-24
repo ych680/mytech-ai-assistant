@@ -1,0 +1,29 @@
+{
+  "intended_models": {
+    "state_extraction": "glm-4.7",
+    "recommendation": "glm-4.7",
+    "clarification_and_other_models": "identical to actual working export; no other model change"
+  },
+  "source_to_A_allowed_changes": "Only the two relevant model selector values; retain original actual prompts",
+  "A_to_B_allowed_changes": "Only State Extraction description and Recommendation Assistant systemPrompt",
+  "kb_policy": "Same actual existing 54-product KB, no content/reindex changes; similarity must already be 0.35",
+  "protected_app": "Currently published DeepSeek-powered TEST and AIEP remain unchanged",
+  "required_review_fields": [
+    "credential_free",
+    "original_export_prompts_verified",
+    "non_prompt_configuration_reviewed",
+    "validation_memory_and_four_field_contract_reviewed"
+  ],
+  "parity": {
+    "20_nodes_18_edges": "PRESERVED_FROM_OPERATOR_REVIEWED_SOURCE; A/B JSON equality checked",
+    "node_and_output_ids": "PRESERVED_FROM_OPERATOR_REVIEWED_SOURCE; A/B JSON equality checked",
+    "kb_bindings_and_similarity_035": "A/B selectors identical and similarity 0.35; ACTUAL EXISTING KB ID UNVERIFIED because export omits selection",
+    "model_parameters_and_output_limits": "PRESERVED_FROM_OPERATOR_REVIEWED_SOURCE; A/B JSON equality checked",
+    "conversation_histories": "PRESERVED_FROM_OPERATOR_REVIEWED_SOURCE; A/B JSON equality checked",
+    "extraction_and_routing": "PRESERVED_FROM_OPERATOR_REVIEWED_SOURCE; A/B JSON equality checked",
+    "budget_usage_product_validation": "PRESERVED_FROM_OPERATOR_REVIEWED_SOURCE; A/B JSON equality checked",
+    "memory_protection": "PRESERVED_FROM_OPERATOR_REVIEWED_SOURCE; A/B JSON equality checked",
+    "four_field_public_json": "PRESERVED_FROM_OPERATOR_REVIEWED_SOURCE; A/B JSON equality checked"
+  },
+  "publish_state": "UNVERIFIED_REVISION: user reports working published app; export has no verifiable published revision and may represent editor draft."
+}

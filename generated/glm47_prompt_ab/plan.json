@@ -1,0 +1,141 @@
+{
+  "status": "PREPARATION_ONLY_NOT_RUN",
+  "model_under_test": "glm-4.7",
+  "baseline_requirement": "Actual reviewed exported published working TEST workflow; reconstruction forbidden",
+  "scenarios": [
+    {
+      "id": "G01",
+      "message": "I need a laptop under ¥6,000 for gaming.",
+      "expected_route": "recommendation",
+      "expected_state": [
+        {
+          "category": "Laptop",
+          "budget": 6000,
+          "main_usage": "Gaming"
+        }
+      ],
+      "checks": [
+        "raw extraction is supported with numeric budget 6000",
+        "correct recommendation route",
+        "one grounded Gaming Laptop <=6000; exact catalogue identity, price and source"
+      ]
+    },
+    {
+      "id": "G02",
+      "message": "I need a laptop for studying under RMB 6000 and a gaming mouse under RMB 300.",
+      "expected_route": "recommendation",
+      "expected_state": [
+        {
+          "category": "Laptop",
+          "budget": 6000,
+          "main_usage": "Study"
+        },
+        {
+          "category": "Mouse",
+          "budget": 300,
+          "main_usage": "Gaming"
+        }
+      ],
+      "checks": [
+        "two independent requests; no usage or budget mixing",
+        "correct recommendation route",
+        "two grounded eligible products; exact price/source; no unsafe partial batch"
+      ]
+    },
+    {
+      "id": "G03",
+      "message": "I need a gaming mouse.",
+      "expected_route": "clarification",
+      "expected_state": [
+        {
+          "category": "Mouse",
+          "budget": null,
+          "main_usage": "Gaming"
+        }
+      ],
+      "checks": [
+        "only budget is missing; no invented budget",
+        "route to clarification; Recommendation Assistant not executed",
+        "ask only for budget; recommendations=[]; clarification_needed=true"
+      ]
+    }
+  ],
+  "execution_schedule": [
+    {
+      "run_id": "G01-A",
+      "scenario_id": "G01",
+      "variant": "A",
+      "execution_order": 1,
+      "session_policy": "new distinct fresh conversation"
+    },
+    {
+      "run_id": "G01-B",
+      "scenario_id": "G01",
+      "variant": "B",
+      "execution_order": 2,
+      "session_policy": "new distinct fresh conversation"
+    },
+    {
+      "run_id": "G02-B",
+      "scenario_id": "G02",
+      "variant": "B",
+      "execution_order": 3,
+      "session_policy": "new distinct fresh conversation"
+    },
+    {
+      "run_id": "G02-A",
+      "scenario_id": "G02",
+      "variant": "A",
+      "execution_order": 4,
+      "session_policy": "new distinct fresh conversation"
+    },
+    {
+      "run_id": "G03-A",
+      "scenario_id": "G03",
+      "variant": "A",
+      "execution_order": 5,
+      "session_policy": "new distinct fresh conversation"
+    },
+    {
+      "run_id": "G03-B",
+      "scenario_id": "G03",
+      "variant": "B",
+      "execution_order": 6,
+      "session_policy": "new distinct fresh conversation"
+    }
+  ],
+  "request_limit": {
+    "pairs": 3,
+    "requests_total": 6,
+    "requests_per_variant": 3,
+    "repetitions": 1,
+    "warmups": 0,
+    "retries": 0,
+    "continuation_turns": 0
+  },
+  "no_automatic_execution": true,
+  "later_suite": "docs/v21-prompt-ab-broader-plan-deferred.md",
+  "measurements": [
+    "run_id",
+    "scenario_id",
+    "variant",
+    "execution_order",
+    "session_label",
+    "execution_status",
+    "state_extraction_ms",
+    "recommendation_executed",
+    "recommendation_ms",
+    "total_workflow_ms",
+    "platform_credits",
+    "credit_unit",
+    "credit_scope",
+    "raw_extraction_correct",
+    "routing_correct",
+    "json_valid",
+    "validation_status",
+    "turn_pass",
+    "evidence_ref",
+    "notes"
+  ],
+  "limitations": "One observation per variant/scenario; exploratory only, no p95, significance or reliability-equivalence claim"
+}

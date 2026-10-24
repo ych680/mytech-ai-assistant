@@ -1,0 +1,211 @@
+{
+  "status": "IMPORT_CANDIDATES_PREPARED_KB_AND_PUBLISH_PARITY_PENDING",
+  "workflow_files": [
+    "A-glm47-original.json",
+    "B-glm47-short.json"
+  ],
+  "reason": null,
+  "glm47_configuration": "Both relevant selector values set to the verified GLM-4.7 identifier; native import/runtime still pending",
+  "requests_executed": 0,
+  "credits_spent": 0,
+  "initial_request_ceiling": 6,
+  "not_a_live_runner": true,
+  "protected_deployment_modified": false,
+  "source_sha256": "3cbc07ab41542ae6a9280497ae8e629021444dc4bfe7b7755c98db27e36add15",
+  "review_sha256": "88fe5b0c6145358428b03d7a4f90e99989f93fe2a651e5fb0b98fdcefbcd6618",
+  "published_revision": null,
+  "publish_state": "UNVERIFIED_REVISION: user reports working published app; export has no verifiable published revision and may represent editor draft.",
+  "original_download_sha256": "3e6087b7572ea4c7cfa702c895f5b6a369e6a31c032cfd4264d5d2e72b736f60",
+  "model_changes": [
+    {
+      "node_id": "etNrwEXVwr5sySpK",
+      "input_key": "model",
+      "source_value_sha256": "99183a5b3b302b0dc7924b6cb4df4b457fa03aa439376a78cbb9870a195cc885",
+      "target_display": "glm-4.7",
+      "target_value_sha256": "070a6e92355eb4badbfcfc03c6df87522b615989f8b49abff6f79fb9765c1028"
+    },
+    {
+      "node_id": "pskHz4kajjJnBWwG",
+      "input_key": "model",
+      "source_value_sha256": "99183a5b3b302b0dc7924b6cb4df4b457fa03aa439376a78cbb9870a195cc885",
+      "target_display": "glm-4.7",
+      "target_value_sha256": "070a6e92355eb4badbfcfc03c6df87522b615989f8b49abff6f79fb9765c1028"
+    }
+  ],
+  "prompt_changes": [
+    {
+      "role": "state_extraction",
+      "node_id": "etNrwEXVwr5sySpK",
+      "input_key": "description",
+      "A_sha256": "5af9f8110b25817f8d0d42a0fcda98447fbdb6b347c72cb070e7c1aa5ca0fe7b",
+      "B_sha256": "4dde3e7f8660d33b4838183cc783d1f8cd83ef4d580f78aa79eeaaf7bf59606d",
+      "A_characters": 11634,
+      "B_characters": 5615
+    },
+    {
+      "role": "recommendation",
+      "node_id": "pskHz4kajjJnBWwG",
+      "input_key": "systemPrompt",
+      "A_sha256": "1a1b6a73b6b0b9f16bb6b92f388888ab0b97e8f38e3ae77d8e828c1c2b202eca",
+      "B_sha256": "96539f784695b80d16f9013ea20f5b6e3098bef7b3ee450481d10966f6888e9c",
+      "A_characters": 11087,
+      "B_characters": 5164
+    }
+  ],
+  "full_runtime_parity_confirmed": false,
+  "invariants": {
+    "nodes": 20,
+    "edges": 18,
+    "node_ids": [
+      "userGuide",
+      "448745",
+      "etNrwEXVwr5sySpK",
+      "tWP2LwPvzFadPPtk",
+      "hMbWAx9XxkNcfG6V",
+      "yrfKbYdd3I61H9JN",
+      "bgcB6pN1kaSjIiAk",
+      "wwmnkseAaXixej19",
+      "fzgLdGhMS3eMuqQt",
+      "ikIzMK483vihRths",
+      "pskHz4kajjJnBWwG",
+      "fakNM8mmlYmewx67",
+      "p4ZeCJXrGirXAQCz",
+      "oibK1q4js1HXjiO2",
+      "zh9L8VeY9vKm3WnU",
+      "b0vXntQUXZL2Mk5m",
+      "d6kCXfQ1mcJ5hT8J",
+      "zWAw4oYVL1QMe8YX",
+      "sxwN5Fd17Tc8leTf",
+      "v21RmbInputNormalize"
+    ],
+    "output_ids": {
+      "userGuide": [],
+      "448745": [
+        "userChatInput"
+      ],
+      "etNrwEXVwr5sySpK": [
+        "success",
+        "fields",
+        "system_error_text",
+        "bHjOabzWZ7pY37wf",
+        "etAbL1BzFfN5HLdh",
+        "cwnWZj9Z6ScwkMQH",
+        "b9HMaFTNxzmlxibr",
+        "v9oqsVzg42jYzdUv"
+      ],
+      "tWP2LwPvzFadPPtk": [
+        "system_rawResponse",
+        "error",
+        "system_addOutputParam",
+        "qLUQfhG0ILRX",
+        "gR0mkQpJ4Og8",
+        "ftq6j0",
+        "v3V1iU",
+        "maDANa",
+        "school1bTargets",
+        "school1bCancelled",
+        "school1bSkipRag"
+      ],
+      "hMbWAx9XxkNcfG6V": [],
+      "yrfKbYdd3I61H9JN": [
+        "ifElseResult"
+      ],
+      "bgcB6pN1kaSjIiAk": [],
+      "wwmnkseAaXixej19": [],
+      "fzgLdGhMS3eMuqQt": [
+        "ifElseResult"
+      ],
+      "ikIzMK483vihRths": [
+        "history",
+        "answerText",
+        "reasoningText",
+        "system_error_text"
+      ],
+      "pskHz4kajjJnBWwG": [
+        "history",
+        "answerText",
+        "reasoningText",
+        "system_error_text"
+      ],
+      "fakNM8mmlYmewx67": [
+        "system_rawResponse",
+        "error",
+        "system_addOutputParam",
+        "qLUQfhG0ILRX",
+        "gR0mkQpJ4Og8",
+        "hPUpDc",
+        "jC66hR",
+        "uINKaw",
+        "dbdbmb",
+        "hrIzWQ",
+        "school1bMemory"
+      ],
+      "p4ZeCJXrGirXAQCz": [
+        "ifElseResult"
+      ],
+      "oibK1q4js1HXjiO2": [],
+      "zh9L8VeY9vKm3WnU": [],
+      "b0vXntQUXZL2Mk5m": [],
+      "d6kCXfQ1mcJ5hT8J": [],
+      "zWAw4oYVL1QMe8YX": [
+        "quoteQA",
+        "system_error_text"
+      ],
+      "sxwN5Fd17Tc8leTf": [
+        "system_rawResponse",
+        "error",
+        "system_addOutputParam",
+        "qLUQfhG0ILRX",
+        "school1bHistory"
+      ],
+      "v21RmbInputNormalize": [
+        "system_rawResponse",
+        "error",
+        "system_addOutputParam",
+        "v21NormalizedQuestion",
+        "v21CurrencyStatus"
+      ]
+    },
+    "all_A_B_non_prompt_JSON_identical": true,
+    "source_to_A_only_two_model_selector_values": true,
+    "source_code_sha256": {
+      "tWP2LwPvzFadPPtk": "cfdf432b3fb10878f16b839365578ba8cd6ab771e3da6e7cf2deae00eb4595eb",
+      "fakNM8mmlYmewx67": "1f0dff897c214e8f70d2a94bb6e708610b6f20f92e78d7b35655cd4d4e52e848",
+      "sxwN5Fd17Tc8leTf": "a5789b4869224f5266ae017508d0a7a17875b0f07bd7cfd2a2aaeee7507853c5",
+      "v21RmbInputNormalize": "7ba016b460bc16274a443d4ca97a58b02712c79b8bb00b532819d69321dbb48e"
+    },
+    "retrieval_similarity": 0.35,
+    "exported_kb_selection_count": 0,
+    "source_model_inventory": {
+      "etNrwEXVwr5sySpK": "deepseek/deepseek-v4.1-flash",
+      "ikIzMK483vihRths": "glm-4.7",
+      "pskHz4kajjJnBWwG": "deepseek/deepseek-v4.1-flash"
+    },
+    "source_comparison": {
+      "difference_count": 7,
+      "differences": [
+        "/chatConfig/_id added in actual export (removed for repository copy)",
+        "/nodes/2/inputs/0/value: DeepSeek extraction model bound",
+        "/nodes/9/inputs/0/value: Clarification model bound to glm-4.7",
+        "/nodes/10/inputs/0/value: DeepSeek recommendation model bound",
+        "/nodes/17/inputs/0/valueDesc: type declaration instead of local placeholder",
+        "/nodes/19/position/x: actual editor layout",
+        "/nodes/19/position/y: actual editor layout"
+      ],
+      "long_prompts_exact_match": true,
+      "all_other_logic_and_parameters_exact_match": true
+    },
+    "sanitization": [
+      "Removed /chatConfig/_id account metadata; no workflow logic, prompts, models or settings changed. JSON formatting normalized."
+    ]
+  },
+  "builder_sha256": "cf486a8f4c94bb1f1ca8b18e54b2bf378e6c342ee7ddf0788ae9ffba1cef33ad",
+  "outputs": {
+    "plan.json": "0fb10e2f5d1634cecbcdcdc25334a0bd3a9758f21e536fa1067bd085c74ce1ff",
+    "six-request-results-template.csv": "54c164f771678c4e6dae367cdf4f75fa091a2198066bf890bdea99b8f3bbb5ef",
+    "A-glm47-original.json": "733476efd75b841dfe538c1bfd8d9621c16a09c42ca3593d7c636c283fb179c2",
+    "B-glm47-short.json": "daf86b1f0f94650a10fbfa66e0bc1eecb9c1d8018cf503f014b9833df36f909a",
+    "prompt-changes.diff": "cb88d34706074392a4ee491f20b061df5ae5c718d494e9a8e639f1908e2634c5",
+    "configuration-checklist.json": "2b5268be7913ed5541d5df1a141e26ca8433b0d001c9bcb9e4aa474d0ecb8fd1"
+  }
+}

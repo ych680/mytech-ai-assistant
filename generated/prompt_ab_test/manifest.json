@@ -1,0 +1,90 @@
+{
+  "scope": "DEFERRED RECONSTRUCTED OFFLINE FIXTURES ONLY — DO NOT IMPORT OR USE AS THE WORKING EXPORT",
+  "import_status": "DO_NOT_IMPORT — active GLM-4.7 experiment requires the actual reviewed working export",
+  "superseded_by": "generated/glm47_prompt_ab/manifest.json",
+  "control_provenance": "Reconstructed pre-shortening v2.1 TEST: existing 54-product generated graph with original two prompts restored; NOT a fresh live export",
+  "live_control_parity": "UNVERIFIED — operator must compare actual published A prompts and model/KB/settings before running",
+  "user_report": "AIEP now connected to published working TEST; no live inspection performed in preparation",
+  "changed_prompt_values": [
+    {
+      "label": "state_extraction",
+      "node_id": "etNrwEXVwr5sySpK",
+      "input_key": "description",
+      "A_characters": 11634,
+      "B_characters": 5615,
+      "reduction_percent": 51.74,
+      "A_sha256": "5af9f8110b25817f8d0d42a0fcda98447fbdb6b347c72cb070e7c1aa5ca0fe7b",
+      "B_sha256": "4dde3e7f8660d33b4838183cc783d1f8cd83ef4d580f78aa79eeaaf7bf59606d"
+    },
+    {
+      "label": "recommendation",
+      "node_id": "pskHz4kajjJnBWwG",
+      "input_key": "systemPrompt",
+      "A_characters": 11087,
+      "B_characters": 5164,
+      "reduction_percent": 53.42,
+      "A_sha256": "1a1b6a73b6b0b9f16bb6b92f388888ab0b97e8f38e3ae77d8e828c1c2b202eca",
+      "B_sha256": "96539f784695b80d16f9013ea20f5b6e3098bef7b3ee450481d10966f6888e9c"
+    }
+  ],
+  "invariants": {
+    "nodes": 20,
+    "edges": 18,
+    "node_ids": [
+      "userGuide",
+      "448745",
+      "etNrwEXVwr5sySpK",
+      "tWP2LwPvzFadPPtk",
+      "hMbWAx9XxkNcfG6V",
+      "yrfKbYdd3I61H9JN",
+      "bgcB6pN1kaSjIiAk",
+      "wwmnkseAaXixej19",
+      "fzgLdGhMS3eMuqQt",
+      "ikIzMK483vihRths",
+      "pskHz4kajjJnBWwG",
+      "fakNM8mmlYmewx67",
+      "p4ZeCJXrGirXAQCz",
+      "oibK1q4js1HXjiO2",
+      "zh9L8VeY9vKm3WnU",
+      "b0vXntQUXZL2Mk5m",
+      "d6kCXfQ1mcJ5hT8J",
+      "zWAw4oYVL1QMe8YX",
+      "sxwN5Fd17Tc8leTf",
+      "v21RmbInputNormalize"
+    ],
+    "global_variables": 5,
+    "non_prompt_graph_sha256": "41518a08bc09d7bbb96479d87a4a0dc046066c3d53b6aad51395e7eb942b40e0",
+    "deterministic_code_sha256": {
+      "tWP2LwPvzFadPPtk": "29e80a548cdb793f76477228545eda84af182e8c2c55a9e7560c12af67fd5b82",
+      "fakNM8mmlYmewx67": "1f0dff897c214e8f70d2a94bb6e708610b6f20f92e78d7b35655cd4d4e52e848",
+      "sxwN5Fd17Tc8leTf": "a5789b4869224f5266ae017508d0a7a17875b0f07bd7cfd2a2aaeee7507853c5",
+      "v21RmbInputNormalize": "7ba016b460bc16274a443d4ca97a58b02712c79b8bb00b532819d69321dbb48e"
+    },
+    "product_count": 54,
+    "retrieval_similarity": 0.35,
+    "extraction_history": 6,
+    "recommendation_history": 6,
+    "recommendation_max_tokens": 4096,
+    "all_other_json_values_identical": true
+  },
+  "binding_policy": "Both exports preserve blank portable model/dataset bindings. Operator must bind BOTH isolated apps to exactly the working models/settings and existing unchanged 54-product KB; actual live parity is not proven offline.",
+  "sources_sha256": {
+    "tools/build_prompt_ab_test.py": "4ff913317e3ad64520e42060e2d7d2f13be76c2c0793d5e809b0c437d110adfb",
+    "tools/sync_catalogue.py": "47d5cce9b974159fd423ae64b195df7216f73d793ef232ac9c8a95415c0a0459",
+    "tools/templates/mytech_current_working_portable.json": "58be7b69fd8a644eb2dc0118b51567e973749cc5d371a24f7074e200504c08e1",
+    "catalogue/mytech_products_v2_1_test.json": "0e99d7df0238b67d321f729a6ecbe87ed35f16aec1c6e923f2d00e3d69bf85ac",
+    "tools/templates/v21_state_extraction_prompt.txt": "bf424dabe31613ee3d66505c5abdf081a85ca89d408aab3e9d1f3048db992c40",
+    "tools/templates/v21_recommendation_prompt.txt": "96539f784695b80d16f9013ea20f5b6e3098bef7b3ee450481d10966f6888e9c",
+    "tools/templates/v21_extraction_rules.txt": "459233fbf14de21ad65d2c1b07b66e54ad4f191f70f4ff6087b1cd35854a3857",
+    "generated/v2_1_test/mytech-fastgpt-workflow-v2_1-TEST.json": "5ad2d4662d9484006fc24059ef2133e3ead44ee5e80ae3e46d0616aa4f1546d9"
+  },
+  "outputs": {
+    "mytech-v21-prompt-A-control.json": "2b60e0b731f1b058346243016e233653103f29fa899734983d387174492b110b",
+    "mytech-v21-prompt-B-short.json": "5ad2d4662d9484006fc24059ef2133e3ead44ee5e80ae3e46d0616aa4f1546d9",
+    "prompt-changes.diff": "cb88d34706074392a4ee491f20b061df5ae5c718d494e9a8e639f1908e2634c5",
+    "plan.json": "7b9a2dc1ce8e12e0ddd3b257973d60f68d50464ebc950411b421aa0443574478",
+    "turn-results-template.csv": "caa2c2e6b3e35fda853333ab16a9843837e488a52f2819fb61baa6272720b7ff",
+    "node-metrics-template.csv": "6e5cb4638a1512412a17e075170b5672067a473cfde3abad566eaa2981b00557"
+  },
+  "live_measurements": "NONE — blank CSV headers only; no model credits used"
+}
