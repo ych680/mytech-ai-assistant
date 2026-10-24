@@ -1,0 +1,80 @@
+{
+  "record_id": "v21-glm47-optimized-T01-smoke",
+  "recorded_date": "2026-10-24",
+  "actual_test_timestamp": null,
+  "evidence_kind": "maintainer_report_via_chat; agent did not execute or independently retrieve live trace",
+  "application_name": "MyTech v2.1 — GLM47 Optimized TEST",
+  "configuration": {
+    "main_llm_models": "glm-4.7",
+    "prompts": "shortened",
+    "reported_knowledge_base": "MyTech v2.1 — TEST Knowledge"
+  },
+  "scenario_id": "T01",
+  "scenario_name": "Single Product Recommendation",
+  "input": "I need a laptop under ¥6,000 for gaming.",
+  "observed_output": {
+    "reported_product_label": "MECHREVO Jiaolong 16K",
+    "matching_catalogue_id": "LAP-005",
+    "reference_price_rmb": 4999,
+    "category": "Laptop",
+    "usage": "Gaming",
+    "hard_budget_rmb": 6000,
+    "within_budget": true,
+    "clarification_needed": false,
+    "kb_citation_present": true,
+    "single_product_verdict": "PASS (maintainer-reported)",
+    "complete_raw_public_response_available": false,
+    "four_field_JSON_independently_validated": false
+  },
+  "nodes": {
+    "state_extraction": {
+      "node_id": "etNrwEXVwr5sySpK",
+      "model": "glm-4.7",
+      "latency_seconds": 12.33,
+      "input_tokens": 1645,
+      "output_tokens": 112,
+      "AI_credits": 0.2205
+    },
+    "recommendation": {
+      "node_id": "pskHz4kajjJnBWwG",
+      "reported_node_name": "Recommendation AI Chat #2",
+      "model": "glm-4.7",
+      "latency_seconds": 21.69,
+      "input_tokens": 3731,
+      "output_tokens": 719,
+      "AI_credits": 0.7326
+    }
+  },
+  "overall": {
+    "workflow_latency_seconds": 34.45,
+    "combined_AI_node_credits": 0.9531,
+    "other_nodes_approx_seconds": 0.43,
+    "platform_wide_billed_credits_independently_verified": false,
+    "platform_wide_billed_credits": null
+  },
+  "historical_unpaired_observations": [
+    {
+      "configuration": "GLM-4.7 with longer prompts",
+      "approx_workflow_seconds": 36.5
+    },
+    {
+      "configuration": "Working mixed DeepSeek/GLM",
+      "approx_workflow_seconds": 5.05
+    }
+  ],
+  "interpretation": {
+    "single_reported_budget_compliant_smoke_pass": true,
+    "latency_remains_approximately_34_seconds": true,
+    "prompt_shortening_demonstrated_meaningful_latency_improvement": false,
+    "controlled_paired_comparison": false,
+    "completed_six_request_AB_evaluation": false,
+    "model_superiority_demonstrated": false,
+    "default_deployment_changed": false
+  },
+  "evidence_limits": [
+    "One observed optimized smoke test; no paired A control",
+    "Historical inputs, cache, queues, revisions and meter scope not fully controlled",
+    "Raw final JSON/full trace not supplied; output properties and metrics recorded as reported",
+    "AI-node credits are not independently verified platform-wide billing"
+  ]
+}

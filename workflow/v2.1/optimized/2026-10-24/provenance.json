@@ -1,0 +1,25 @@
+{
+  "snapshot_kind": "actual_export",
+  "application_name": "MyTech v2.1 — GLM47 Optimized TEST",
+  "recorded_date": "2026-10-24",
+  "timezone": "Asia/Hong_Kong",
+  "source_filename": "MyTech v2.1 — GLM47 Optimized TEST.json",
+  "source_location": "User-provided macOS Downloads; raw file kept outside repository",
+  "raw_sha256": "2e058ac56aa61f66320b4e8d100f92182bc42af65b06e46ab0aa73aad467f326",
+  "raw_bytes": 177583,
+  "sanitized_sha256": "c6942e726309746eb5b9698789e3b9ea6ca3aa1af72294cc245896cbe07b45d9",
+  "sanitization": {
+    "removed_paths": [
+      "/chatConfig/_id"
+    ],
+    "other_changes": "JSON formatting normalized only; all prompts, models, code, IDs, bindings, settings and layout preserved"
+  },
+  "security_review": {
+    "credential_pattern_findings": 0,
+    "sensitive_field_findings": 0,
+    "credential_values_printed": false
+  },
+  "published_revision": null,
+  "publication_evidence": "Maintainer reports actual working/exported application. Export has no verifiable published revision or draft/published marker.",
+  "kb_binding_evidence": "datasets.value=[]; exported metadata is a type declaration, not a selected KB. Runtime name/selection must be recorded separately."
+}

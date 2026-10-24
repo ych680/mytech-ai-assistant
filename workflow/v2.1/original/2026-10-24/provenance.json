@@ -1,0 +1,25 @@
+{
+  "snapshot_kind": "actual_export",
+  "application_name": "MyTech v2.1 — TEST Knowledge",
+  "recorded_date": "2026-10-24",
+  "timezone": "Asia/Hong_Kong",
+  "source_filename": "MyTech v2.1 — TEST Knowledge.json",
+  "source_location": "User-provided macOS Downloads; raw file kept outside repository",
+  "raw_sha256": "3e6087b7572ea4c7cfa702c895f5b6a369e6a31c032cfd4264d5d2e72b736f60",
+  "raw_bytes": 190315,
+  "sanitized_sha256": "3cbc07ab41542ae6a9280497ae8e629021444dc4bfe7b7755c98db27e36add15",
+  "sanitization": {
+    "removed_paths": [
+      "/chatConfig/_id"
+    ],
+    "other_changes": "JSON formatting normalized only; all prompts, models, code, IDs, bindings, settings and layout preserved"
+  },
+  "security_review": {
+    "credential_pattern_findings": 0,
+    "sensitive_field_findings": 0,
+    "credential_values_printed": false
+  },
+  "published_revision": null,
+  "publication_evidence": "Maintainer reports actual working/exported application. Export has no verifiable published revision or draft/published marker.",
+  "kb_binding_evidence": "datasets.value=[]; exported metadata is a type declaration, not a selected KB. Runtime name/selection must be recorded separately."
+}
