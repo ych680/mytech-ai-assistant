@@ -1,0 +1,1126 @@
+{
+  "dataset_name": "MyTech v2.1 TEST — Product Candidates (NOT APPROVED FOR CURRENT)",
+  "version": "2.1-TEST",
+  "snapshot_date": "2026-10-23",
+  "currency": "RMB",
+  "price_note": "TEST-ONLY: research reference quotes, not live prices. 27 new candidates are provisional; verify exact SKU, usage, and prices before any Current/public deployment.",
+  "supported_categories": [
+    "Laptop",
+    "Desktop",
+    "Smartphone",
+    "Tablet",
+    "Headphones",
+    "Monitor",
+    "Smartwatch",
+    "Mouse",
+    "Keyboard"
+  ],
+  "products": [
+    {
+      "id": "LAP-001",
+      "category": "Laptop",
+      "product": "Lenovo Xiaoxin 14 (2025, Ryzen 7 H255, 16GB/512GB)",
+      "price_rmb": 5799,
+      "tier": "Entry",
+      "main_usage": [
+        "Study",
+        "Office",
+        "Daily use"
+      ],
+      "key_features": [
+        "14-inch display",
+        "16GB RAM",
+        "512GB SSD",
+        "Ryzen 7 H255"
+      ],
+      "source": "Lenovo Official Store",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "LAP-002",
+      "category": "Laptop",
+      "product": "HUAWEI MateBook 14",
+      "price_rmb": 6599,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Study",
+        "Office",
+        "Creative work"
+      ],
+      "key_features": [
+        "2.8K OLED display",
+        "HarmonyOS AI features",
+        "Long battery-life positioning"
+      ],
+      "source": "Huawei Official Website",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "LAP-003",
+      "category": "Laptop",
+      "product": "Lenovo Xiaoxin Pro 14 (Ryzen 7 H255, 32GB/1TB)",
+      "price_rmb": 8999,
+      "tier": "Premium",
+      "main_usage": [
+        "Heavy multitasking",
+        "Creative work",
+        "Productivity"
+      ],
+      "key_features": [
+        "14-inch display",
+        "32GB RAM",
+        "1TB SSD",
+        "Ryzen 7 H255"
+      ],
+      "source": "Lenovo Official Store",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "LAP-004",
+      "category": "Laptop",
+      "product": "HONOR MagicBook X14 2025 Battle Edition (i5-13420H, 16GB/512GB)",
+      "price_rmb": 3299,
+      "tier": "Entry",
+      "main_usage": [
+        "Study",
+        "Office",
+        "Portable use"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.ithome.com/0/821/402.htm",
+      "price_evidence": "Launch list price, 2024-12-31"
+    },
+    {
+      "id": "LAP-005",
+      "category": "Laptop",
+      "product": "MECHREVO Jiaolong 16K (R7-7435H, RTX 4050, 16GB/512GB, 165Hz)",
+      "price_rmb": 4999,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Gaming",
+        "Study"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://nb.zol.com.cn/964/9648215.html",
+      "price_evidence": "Quoted regular sale price, 2025-03-26; excludes subsidies"
+    },
+    {
+      "id": "LAP-006",
+      "category": "Laptop",
+      "product": "Lenovo Legion R7000 2025 (Ryzen 7 H 255, RTX 5060, 16GB/512GB)",
+      "price_rmb": 7999,
+      "tier": "Premium",
+      "main_usage": [
+        "Gaming",
+        "Creative work",
+        "Multitasking"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.lenovo.com.cn/wiki/product-doc-36144.html",
+      "price_evidence": "Official reference listing, 2026-09-11"
+    },
+    {
+      "id": "DES-001",
+      "category": "Desktop",
+      "product": "Lenovo Tianyi 510S (Core i3-14100, 16GB/512GB)",
+      "price_rmb": 4099,
+      "tier": "Entry",
+      "main_usage": [
+        "Office",
+        "Study",
+        "Home use"
+      ],
+      "key_features": [
+        "Core i3-14100",
+        "16GB RAM",
+        "512GB SSD",
+        "Compact desktop"
+      ],
+      "source": "Lenovo Official Store",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "DES-002",
+      "category": "Desktop",
+      "product": "Lenovo Tianyi 510S (Core i5-14400, 16GB/512GB)",
+      "price_rmb": 5099,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Office",
+        "Multitasking",
+        "Home productivity"
+      ],
+      "key_features": [
+        "Core i5-14400",
+        "16GB RAM",
+        "512GB SSD",
+        "Compact desktop"
+      ],
+      "source": "Lenovo Official Store",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "DES-003",
+      "category": "Desktop",
+      "product": "Apple Mac mini (M4 Pro)",
+      "price_rmb": 10999,
+      "tier": "Premium",
+      "main_usage": [
+        "Creative work",
+        "Professional productivity",
+        "Development"
+      ],
+      "key_features": [
+        "Apple M4 Pro chip",
+        "Compact desktop design"
+      ],
+      "source": "Apple China",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "DES-004",
+      "category": "Desktop",
+      "product": "MINISFORUM UM870 Slim (Ryzen 7 8745H, 16GB/1TB; complete system)",
+      "price_rmb": 2699,
+      "tier": "Entry",
+      "main_usage": [
+        "Office",
+        "Home use",
+        "Study",
+        "Mini PC"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.ithome.com/0/807/797.htm",
+      "price_evidence": "Launch complete-system price, 2024-11-04"
+    },
+    {
+      "id": "DES-005",
+      "category": "Desktop",
+      "product": "Lenovo GeekPro (i5-14400F, RTX 5060, 32GB/1TB)",
+      "price_rmb": 9699,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Gaming",
+        "Creative work",
+        "Multitasking"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.lenovo.com.cn/wiki/product-doc-37534.html",
+      "price_evidence": "Official reference listing, 2026-10-12"
+    },
+    {
+      "id": "DES-006",
+      "category": "Desktop",
+      "product": "Lenovo Legion Blade 7000K 2025 (i7-14650HX, RTX 5070, 32GB/1TB)",
+      "price_rmb": 11999,
+      "tier": "Premium",
+      "main_usage": [
+        "Gaming",
+        "Content creation",
+        "Heavy multitasking"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.lenovo.com.cn/wiki/product-doc-34040.html",
+      "price_evidence": "Official reference listing, 2026-09-11"
+    },
+    {
+      "id": "PHO-001",
+      "category": "Smartphone",
+      "product": "HUAWEI nova 14 活力版",
+      "price_rmb": 2399,
+      "tier": "Entry",
+      "main_usage": [
+        "Daily use",
+        "Photography",
+        "Social media"
+      ],
+      "key_features": [
+        "Front and rear 50MP imaging",
+        "66W fast charging",
+        "HarmonyOS features"
+      ],
+      "source": "Huawei Official Website",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "PHO-002",
+      "category": "Smartphone",
+      "product": "HONOR 400 Pro (12GB/256GB)",
+      "price_rmb": 3399,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Photography",
+        "Daily use",
+        "Entertainment"
+      ],
+      "key_features": [
+        "12GB RAM",
+        "256GB storage",
+        "HONOR 400-series photography focus"
+      ],
+      "source": "HONOR Official Launch Information",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "PHO-003",
+      "category": "Smartphone",
+      "product": "Apple iPhone 17 (256GB)",
+      "price_rmb": 6799,
+      "tier": "Premium",
+      "main_usage": [
+        "Daily use",
+        "Photography",
+        "Video",
+        "Apple ecosystem"
+      ],
+      "key_features": [
+        "256GB storage",
+        "6.3-inch display",
+        "A19 chip"
+      ],
+      "source": "Apple China",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "PHO-004",
+      "category": "Smartphone",
+      "product": "REDMI 14C (4GB/128GB)",
+      "price_rmb": 599,
+      "tier": "Entry",
+      "main_usage": [
+        "Daily use",
+        "Calls",
+        "Basic social media"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.ithome.com/0/821/084.htm",
+      "price_evidence": "Launch list price, 2024-12-30"
+    },
+    {
+      "id": "PHO-005",
+      "category": "Smartphone",
+      "product": "iQOO Z10 Turbo Pro (12GB/256GB)",
+      "price_rmb": 1999,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Gaming",
+        "Battery life",
+        "Daily use"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.ithome.com/0/849/624.htm",
+      "price_evidence": "Launch list price, 2025-04-28"
+    },
+    {
+      "id": "PHO-006",
+      "category": "Smartphone",
+      "product": "REDMI K80 Ultra (12GB/256GB)",
+      "price_rmb": 2599,
+      "tier": "Premium",
+      "main_usage": [
+        "Gaming",
+        "High performance",
+        "Entertainment"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.ithome.com/0/863/945.htm",
+      "price_evidence": "Launch list price, 2025-06-26"
+    },
+    {
+      "id": "TAB-001",
+      "category": "Tablet",
+      "product": "HUAWEI MatePad 11.5 S (2025)",
+      "price_rmb": 2199,
+      "tier": "Entry",
+      "main_usage": [
+        "Study",
+        "Note-taking",
+        "Reading"
+      ],
+      "key_features": [
+        "Paper-like display option",
+        "Huawei Notes",
+        "HarmonyOS AI study features"
+      ],
+      "source": "Huawei Official Website",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "TAB-002",
+      "category": "Tablet",
+      "product": "HUAWEI MatePad 11.5 (2026)",
+      "price_rmb": 2599,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Study",
+        "Media",
+        "Note-taking"
+      ],
+      "key_features": [
+        "11.5-inch 2.5K display",
+        "120Hz refresh rate",
+        "10100mAh battery"
+      ],
+      "source": "Huawei Official Website",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "TAB-003",
+      "category": "Tablet",
+      "product": "Apple iPad Air 11-inch (M3, Wi-Fi)",
+      "price_rmb": 4799,
+      "tier": "Premium",
+      "main_usage": [
+        "Creative work",
+        "Study",
+        "Productivity"
+      ],
+      "key_features": [
+        "Apple M3 chip",
+        "11-inch display"
+      ],
+      "source": "Apple China",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "TAB-004",
+      "category": "Tablet",
+      "product": "HONOR Pad X9 (6GB/128GB)",
+      "price_rmb": 899,
+      "tier": "Entry",
+      "main_usage": [
+        "Reading",
+        "Study",
+        "Media"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.ithome.com/0/802/849.htm",
+      "price_evidence": "List price (not RMB799 launch discount), 2024-10-16"
+    },
+    {
+      "id": "TAB-005",
+      "category": "Tablet",
+      "product": "Lenovo Legion Y700 4th Gen (12GB/256GB)",
+      "price_rmb": 3299,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Gaming",
+        "Media",
+        "Portable use"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.ithome.com/0/857/523.htm",
+      "price_evidence": "Launch list price, 2025-05-31"
+    },
+    {
+      "id": "TAB-006",
+      "category": "Tablet",
+      "product": "Apple iPad Pro 11-inch (M5, Wi-Fi, 256GB)",
+      "price_rmb": 8999,
+      "tier": "Premium",
+      "main_usage": [
+        "Creative work",
+        "Drawing",
+        "Productivity"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.apple.com.cn/newsroom/2025/10/apple-introduces-ipad-pro-with-m5/",
+      "price_evidence": "Apple official launch price, 2025-10"
+    },
+    {
+      "id": "AUD-001",
+      "category": "Headphones",
+      "product": "Sony WH-CH520",
+      "price_rmb": 350,
+      "tier": "Entry",
+      "main_usage": [
+        "Daily music",
+        "Study",
+        "Calls"
+      ],
+      "key_features": [
+        "Bluetooth 5.2",
+        "Up to 50-hour battery-life specification",
+        "Lightweight on-ear design"
+      ],
+      "source": "Sony / JD Reference",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "AUD-002",
+      "category": "Headphones",
+      "product": "Apple AirPods Pro 3",
+      "price_rmb": 1899,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Commute",
+        "Noise cancellation",
+        "Apple ecosystem"
+      ],
+      "key_features": [
+        "Active noise cancellation",
+        "Up to 8 hours listening with ANC",
+        "Heart-rate sensing"
+      ],
+      "source": "Apple China",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "AUD-003",
+      "category": "Headphones",
+      "product": "Sony WH-1000XM6",
+      "price_rmb": 4799,
+      "tier": "Premium",
+      "main_usage": [
+        "Travel",
+        "Premium noise cancellation",
+        "Music"
+      ],
+      "key_features": [
+        "Flagship over-ear noise-cancelling positioning"
+      ],
+      "source": "Sony China",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "AUD-004",
+      "category": "Headphones",
+      "product": "Razer BlackShark V2 X (3.5mm wired)",
+      "price_rmb": 279,
+      "tier": "Entry",
+      "main_usage": [
+        "Gaming",
+        "Voice chat",
+        "PC use"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://detail.zol.com.cn/microphone/index1398825.shtml",
+      "price_evidence": "Retail offer shown in reference listing, checked 2026-10"
+    },
+    {
+      "id": "AUD-005",
+      "category": "Headphones",
+      "product": "Sony WH-CH720N",
+      "price_rmb": 1009,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Commute",
+        "Noise cancellation",
+        "Music"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://detail.zol.com.cn/microphone/index1465657.shtml",
+      "price_evidence": "ZOL reference price, checked 2026-10"
+    },
+    {
+      "id": "AUD-006",
+      "category": "Headphones",
+      "product": "Bose QuietComfort Ultra Headphones II",
+      "price_rmb": 3599,
+      "tier": "Premium",
+      "main_usage": [
+        "Travel",
+        "Premium noise cancellation",
+        "Music"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.bose.cn/zh_cn/pressroom/featured/bose_unveils_the_next_generation_of_the_quietcomfort_ultra_headphones.html",
+      "price_evidence": "Official launch price, 2025-09-12"
+    },
+    {
+      "id": "MON-001",
+      "category": "Monitor",
+      "product": "AOC Q27G40E",
+      "price_rmb": 879,
+      "tier": "Entry",
+      "main_usage": [
+        "Gaming",
+        "Study",
+        "General use"
+      ],
+      "key_features": [
+        "27-inch",
+        "2560×1440 resolution",
+        "180Hz refresh rate",
+        "Fast IPS",
+        "1ms GTG"
+      ],
+      "source": "AOC China Official Store",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "MON-002",
+      "category": "Monitor",
+      "product": "REDMI G27Q 320Hz",
+      "price_rmb": 1199,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Competitive gaming",
+        "Gaming"
+      ],
+      "key_features": [
+        "27-inch",
+        "2560×1440 resolution",
+        "320Hz refresh rate",
+        "1ms response time"
+      ],
+      "source": "JD / Market Reference",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "MON-003",
+      "category": "Monitor",
+      "product": "LG UltraGear 27GS95QE",
+      "price_rmb": 3499,
+      "tier": "Premium",
+      "main_usage": [
+        "Premium gaming",
+        "High-refresh gaming"
+      ],
+      "key_features": [
+        "26.5-inch QHD OLED",
+        "240Hz refresh rate",
+        "0.03ms GTG"
+      ],
+      "source": "LG China / Market Reference",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "MON-004",
+      "category": "Monitor",
+      "product": "REDMI A24 2026 (23.8-inch IPS, 1080p, 144Hz)",
+      "price_rmb": 449,
+      "tier": "Entry",
+      "main_usage": [
+        "Office",
+        "Study",
+        "Light gaming"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://dir.jd.com/guide/jd-geo-guide-10bit-1080p-xiao-chi-cun-xian-shi-qi-v1",
+      "price_evidence": "JD category guide estimate, 2026-10"
+    },
+    {
+      "id": "MON-005",
+      "category": "Monitor",
+      "product": "Dell S2725QS (27-inch 4K IPS, 120Hz)",
+      "price_rmb": 1899,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Office",
+        "Creative work",
+        "Media"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.dell.com/zh-cn/shop/dell-27-plus-4k--s2725qs/apd/210-bqvq/",
+      "price_evidence": "Dell China listed price, checked 2026-10"
+    },
+    {
+      "id": "MON-006",
+      "category": "Monitor",
+      "product": "LG 34WR50QK-B (34-inch 3440x1440 curved, 100Hz)",
+      "price_rmb": 2499,
+      "tier": "Premium",
+      "main_usage": [
+        "Office",
+        "Multitasking",
+        "Ultrawide productivity"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://wap.zol.com.cn/2123/2122982/index.html",
+      "price_evidence": "ZOL reference quote, checked 2026-10"
+    },
+    {
+      "id": "WAT-001",
+      "category": "Smartwatch",
+      "product": "HUAWEI WATCH GT 5 (41mm)",
+      "price_rmb": 1488,
+      "tier": "Entry",
+      "main_usage": [
+        "Fitness",
+        "Daily health tracking",
+        "Daily wear"
+      ],
+      "key_features": [
+        "41mm model",
+        "Fitness and daily smartwatch positioning"
+      ],
+      "source": "Huawei Official Website",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "WAT-002",
+      "category": "Smartwatch",
+      "product": "Apple Watch SE 3",
+      "price_rmb": 1999,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Fitness",
+        "Daily health tracking",
+        "Apple ecosystem"
+      ],
+      "key_features": [
+        "40mm or 44mm",
+        "Heart-rate tracking",
+        "Sleep tracking",
+        "50m water resistance"
+      ],
+      "source": "Apple China",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "WAT-003",
+      "category": "Smartwatch",
+      "product": "HUAWEI WATCH 5",
+      "price_rmb": 2699,
+      "tier": "Premium",
+      "main_usage": [
+        "Smart features",
+        "Health tracking",
+        "Independent connectivity"
+      ],
+      "key_features": [
+        "X-TAP sensing",
+        "Huawei AI features",
+        "eSIM support"
+      ],
+      "source": "Huawei Official Website",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "WAT-004",
+      "category": "Smartwatch",
+      "product": "Xiaomi Watch S4 41mm (fluororubber strap)",
+      "price_rmb": 999,
+      "tier": "Entry",
+      "main_usage": [
+        "Daily wear",
+        "Fitness",
+        "Style"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.ithome.com/0/863/949.htm",
+      "price_evidence": "Launch list price, 2025-06-26"
+    },
+    {
+      "id": "WAT-005",
+      "category": "Smartwatch",
+      "product": "Garmin Forerunner 165 (standard, non-Music)",
+      "price_rmb": 2080,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Running",
+        "Fitness",
+        "Training"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.garmin.com.cn/news/garmin/garmin-news-forerunner165/",
+      "price_evidence": "Official recommended retail starting price"
+    },
+    {
+      "id": "WAT-006",
+      "category": "Smartwatch",
+      "product": "Garmin fenix 8 AMOLED (43mm; entry variant)",
+      "price_rmb": 7980,
+      "tier": "Premium",
+      "main_usage": [
+        "Outdoor sports",
+        "Hiking",
+        "Training",
+        "Navigation"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.garmin.com.cn/minisite/find-your-watch/",
+      "price_evidence": "Garmin official series starting price; exact SKU recheck required"
+    },
+    {
+      "id": "MOU-001",
+      "category": "Mouse",
+      "product": "Logitech M240",
+      "price_rmb": 109,
+      "tier": "Entry",
+      "main_usage": [
+        "Office",
+        "Study",
+        "Portable use"
+      ],
+      "key_features": [
+        "Bluetooth",
+        "Quiet-click positioning",
+        "Lightweight portable design"
+      ],
+      "source": "JD Reference",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "MOU-002",
+      "category": "Mouse",
+      "product": "Logitech G304 LIGHTSPEED",
+      "price_rmb": 229,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Gaming",
+        "General use"
+      ],
+      "key_features": [
+        "Wireless gaming mouse",
+        "LIGHTSPEED wireless positioning"
+      ],
+      "source": "JD / Market Reference",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "MOU-003",
+      "category": "Mouse",
+      "product": "Logitech MX Master 3S",
+      "price_rmb": 429,
+      "tier": "Premium",
+      "main_usage": [
+        "Office",
+        "Creative work",
+        "Productivity"
+      ],
+      "key_features": [
+        "8,000 DPI sensor",
+        "Quiet clicks",
+        "MagSpeed scrolling"
+      ],
+      "source": "Logitech / Market Reference",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "MOU-004",
+      "category": "Mouse",
+      "product": "Razer DeathAdder Essential (black wired)",
+      "price_rmb": 109,
+      "tier": "Entry",
+      "main_usage": [
+        "Gaming",
+        "General use"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://item.jd.com/product/v5zKcPGJuDWA1AOJa71zrQ.html",
+      "price_evidence": "JD displayed price, checked 2026-10"
+    },
+    {
+      "id": "MOU-005",
+      "category": "Mouse",
+      "product": "Logitech Lift Vertical Ergonomic Mouse",
+      "price_rmb": 499,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Office",
+        "Ergonomics",
+        "Productivity"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://detail.zol.com.cn/Ergonomics_mouse/index1404738.shtml",
+      "price_evidence": "ZOL reference price, checked 2026-10"
+    },
+    {
+      "id": "MOU-006",
+      "category": "Mouse",
+      "product": "Razer Viper V3 Pro (black wireless)",
+      "price_rmb": 1299,
+      "tier": "Premium",
+      "main_usage": [
+        "Competitive gaming",
+        "Gaming",
+        "FPS"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://detail.zol.com.cn/mice/index2125025.shtml",
+      "price_evidence": "ZOL reference price, checked 2026-10"
+    },
+    {
+      "id": "KEY-001",
+      "category": "Keyboard",
+      "product": "Logitech K848",
+      "price_rmb": 249,
+      "tier": "Entry",
+      "main_usage": [
+        "Office",
+        "General typing",
+        "Light gaming"
+      ],
+      "key_features": [
+        "Wired mechanical keyboard",
+        "Backlighting",
+        "Full-size layout"
+      ],
+      "source": "JD / Market Reference",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "KEY-002",
+      "category": "Keyboard",
+      "product": "Logitech Signature K650",
+      "price_rmb": 299,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Office",
+        "Long typing sessions",
+        "Productivity"
+      ],
+      "key_features": [
+        "Wireless and Bluetooth",
+        "Integrated palm rest",
+        "Full-size layout"
+      ],
+      "source": "Logitech / JD Reference",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "KEY-003",
+      "category": "Keyboard",
+      "product": "Logitech MX Keys S",
+      "price_rmb": 529,
+      "tier": "Premium",
+      "main_usage": [
+        "Office",
+        "Productivity",
+        "Multi-device use"
+      ],
+      "key_features": [
+        "Wireless and Bluetooth",
+        "Smart backlighting",
+        "Multi-device switching"
+      ],
+      "source": "Logitech / JD Reference",
+      "review_status": "EXISTING BASELINE",
+      "evidence_url": "https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json",
+      "price_evidence": "Existing v1 baseline snapshot: 2026-09-12"
+    },
+    {
+      "id": "KEY-004",
+      "category": "Keyboard",
+      "product": "Rapoo V500PRO (full-size wired mechanical)",
+      "price_rmb": 199,
+      "tier": "Entry",
+      "main_usage": [
+        "Gaming",
+        "General typing"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://www.rapoo.cn/product/769",
+      "price_evidence": "Rapoo official listed price, checked 2026-10"
+    },
+    {
+      "id": "KEY-005",
+      "category": "Keyboard",
+      "product": "AULA F75 (Glacier Blue, Reaper switch; tri-mode)",
+      "price_rmb": 329,
+      "tier": "Mid-range",
+      "main_usage": [
+        "Gaming",
+        "Office",
+        "Multi-device use"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://detail.zol.com.cn/keyboard/index1969156.shtml",
+      "price_evidence": "ZOL reference price, checked 2026-10"
+    },
+    {
+      "id": "KEY-006",
+      "category": "Keyboard",
+      "product": "Logitech G PRO X TKL",
+      "price_rmb": 1549,
+      "tier": "Premium",
+      "main_usage": [
+        "Competitive gaming",
+        "Gaming",
+        "FPS"
+      ],
+      "key_features": [
+        "Only the model/configuration stated in the Product field is selected",
+        "detailed performance and other specifications require source verification."
+      ],
+      "source": "Candidate research reference — not independently verified",
+      "review_status": "NEW CANDIDATE — provisional",
+      "evidence_url": "https://detail.zol.com.cn/2100/2099769/price.shtml",
+      "price_evidence": "ZOL reference price, checked 2026-10"
+    }
+  ]
+}

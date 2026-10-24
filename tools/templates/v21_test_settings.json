@@ -1,0 +1,12 @@
+{
+  "retrieval_similarity": 0.35,
+  "clarification_reasoning": false,
+  "clarification_max_tokens": 800,
+  "recommendation_max_tokens": 4096,
+  "browser_request_timeout_ms": 120000,
+  "model_strategy": {
+    "extraction": "Manually select an available fast lightweight model; verify structured extraction and multi-turn scenarios.",
+    "clarification": "Manually select an available lightweight instruction model; reasoning disabled.",
+    "recommendation": "Manually select glm-4.7 as the quality baseline if available in the TEST app; no availability assumed."
+  }
+}

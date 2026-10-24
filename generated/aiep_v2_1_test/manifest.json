@@ -1,0 +1,44 @@
+{
+  "release_scope": "Separate AIEP v2.1 TEST candidate; review required before upload",
+  "upload_directory": "generated/aiep_v2_1_test/site",
+  "upload_files": [
+    "index.html"
+  ],
+  "master": "catalogue/mytech_products_v2_1_test.json",
+  "master_sha256": "0e99d7df0238b67d321f729a6ecbe87ed35f16aec1c6e923f2d00e3d69bf85ac",
+  "product_count": 54,
+  "supported_categories": [
+    "Laptop",
+    "Desktop",
+    "Smartphone",
+    "Tablet",
+    "Headphones",
+    "Monitor",
+    "Smartwatch",
+    "Mouse",
+    "Keyboard"
+  ],
+  "transport": {
+    "route": "/fastgpt/v1/chat/completions",
+    "authentication": "AIEP server-side project connection only",
+    "application_selection": "Configured project credential; no browser appId/model",
+    "binding_status": "UNVERIFIED — operator must confirm separate project maps to published v2.1 TEST",
+    "published_workflow_policy": "Keep currently published TEST unchanged; do not import generated shortened prompts"
+  },
+  "sources_sha256": {
+    "aiep-candidate/site/index.html": "979e0e9c663a8cb9063e9cc6e3cc3373204156765b71c5a318f550f533d0cb35",
+    "tools/sync_catalogue.py": "a1e12414d641b80d75b07cb6f46c18e0bc47e7b617c9584f25d0a21f791143e0",
+    "tools/build_aiep_test.py": "c1c271f324b4c5a4a934a815d1407d040f4373dce78008957fd43513a861138c",
+    "tools/templates/v21_dataset_validation.js": "0f251f53f3198d7e8bc01223dc5c2d21cd44cc7237b7f88fcc048177f38eb8fb",
+    "tools/templates/v21_usage_validation.js": "e85ef822862464d673cb2c9dd68bcf1cebc366ba69b91d008459139daea7d242",
+    "tools/templates/v21_usage_compatibility.json": "684288eba7270d1b2d65a16f01990a357e117b80f213806e9aee1a723e683d44",
+    "tools/templates/v21_test_settings.json": "6c48dd6f06e5da2767215871714be8d67525aa872724f8867bcd290f515a522c",
+    "mytech_v2_1_test_response.mjs": "457578d24283b5b23cbc8307fb41a25fc20936af845d42512221d4f42d9d6dea",
+    "tools/templates/v21_aiep_runtime.js": "a9582cf94dff462783a60e98b533a4983b2981121da70549693a88e4bed9b8aa",
+    "tools/templates/v21_aiep_transport.js": "cf5028aa1923199d6f579c29f6c75e26a0b22d56aed94f3be7902ac60b1f41fe"
+  },
+  "credential_scan": "PASS: public candidate only; no environment files read; heuristic rules in tools/build_aiep_test.py",
+  "outputs": {
+    "site/index.html": "1d6a6d3f59af62e81f765c0a50cbcb0823cfe8f337d5030d2b0b6a0355395f2f"
+  }
+}

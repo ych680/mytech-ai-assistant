@@ -1,0 +1,1564 @@
+{
+  "schema_version": 1,
+  "recorded_date": "2026-10-24",
+  "branch": "feat/v21-automated-catalogue",
+  "scope": "Exact public tracked/untracked paths plus retained private env, observed cache groups and explicitly recorded removed Finder metadata; no private contents.",
+  "public_path_count": 142,
+  "public_tracked_count": 52,
+  "public_untracked_count": 90,
+  "classification_policy": "ARCHIVE is retain-in-place pending approval, not a move. No public source/test/history/generated asset is safe to delete. Never delete untracked files automatically.",
+  "dependency_audit_method": "Read public source imports, static-file allowlists, generator constants/manifests, CI discovery and path references. Group dependency descriptions include dynamic consumers, not just literal filename matches.",
+  "conditional_future_patterns": [
+    {
+      "pattern": "**/__pycache__ (outside .venv)",
+      "category": "HIDE FROM VS CODE",
+      "observed_in_repo": false,
+      "action_now": "Explorer pattern only, no deletion"
+    },
+    {
+      "pattern": "**/.pytest_cache",
+      "category": "HIDE FROM VS CODE",
+      "observed_in_repo": false,
+      "action_now": "Explorer pattern only, no deletion"
+    },
+    {
+      "pattern": "**/node_modules",
+      "category": "HIDE FROM VS CODE",
+      "observed_in_repo": false,
+      "action_now": "Explorer pattern only, no deletion"
+    }
+  ],
+  "entries": [
+    {
+      "path": ".env.example",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Project configuration, historical v2 runtime/data/prompt or isolated v2.1 server modules; preserve current paths.",
+      "dependency_analysis": "README.md; runtime static-file imports; Python/Node test discovery; project tooling",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": ".gitattributes",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required cross-platform LF policy for manifest/source/snapshot hashes and preservation of binary evidence.",
+      "dependency_analysis": "All byte-hashed generated assets, JS/text templates and actual workflow snapshot/provenance checks; included with generators in commit 1.",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Review/revert only the policy after approval; no existing working-tree file was normalized by this phase."
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Shared CI gates; preserve group integration checks.",
+      "dependency_analysis": "GitHub Actions PR/push triggers; full test discovery",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": ".github/workflows/tests.yml",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Shared CI gates; preserve group integration checks.",
+      "dependency_analysis": "GitHub Actions PR/push triggers; full test discovery",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": ".gitignore",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Project configuration, historical v2 runtime/data/prompt or isolated v2.1 server modules; preserve current paths.",
+      "dependency_analysis": "README.md; runtime static-file imports; Python/Node test discovery; project tooling",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": ".python-version",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Project configuration, historical v2 runtime/data/prompt or isolated v2.1 server modules; preserve current paths.",
+      "dependency_analysis": "README.md; runtime static-file imports; Python/Node test discovery; project tooling",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": ".vscode/settings.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Minimal shared Explorer exclusions only; no terminal/interpreter/credential settings.",
+      "dependency_analysis": ".gitignore narrow settings exception; VS Code files.exclude",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "CHANGELOG.md",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Project configuration, historical v2 runtime/data/prompt or isolated v2.1 server modules; preserve current paths.",
+      "dependency_analysis": "README.md; runtime static-file imports; Python/Node test discovery; project tooling",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "MyTech_Chatbot_v2.html",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Project configuration, historical v2 runtime/data/prompt or isolated v2.1 server modules; preserve current paths.",
+      "dependency_analysis": "README.md; runtime static-file imports; Python/Node test discovery; project tooling",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "README.md",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Project configuration, historical v2 runtime/data/prompt or isolated v2.1 server modules; preserve current paths.",
+      "dependency_analysis": "README.md; runtime static-file imports; Python/Node test discovery; project tooling",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "aiep-candidate/README.md",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Historical working v2 hosted candidate; compatibility reference, not disposable duplication.",
+      "dependency_analysis": "tests/aiep-candidate.test.mjs; tests/aiep-conversation.test.mjs; candidate README",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "aiep-candidate/site/index.html",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Historical working v2 hosted candidate; compatibility reference, not disposable duplication.",
+      "dependency_analysis": "tests/aiep-candidate.test.mjs; tests/aiep-conversation.test.mjs; candidate README",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "catalogue/mytech_products_v2_1_test.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Authoritative 54-product Master; preserve source-of-truth.",
+      "dependency_analysis": "tools/sync_catalogue.py; tools/check_catalogue_consistency.py; tools/check_workflow_registry.py",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/MyTech_v2_UAT_Bug_Fix_Summary_2026-10-12.md",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/MyTech_v2_UAT_Bug_Fix_Summary_2026-10-12.pdf",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/agent-evaluation.md",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/local-workspace.md",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/screenshots/mytech-chatbot-ui.png",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/screenshots/mytech-multi-product-demo.png",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/tool3-architecture.md",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/v21-aiep-test-deployment.md",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/v21-aiep-test-preservation.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/v21-catalogue-sync.md",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/v21-current-baseline-rebuild.md",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/v21-glm47-smoke-test.md",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/v21-integration-staging-plan.md",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/v21-performance-and-local-test.md",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/v21-prompt-ab-broader-plan-deferred.md",
+      "category": "ARCHIVE",
+      "git_tracking": "untracked",
+      "reason": "Superseded/deferred reconstructed experiment; archive classification only. Retain in place because checks and historical links still use this path.",
+      "dependency_analysis": "tools/build_prompt_ab_test.py; tests/test_prompt_ab_preparation.py; tests/prompt-ab.test.mjs; .github/workflows/ci.yml; docs/v21-prompt-ab-validation.md; generated GLM plan later_suite link for deferred document",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "For uncommitted content restore a reviewed external backup at the original path; tracked history alone cannot recover uncommitted edits. Generated historical fixtures may also be reproduced with their pinned builder/templates in scratch and checked against the original manifest."
+    },
+    {
+      "path": "docs/v21-prompt-ab-validation.md",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/v21-repository-integration-phase1.md",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/v21-state-extraction-reliability.md",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/v21-targeted-llm-latency.md",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "docs/workspace-cleanup-inventory.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Current instructions, accepted audit or historical/group evidence; retain links and chronology.",
+      "dependency_analysis": "README.md; related documentation links; historical review evidence",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "evaluations/__init__.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Shared evaluation framework, scenarios and reported evidence; preserve group work.",
+      "dependency_analysis": "Python evaluation suites; workflow registry smoke evidence hash",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "evaluations/fixtures.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Shared evaluation framework, scenarios and reported evidence; preserve group work.",
+      "dependency_analysis": "Python evaluation suites; workflow registry smoke evidence hash",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "evaluations/records/v2.1/2026-10-24-glm47-t01-smoke.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Shared evaluation framework, scenarios and reported evidence; preserve group work.",
+      "dependency_analysis": "Python evaluation suites; workflow registry smoke evidence hash",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "evaluations/report_tool3.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Shared evaluation framework, scenarios and reported evidence; preserve group work.",
+      "dependency_analysis": "Python evaluation suites; workflow registry smoke evidence hash",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "evaluations/run_tool3.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Shared evaluation framework, scenarios and reported evidence; preserve group work.",
+      "dependency_analysis": "Python evaluation suites; workflow registry smoke evidence hash",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "evaluations/scenario_contract.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Shared evaluation framework, scenarios and reported evidence; preserve group work.",
+      "dependency_analysis": "Python evaluation suites; workflow registry smoke evidence hash",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "evaluations/scenarios.json",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Shared evaluation framework, scenarios and reported evidence; preserve group work.",
+      "dependency_analysis": "Python evaluation suites; workflow registry smoke evidence hash",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "evaluations/score_tool3.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Shared evaluation framework, scenarios and reported evidence; preserve group work.",
+      "dependency_analysis": "Python evaluation suites; workflow registry smoke evidence hash",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "generated/aiep_v2_1_test/manifest.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required reproducible local, hosted or controlled GLM assets; unchanged.",
+      "dependency_analysis": "Generators and manifests; Python/Node catalogue/workflow/AIEP/GLM tests; runtime assets",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "generated/aiep_v2_1_test/site/index.html",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required reproducible local, hosted or controlled GLM assets; unchanged.",
+      "dependency_analysis": "Generators and manifests; Python/Node catalogue/workflow/AIEP/GLM tests; runtime assets",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "generated/glm47_prompt_ab/A-glm47-original.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required reproducible local, hosted or controlled GLM assets; unchanged.",
+      "dependency_analysis": "Generators and manifests; Python/Node catalogue/workflow/AIEP/GLM tests; runtime assets",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "generated/glm47_prompt_ab/B-glm47-short.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required reproducible local, hosted or controlled GLM assets; unchanged.",
+      "dependency_analysis": "Generators and manifests; Python/Node catalogue/workflow/AIEP/GLM tests; runtime assets",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "generated/glm47_prompt_ab/configuration-checklist.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required reproducible local, hosted or controlled GLM assets; unchanged.",
+      "dependency_analysis": "Generators and manifests; Python/Node catalogue/workflow/AIEP/GLM tests; runtime assets",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "generated/glm47_prompt_ab/manifest.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required reproducible local, hosted or controlled GLM assets; unchanged.",
+      "dependency_analysis": "Generators and manifests; Python/Node catalogue/workflow/AIEP/GLM tests; runtime assets",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "generated/glm47_prompt_ab/plan.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required reproducible local, hosted or controlled GLM assets; unchanged.",
+      "dependency_analysis": "Generators and manifests; Python/Node catalogue/workflow/AIEP/GLM tests; runtime assets",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "generated/glm47_prompt_ab/prompt-changes.diff",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required reproducible local, hosted or controlled GLM assets; unchanged.",
+      "dependency_analysis": "Generators and manifests; Python/Node catalogue/workflow/AIEP/GLM tests; runtime assets",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "generated/glm47_prompt_ab/six-request-results-template.csv",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required reproducible local, hosted or controlled GLM assets; unchanged.",
+      "dependency_analysis": "Generators and manifests; Python/Node catalogue/workflow/AIEP/GLM tests; runtime assets",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "generated/prompt_ab_test/manifest.json",
+      "category": "ARCHIVE",
+      "git_tracking": "untracked",
+      "reason": "Superseded/deferred reconstructed experiment; archive classification only. Retain in place because checks and historical links still use this path.",
+      "dependency_analysis": "tools/build_prompt_ab_test.py; tests/test_prompt_ab_preparation.py; tests/prompt-ab.test.mjs; .github/workflows/ci.yml; docs/v21-prompt-ab-validation.md; generated GLM plan later_suite link for deferred document",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "For uncommitted content restore a reviewed external backup at the original path; tracked history alone cannot recover uncommitted edits. Generated historical fixtures may also be reproduced with their pinned builder/templates in scratch and checked against the original manifest."
+    },
+    {
+      "path": "generated/prompt_ab_test/mytech-v21-prompt-A-control.json",
+      "category": "ARCHIVE",
+      "git_tracking": "untracked",
+      "reason": "Superseded/deferred reconstructed experiment; archive classification only. Retain in place because checks and historical links still use this path.",
+      "dependency_analysis": "tools/build_prompt_ab_test.py; tests/test_prompt_ab_preparation.py; tests/prompt-ab.test.mjs; .github/workflows/ci.yml; docs/v21-prompt-ab-validation.md; generated GLM plan later_suite link for deferred document",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "For uncommitted content restore a reviewed external backup at the original path; tracked history alone cannot recover uncommitted edits. Generated historical fixtures may also be reproduced with their pinned builder/templates in scratch and checked against the original manifest."
+    },
+    {
+      "path": "generated/prompt_ab_test/mytech-v21-prompt-B-short.json",
+      "category": "ARCHIVE",
+      "git_tracking": "untracked",
+      "reason": "Superseded/deferred reconstructed experiment; archive classification only. Retain in place because checks and historical links still use this path.",
+      "dependency_analysis": "tools/build_prompt_ab_test.py; tests/test_prompt_ab_preparation.py; tests/prompt-ab.test.mjs; .github/workflows/ci.yml; docs/v21-prompt-ab-validation.md; generated GLM plan later_suite link for deferred document",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "For uncommitted content restore a reviewed external backup at the original path; tracked history alone cannot recover uncommitted edits. Generated historical fixtures may also be reproduced with their pinned builder/templates in scratch and checked against the original manifest."
+    },
+    {
+      "path": "generated/prompt_ab_test/node-metrics-template.csv",
+      "category": "ARCHIVE",
+      "git_tracking": "untracked",
+      "reason": "Superseded/deferred reconstructed experiment; archive classification only. Retain in place because checks and historical links still use this path.",
+      "dependency_analysis": "tools/build_prompt_ab_test.py; tests/test_prompt_ab_preparation.py; tests/prompt-ab.test.mjs; .github/workflows/ci.yml; docs/v21-prompt-ab-validation.md; generated GLM plan later_suite link for deferred document",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "For uncommitted content restore a reviewed external backup at the original path; tracked history alone cannot recover uncommitted edits. Generated historical fixtures may also be reproduced with their pinned builder/templates in scratch and checked against the original manifest."
+    },
+    {
+      "path": "generated/prompt_ab_test/plan.json",
+      "category": "ARCHIVE",
+      "git_tracking": "untracked",
+      "reason": "Superseded/deferred reconstructed experiment; archive classification only. Retain in place because checks and historical links still use this path.",
+      "dependency_analysis": "tools/build_prompt_ab_test.py; tests/test_prompt_ab_preparation.py; tests/prompt-ab.test.mjs; .github/workflows/ci.yml; docs/v21-prompt-ab-validation.md; generated GLM plan later_suite link for deferred document",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "For uncommitted content restore a reviewed external backup at the original path; tracked history alone cannot recover uncommitted edits. Generated historical fixtures may also be reproduced with their pinned builder/templates in scratch and checked against the original manifest."
+    },
+    {
+      "path": "generated/prompt_ab_test/prompt-changes.diff",
+      "category": "ARCHIVE",
+      "git_tracking": "untracked",
+      "reason": "Superseded/deferred reconstructed experiment; archive classification only. Retain in place because checks and historical links still use this path.",
+      "dependency_analysis": "tools/build_prompt_ab_test.py; tests/test_prompt_ab_preparation.py; tests/prompt-ab.test.mjs; .github/workflows/ci.yml; docs/v21-prompt-ab-validation.md; generated GLM plan later_suite link for deferred document",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "For uncommitted content restore a reviewed external backup at the original path; tracked history alone cannot recover uncommitted edits. Generated historical fixtures may also be reproduced with their pinned builder/templates in scratch and checked against the original manifest."
+    },
+    {
+      "path": "generated/prompt_ab_test/turn-results-template.csv",
+      "category": "ARCHIVE",
+      "git_tracking": "untracked",
+      "reason": "Superseded/deferred reconstructed experiment; archive classification only. Retain in place because checks and historical links still use this path.",
+      "dependency_analysis": "tools/build_prompt_ab_test.py; tests/test_prompt_ab_preparation.py; tests/prompt-ab.test.mjs; .github/workflows/ci.yml; docs/v21-prompt-ab-validation.md; generated GLM plan later_suite link for deferred document",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "For uncommitted content restore a reviewed external backup at the original path; tracked history alone cannot recover uncommitted edits. Generated historical fixtures may also be reproduced with their pinned builder/templates in scratch and checked against the original manifest."
+    },
+    {
+      "path": "generated/v2_1_test/MyTech_Product_Knowledge_v2_1_TEST.md",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required reproducible local, hosted or controlled GLM assets; unchanged.",
+      "dependency_analysis": "Generators and manifests; Python/Node catalogue/workflow/AIEP/GLM tests; runtime assets",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "generated/v2_1_test/catalogue.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required reproducible local, hosted or controlled GLM assets; unchanged.",
+      "dependency_analysis": "Generators and manifests; Python/Node catalogue/workflow/AIEP/GLM tests; runtime assets",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "generated/v2_1_test/index.html",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required reproducible local, hosted or controlled GLM assets; unchanged.",
+      "dependency_analysis": "Generators and manifests; Python/Node catalogue/workflow/AIEP/GLM tests; runtime assets",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "generated/v2_1_test/manifest.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required reproducible local, hosted or controlled GLM assets; unchanged.",
+      "dependency_analysis": "Generators and manifests; Python/Node catalogue/workflow/AIEP/GLM tests; runtime assets",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "generated/v2_1_test/mytech-fastgpt-workflow-v2_1-TEST.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required reproducible local, hosted or controlled GLM assets; unchanged.",
+      "dependency_analysis": "Generators and manifests; Python/Node catalogue/workflow/AIEP/GLM tests; runtime assets",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "knowledge/MyTech_Product_Knowledge_v1.md",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Historical 27-product RAG source; required v2 compatibility.",
+      "dependency_analysis": "tools/build_knowledge.py --check; historical workflow setup and Python tools",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "mytech_response.mjs",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Project configuration, historical v2 runtime/data/prompt or isolated v2.1 server modules; preserve current paths.",
+      "dependency_analysis": "README.md; runtime static-file imports; Python/Node test discovery; project tooling",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "mytech_v1_product_dataset.json",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Project configuration, historical v2 runtime/data/prompt or isolated v2.1 server modules; preserve current paths.",
+      "dependency_analysis": "README.md; runtime static-file imports; Python/Node test discovery; project tooling",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "mytech_v1_system_prompt.txt",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Project configuration, historical v2 runtime/data/prompt or isolated v2.1 server modules; preserve current paths.",
+      "dependency_analysis": "README.md; runtime static-file imports; Python/Node test discovery; project tooling",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "mytech_v2_1_test_adapter.mjs",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Project configuration, historical v2 runtime/data/prompt or isolated v2.1 server modules; preserve current paths.",
+      "dependency_analysis": "README.md; runtime static-file imports; Python/Node test discovery; project tooling",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "mytech_v2_1_test_response.mjs",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Project configuration, historical v2 runtime/data/prompt or isolated v2.1 server modules; preserve current paths.",
+      "dependency_analysis": "README.md; runtime static-file imports; Python/Node test discovery; project tooling",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "mytech_v2_1_test_server.mjs",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Project configuration, historical v2 runtime/data/prompt or isolated v2.1 server modules; preserve current paths.",
+      "dependency_analysis": "README.md; runtime static-file imports; Python/Node test discovery; project tooling",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "mytech_v2_server.mjs",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Project configuration, historical v2 runtime/data/prompt or isolated v2.1 server modules; preserve current paths.",
+      "dependency_analysis": "README.md; runtime static-file imports; Python/Node test discovery; project tooling",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "pyproject.toml",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Project configuration, historical v2 runtime/data/prompt or isolated v2.1 server modules; preserve current paths.",
+      "dependency_analysis": "README.md; runtime static-file imports; Python/Node test discovery; project tooling",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/aiep-candidate.test.mjs",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/aiep-conversation.test.mjs",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/aiep-v21.test.mjs",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/catalogue-v21.test.mjs",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/current-workflow-v21.test.mjs",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/frontend-recovery.test.mjs",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/glm47-prompt-ab.test.mjs",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/local-v21.test.mjs",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/prompt-ab.test.mjs",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/registered-workflows.test.mjs",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/response.test.mjs",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/test_aiep_v21_build.py",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/test_build_knowledge.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/test_catalogue_sync.py",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/test_glm47_prompt_ab.py",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/test_product_tools.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/test_prompt_ab_preparation.py",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/test_prompt_optimization.py",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/test_tool3_evaluation_foundation.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/test_tool3_evaluation_reporting.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/test_tool3_evaluation_runner.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/test_tool3_evaluation_scoring.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/test_tool3_executor.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/test_tool3_tokenproxy.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/test_workflow_graph.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/test_workflow_import_contract.py",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/test_workflow_registry.py",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/workflow-followup.test.mjs",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/workflow-usage-v21.test.mjs",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tests/workspace-env.test.mjs",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Offline regression coverage; no unused suite established.",
+      "dependency_analysis": "Python unittest discovery; node --test tests/*.test.mjs; CI",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/benchmark_v21.mjs",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/build_aiep_test.py",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/build_glm47_prompt_ab.py",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/build_knowledge.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/build_prompt_ab_test.py",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/check_catalogue_consistency.py",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/check_workflow_registry.py",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/measure_v21_prompts.py",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/sync_catalogue.py",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/templates/mytech_current_working_portable.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/templates/v21_aiep_runtime.js",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/templates/v21_aiep_transport.js",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/templates/v21_dataset_validation.js",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/templates/v21_extraction_rules.txt",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/templates/v21_frontend_runtime.js",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/templates/v21_glm47_actual_export_review.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/templates/v21_input_normalization.js",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/templates/v21_recommendation_prompt.txt",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/templates/v21_scope_consistency.js",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/templates/v21_state_extraction_prompt.txt",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/templates/v21_test_settings.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/templates/v21_usage_compatibility.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/templates/v21_usage_validation.js",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/templates/v21_validation_failure.js",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/templates/v21_working_actual_export_sanitized.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/tool3_executor.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/tool3_tokenproxy.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "tools/validate_products.py",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Required source/template/tooling; no unused public script established.",
+      "dependency_analysis": "Generator imports/templates; Python tests; CI; documented benchmarks and prompt measurements",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "uv.lock",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Project configuration, historical v2 runtime/data/prompt or isolated v2.1 server modules; preserve current paths.",
+      "dependency_analysis": "README.md; runtime static-file imports; Python/Node test discovery; project tooling",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "workflow/README.md",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Historical graph/evidence and both actual v2.1 versions with provenance; preserve paths.",
+      "dependency_analysis": "workflow/v2.1/registry.json; tools/check_workflow_registry.py; native workflow tests; historical guide",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "workflow/mytech-fastgpt-workflow.json",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Historical graph/evidence and both actual v2.1 versions with provenance; preserve paths.",
+      "dependency_analysis": "workflow/v2.1/registry.json; tools/check_workflow_registry.py; native workflow tests; historical guide",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "workflow/v2.1/README.md",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Historical graph/evidence and both actual v2.1 versions with provenance; preserve paths.",
+      "dependency_analysis": "workflow/v2.1/registry.json; tools/check_workflow_registry.py; native workflow tests; historical guide",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "workflow/v2.1/comparison.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Historical graph/evidence and both actual v2.1 versions with provenance; preserve paths.",
+      "dependency_analysis": "workflow/v2.1/registry.json; tools/check_workflow_registry.py; native workflow tests; historical guide",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "workflow/v2.1/optimized/2026-10-24/provenance.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Historical graph/evidence and both actual v2.1 versions with provenance; preserve paths.",
+      "dependency_analysis": "workflow/v2.1/registry.json; tools/check_workflow_registry.py; native workflow tests; historical guide",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "workflow/v2.1/optimized/2026-10-24/workflow.sanitized.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Historical graph/evidence and both actual v2.1 versions with provenance; preserve paths.",
+      "dependency_analysis": "workflow/v2.1/registry.json; tools/check_workflow_registry.py; native workflow tests; historical guide",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "workflow/v2.1/original/2026-10-24/provenance.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Historical graph/evidence and both actual v2.1 versions with provenance; preserve paths.",
+      "dependency_analysis": "workflow/v2.1/registry.json; tools/check_workflow_registry.py; native workflow tests; historical guide",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "workflow/v2.1/original/2026-10-24/workflow.sanitized.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Historical graph/evidence and both actual v2.1 versions with provenance; preserve paths.",
+      "dependency_analysis": "workflow/v2.1/registry.json; tools/check_workflow_registry.py; native workflow tests; historical guide",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "workflow/v2.1/registry.json",
+      "category": "KEEP",
+      "git_tracking": "untracked",
+      "reason": "Historical graph/evidence and both actual v2.1 versions with provenance; preserve paths.",
+      "dependency_analysis": "workflow/v2.1/registry.json; tools/check_workflow_registry.py; native workflow tests; historical guide",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "workflow/workflow-overview-1.png",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Historical graph/evidence and both actual v2.1 versions with provenance; preserve paths.",
+      "dependency_analysis": "workflow/v2.1/registry.json; tools/check_workflow_registry.py; native workflow tests; historical guide",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "workflow/workflow-overview-2.png",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Historical graph/evidence and both actual v2.1 versions with provenance; preserve paths.",
+      "dependency_analysis": "workflow/v2.1/registry.json; tools/check_workflow_registry.py; native workflow tests; historical guide",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": "workflow/workflow-overview-3.png",
+      "category": "KEEP",
+      "git_tracking": "tracked",
+      "reason": "Historical graph/evidence and both actual v2.1 versions with provenance; preserve paths.",
+      "dependency_analysis": "workflow/v2.1/registry.json; tools/check_workflow_registry.py; native workflow tests; historical guide",
+      "action_now": "retain_at_current_path",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Existing tracked history for committed versions; reviewed external backup required for uncommitted content. No recovery operation needed in this phase."
+    },
+    {
+      "path": ".env",
+      "category": "KEEP",
+      "git_tracking": "ignored/untracked",
+      "reason": "Single active private local configuration after approved Phase 2B consolidation; existing legacy values preserved and TEST namespace copied unchanged.",
+      "dependency_analysis": "Both Node startup commands select --env-file=.env. Legacy consumes FASTGPT_* and PORT; TEST consumes only MYTECH_TEST_*. Native loading and no legacy fallback verified.",
+      "action_now": "active_for_both_local_servers",
+      "future_action": "Keep ignored/untracked; no credential validity or remote binding claim from offline readiness.",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Stop local servers and restore original .env from the restricted Phase 2B backup; use original TEST file for the prior launch. No rollback was needed."
+    },
+    {
+      "path": ".env.v21.test",
+      "category": "KEEP",
+      "git_tracking": "ignored/untracked",
+      "reason": "Retired private configuration, retained unchanged at its original path after successful unified startup.",
+      "dependency_analysis": "Legacy Node launch consumes FASTGPT_*; TEST launch consumes only MYTECH_TEST_*. .env2 has legacy names but no source reference selects it automatically.",
+      "action_now": "retired_retained_for_final_review",
+      "future_action": "No normal launch should select this file. Final review required before any permanent deletion or relocation.",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Exact recoverable original exists in the owner-only Phase 2B backup directory outside Git; original at this path is also unchanged."
+    },
+    {
+      "path": ".env2",
+      "category": "KEEP",
+      "git_tracking": "ignored/untracked",
+      "reason": "Retired private configuration, retained unchanged at its original path after successful unified startup.",
+      "dependency_analysis": "Legacy Node launch consumes FASTGPT_*; TEST launch consumes only MYTECH_TEST_*. .env2 has legacy names but no source reference selects it automatically.",
+      "action_now": "retired_retained_for_final_review",
+      "future_action": "No normal launch should select this file. Final review required before any permanent deletion or relocation.",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Exact recoverable original exists in the owner-only Phase 2B backup directory outside Git; original at this path is also unchanged."
+    },
+    {
+      "path": ".DS_Store",
+      "category": "SAFE TO DELETE AFTER APPROVAL",
+      "git_tracking": "ignored/untracked",
+      "reason": "Approved disposable Finder metadata, confirmed ignored/untracked and unneeded before removal.",
+      "dependency_analysis": "No runtime, manifest, generator or regression dependency. AIEP upload directory remains site/index.html only.",
+      "action_now": "removed_with_explicit_Phase2B_approval",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Finder recreates metadata; back up first only if retaining folder-view preferences matters.",
+      "currently_exists": false,
+      "removed_date": "2026-10-24"
+    },
+    {
+      "path": "generated/.DS_Store",
+      "category": "SAFE TO DELETE AFTER APPROVAL",
+      "git_tracking": "ignored/untracked",
+      "reason": "Approved disposable Finder metadata, confirmed ignored/untracked and unneeded before removal.",
+      "dependency_analysis": "No runtime, manifest, generator or regression dependency. AIEP upload directory remains site/index.html only.",
+      "action_now": "removed_with_explicit_Phase2B_approval",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Finder recreates metadata; back up first only if retaining folder-view preferences matters.",
+      "currently_exists": false,
+      "removed_date": "2026-10-24"
+    },
+    {
+      "path": "generated/aiep_v2_1_test/.DS_Store",
+      "category": "SAFE TO DELETE AFTER APPROVAL",
+      "git_tracking": "ignored/untracked",
+      "reason": "Approved disposable Finder metadata, confirmed ignored/untracked and unneeded before removal.",
+      "dependency_analysis": "No runtime, manifest, generator or regression dependency. AIEP upload directory remains site/index.html only.",
+      "action_now": "removed_with_explicit_Phase2B_approval",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Finder recreates metadata; back up first only if retaining folder-view preferences matters.",
+      "currently_exists": false,
+      "removed_date": "2026-10-24"
+    },
+    {
+      "path": ".venv/",
+      "category": "HIDE FROM VS CODE",
+      "git_tracking": "ignored/untracked",
+      "reason": "Existing machine-local Python environment; required for current offline checks, unsuitable for Git.",
+      "dependency_analysis": "Local .venv/bin/python and Windows .venv/Scripts/python.exe; uv.lock and pyproject.toml reproduce environment on each OS.",
+      "action_now": "hide_only",
+      "approval_required_for_deletion_or_relocation": true,
+      "recovery": "Remove Explorer exclusion to reveal. If later deleted after approval, recreate with uv sync --locked --managed-python; runtime download/cache availability required."
+    }
+  ],
+  "phase2b": {
+    "recorded_date": "2026-10-24",
+    "migration_status": "SUCCEEDED_LOCAL_RUNTIME_VERIFIED",
+    "active_environment_file": ".env",
+    "retired_private_files_retained": [
+      ".env.v21.test",
+      ".env2"
+    ],
+    "backup_directory": "~/Library/Application Support/MyTech/private-backups/2026-10-24-phase2b-455402b6/",
+    "backup_directory_mode": "0700",
+    "backup_file_modes": "0600",
+    "local_ports_verified": [
+      8787,
+      8788
+    ],
+    "live_API_validation_performed": false,
+    "Finder_files_removed": [
+      ".DS_Store",
+      "generated/.DS_Store",
+      "generated/aiep_v2_1_test/.DS_Store"
+    ],
+    "other_project_files_removed_or_relocated": 0
+  },
+  "phase3a": {
+    "recorded_date": "2026-10-24",
+    "integration_plan_paths": 96,
+    "commit_groups": 6,
+    "additional_path": ".gitattributes",
+    "reason": "Preserve LF for byte-hashed text on Windows checkout; binary evidence unchanged.",
+    "staged_paths": 0,
+    "private_contents_read": false
+  }
+}

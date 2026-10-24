@@ -1,0 +1,7 @@
+run_id,scenario_id,variant,execution_order,session_label,execution_status,state_extraction_ms,recommendation_executed,recommendation_ms,total_workflow_ms,platform_credits,credit_unit,credit_scope,raw_extraction_correct,routing_correct,json_valid,validation_status,turn_pass,evidence_ref,notes
+G01-A,G01,A,1,fresh-G01-A,NOT_RUN,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+G01-B,G01,B,2,fresh-G01-B,NOT_RUN,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+G02-B,G02,B,3,fresh-G02-B,NOT_RUN,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+G02-A,G02,A,4,fresh-G02-A,NOT_RUN,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+G03-A,G03,A,5,fresh-G03-A,NOT_RUN,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+G03-B,G03,B,6,fresh-G03-B,NOT_RUN,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA

@@ -1,11 +1,58 @@
-# MyTech v2 — Grounded RAG Product Recommendation Assistant
+# MyTech — v2.1 TEST and historical v2
 
 [![Tests](https://github.com/ych680/mytech-ai-assistant/actions/workflows/tests.yml/badge.svg)](https://github.com/ych680/mytech-ai-assistant/actions/workflows/tests.yml)
 [![Cross-platform CI](https://github.com/ych680/mytech-ai-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/ych680/mytech-ai-assistant/actions/workflows/ci.yml)
 
-MyTech v2 is an electronic product recommendation chatbot developed as a postgraduate AI coursework team project. Users describe a device, maximum budget, and main usage; the assistant retrieves reference product evidence, asks for missing requirements, and returns validated recommendations rather than relying on unrestricted model output.
+MyTech is an electronic product recommendation chatbot developed as a postgraduate AI coursework team project. Users describe a device, maximum budget, and main usage; the assistant retrieves reference product evidence, asks for missing requirements, and returns validated recommendations.
 
-The locally runnable prototype combines a **browser frontend**, a **Node.js backend**, and a **FastGPT RAG workflow**. It covers **9 product categories and 27 reference products**, with deterministic response validation. Three independent Python tooling capabilities extend the repository with dataset validation, RAG knowledge preparation, and native LLM tool orchestration. A separate offline Agent Evaluation framework exercises Tool 3 under controlled responses. The repository contains **226 Python tests (90 existing tooling tests plus 134 Agent Evaluation tests plus 2 workflow graph tests) and 26 Node.js tests**; these counts describe automated checks, not real-model accuracy or production reliability.
+Historical v2 preserves **27 reference products across nine categories** and its original frontend/Node paths. Current v2.1 TEST uses **54 products across the same nine categories**, including 27 provisional additions. Both retain deterministic validation. Independent Python tools and the Tool 3 evaluation framework remain available; they are separate from the hosted chatbot.
+
+## Current workflow versions
+
+| Version / FastGPT application | Prompts and main models | Deployment status |
+| --- | --- | --- |
+| **Original — `MyTech v2.1 — TEST Knowledge`** | Original prompts; DeepSeek-V4.1 extraction/recommendation, GLM-4.7 clarification | **Default university AIEP application; successful deployment and binding confirmed by the maintainer** |
+| **Optimized — `MyTech v2.1 — GLM47 Optimized TEST`** | Short prompts; GLM-4.7 extraction/recommendation/clarification | Experimental; one reported smoke-test pass; not the default AIEP deployment |
+| Historical v2 | 27-product workflow and original local runtime | Preserved compatibility/reference version |
+
+The [v2.1 registry](workflow/v2.1/registry.json) points to separately versioned,
+sanitized **actual exports** of both applications. See the [workflow comparison
+and reproduction guide](workflow/v2.1/README.md) and [integration/security report](docs/v21-repository-integration-phase1.md).
+Raw Downloads exports remain outside Git. Exports omit KB selections and do not
+prove a published revision; those limits remain recorded even though the
+maintainer confirms the working deployment. No model or prompt is promoted automatically.
+
+The optimized T01 smoke test reportedly returned a Gaming Laptop at RMB 4,999
+within the RMB 6,000 budget in **34.45 seconds**, consuming **0.9531 combined
+AI-node credits**. Platform-wide billing was not independently verified.
+This single unpaired observation does **not** demonstrate a meaningful prompt
+latency improvement. The [performance record](evaluations/records/v2.1/2026-10-24-glm47-t01-smoke.json)
+and [experiment notes](docs/v21-glm47-smoke-test.md) preserve the exact evidence.
+No complete six-request A/B evaluation has been performed.
+
+For the isolated 54-product **v2.1 TEST catalogue synchronization** pipeline,
+generation/check commands, offline test evidence and manual FastGPT integration,
+see [the v2.1 guide](docs/v21-catalogue-sync.md). The stable 27-product application
+and its deployment files remain unchanged.
+
+For the independent port-8788 TEST frontend, explicit TEST API configuration,
+retrieval threshold 0.35 and offline performance evidence, see
+[the TEST launch and performance guide](docs/v21-performance-and-local-test.md).
+
+For the separate hosted AIEP v2.1 TEST candidate, upload exactly
+[`generated/aiep_v2_1_test/site/`](generated/aiep_v2_1_test/site/).
+Read [the deployment checklist and rollback instructions](docs/v21-aiep-test-deployment.md)
+first. The maintainer confirms successful v2.1 AIEP deployment using the Original
+application. Generated manifests preserve their earlier preparation-time status;
+the registry records the later deployment evidence separately. Existing v2 and
+both live v2.1 applications must remain unchanged during repository integration.
+
+For isolated GLM-4.7 long-versus-short prompt validation, see the
+[Prompt A/B preparation and import checklist](docs/v21-prompt-ab-validation.md).
+The current initial plan is exactly three pairs / six requests, not the deferred
+28/80-request plan. Candidates derive from the actual supplied working export;
+its omitted KB binding and publish-state uncertainty remain explicit import gates.
+The published DeepSeek TEST app and AIEP remain unchanged.
 
 ## Demo
 
@@ -29,6 +76,9 @@ Each product request keeps its own category, budget, and usage requirements. For
 
 These screenshots show earlier local demonstrations; they do not capture every current feature. There is no public production deployment.
 
+The university AIEP deployment is a TEST/classroom deployment; its current
+application mapping is documented in the registry above.
+
 ## Key Features
 
 - **Grounded recommendations:** FastGPT retrieves product evidence from the MyTech knowledge base before recommendation generation.
@@ -41,7 +91,7 @@ These screenshots show earlier local demonstrations; they do not capture every c
 
 ## System Architecture
 
-### Consumer-facing Chatbot
+### Historical v2 local chatbot
 
 ```text
 Browser Frontend → Node.js Backend → FastGPT Workflow
@@ -69,7 +119,13 @@ Retrieval supplies evidence; validation checks defined rules against reference d
 
 The response contract contains `answer`, `recommendations[]`, `next_step`, and `clarification_needed`. See the [workflow documentation](workflow/README.md) for the full pipeline, routing branches, and JSON example.
 
-### Knowledge and Local References
+The v2.1 local TEST path instead uses its isolated Node server on port 8788.
+University AIEP serves the self-contained generated HTML and uses the hosted
+FastGPT proxy; it does not run the local Node server. The Master feeds local
+catalogue/RAG/frontend outputs. Actual application snapshots are frozen evidence
+and are checked against the Master by `tools/check_workflow_registry.py`.
+
+### Historical v2 knowledge and local references
 
 The [knowledge-base source](knowledge/MyTech_Product_Knowledge_v1.md) groups each product's name, category, reference price, usage, features, and source for FastGPT retrieval. The [local JSON catalogue](mytech_v1_product_dataset.json) supplies backend/browser validation data and card details; the workflow also contains a static validation catalogue.
 
@@ -109,7 +165,12 @@ See the [evaluation guide](docs/agent-evaluation.md#running-offline-checks) for 
 
 ## Testing & CI
 
-The project contains **226 Python tests** using standard-library `unittest`: **90 existing tooling tests**, **134 Agent Evaluation tests**, and **2 workflow graph tests**. There are also **26 Node.js tests** using Node.js built-ins, without additional testing packages:
+The current offline suites pass **304 Python tests** and **330 Node.js tests**.
+Python uses standard-library `unittest`; Node uses built-ins without additional
+testing packages. The preserved v2 baseline below accounts for 226 Python and
+26 Node tests. The added 78 Python and 304 Node tests cover v2.1 catalogue and
+workflow generation, AIEP transport, isolated runtime, prompt candidates and
+actual-export registry/validation security and native unified-env loading.
 
 | Suite | Tests | Coverage |
 |---|---:|---|
@@ -125,13 +186,15 @@ The project contains **226 Python tests** using standard-library `unittest`: **9
 | [Response tests](tests/response.test.mjs) | 13 | FastGPT message extraction, strict JSON fence compatibility and rejection cases, JSON parsing/error codes, optional-source normalization, field validation, valid no-result/clarification responses, catalogue mismatches, budget boundaries, and recognized usage constraints. |
 | [Frontend recovery tests](tests/frontend-recovery.test.mjs) | 13 | Recovery creation, exact submitted-text restoration, resize/focus, no extra request or state changes on restore, draft/generation protection, stale-action invalidation, restart-aborted/late failures, subsequent submission through validation, and reference-price disclosure without redundant card wording. |
 
-Run both Node.js suites locally from the repository root; Python commands are in [Python Tooling with uv](#python-tooling-with-uv):
+Run all Node.js suites locally from the repository root; Python commands are in [Python Tooling with uv](#python-tooling-with-uv):
 
 ```bash
-node --test tests/response.test.mjs tests/frontend-recovery.test.mjs
+node --test tests/*.test.mjs
 ```
 
-The frontend suite executes the actual inline script in `node:vm`, skipping automatic initialization and using minimal DOM stubs and a fake model adapter. Neither suite requires credentials, a running server, or real FastGPT calls.
+The frontend suites execute actual scripts in `node:vm` with DOM stubs and fake
+model adapters. Local transport tests start their own loopback servers with
+mocked upstream providers. No suite requires credentials or real FastGPT calls.
 
 [GitHub Actions](https://github.com/ych680/mytech-ai-assistant/actions) provides two workflows, both using Node.js 24:
 
@@ -142,7 +205,16 @@ The frontend suite executes the actual inline script in `node:vm`, skipping auto
 
 The badges and Actions run history show CI results for their associated revisions. The cross-platform workflow currently does not run on pushes to `main`. Its checks are offline with respect to FastGPT and TokenProxy; environment setup may download the runtime/tooling.
 
-The 226 Python tests verify deterministic tooling, scripted/mocked provider behavior, including the live CLI through mocks, and portable workflow routing; they do not measure real-model accuracy. The existing cross-platform Python discovery command automatically includes all 134 evaluation tests, including temporary report generation, and the two workflow graph tests; no additional workflow or duplicate smoke-test step is needed. The manually verified TokenProxy smoke test above provides separate live integration evidence. Neither the automated suites nor that smoke test establish broad recommendation accuracy, live FastGPT availability, browser layout correctness, or production reliability.
+Python discovery automatically includes the historical tooling/evaluation tests
+and new v2.1 checks. All suites verify deterministic behavior with scripted or
+mocked providers; they do not measure real-model accuracy. The maintainer-reported
+TokenProxy and GLM smoke tests provide separate live observations. Neither the
+automated suites nor those observations establish broad recommendation accuracy,
+live availability, browser layout correctness or production reliability. See the
+[Phase 1 integration report](docs/v21-repository-integration-phase1.md) and
+[current workspace results](docs/local-workspace.md#validation-and-preservation)
+for read-only consistency commands and local execution evidence; cross-platform
+CI has not run for these uncommitted changes.
 
 ### MyTech v2 — User Acceptance Testing (UAT) & Bug Fix Summary
 
@@ -215,9 +287,25 @@ vary within the limits; the reported manual run used three requests and two roun
 
 MyTech is a postgraduate team coursework project. As the repository maintainer, I led most of the core implementation: product and workflow design, FastGPT workflow configuration and API integration, frontend/backend integration, testing and troubleshooting, automated tests and GitHub CI improvements, and ongoing repository maintenance. Other team members participated in testing, reproducing workflow configurations, and related project activities.
 
-## Setup and Reproducibility
+## Historical v2 setup and reproducibility
 
 Prerequisites: Node.js **20.6 or newer** for the documented `--env-file` command, and access to a FastGPT deployment with suitable models and a knowledge base. CI uses Node.js 24. The local application uses Node.js built-ins; no package installation is required.
+
+For the shared local `.env` schema, secure macOS/Windows migration procedure and
+workspace cleanup inventory, see [local workspace configuration](docs/local-workspace.md).
+Use one private `.env` with separate legacy and TEST namespaces. Consolidation
+and local startup were verified for this checkout in Phase 2B; the former
+`.env.v21.test` and `.env2` remain retired recovery sources. Other checkouts must
+configure their own private values. Start the servers in separate terminals:
+
+```sh
+node --env-file=.env mytech_v2_server.mjs
+node --env-file=.env mytech_v2_1_test_server.mjs
+```
+
+Legacy remains on 8787 and TEST on 8788 by default, with separate credential
+namespaces and no TEST fallback. Preserve both actual v2.1 workflow snapshots;
+this local setup does not modify AIEP or either FastGPT application.
 
 1. **Import the workflow.** Import [workflow/mytech-fastgpt-workflow.json](workflow/mytech-fastgpt-workflow.json) into your FastGPT deployment.
 2. **Select the models.** The export retains these intended model names, but its account-specific `modelId` values are empty:
@@ -230,13 +318,26 @@ Prerequisites: Node.js **20.6 or newer** for the documented `--env-file` command
 
    Re-select each model after import. Availability depends on the deployment; if a listed model is unavailable, choose a compatible model and verify workflow behavior in that environment.
 3. **Import and bind the knowledge base.** Create a FastGPT knowledge base, import [knowledge/MyTech_Product_Knowledge_v1.md](knowledge/MyTech_Product_Knowledge_v1.md), and bind it to **Knowledge Retrieval**. The export intentionally has no dataset binding; its dataset-description ID is `REPLACE_AFTER_IMPORT`. Save and publish the configured workflow.
-4. **Configure the local environment.** From the repository root, copy the placeholder template:
+4. **Configure the local environment.** For a new checkout only, create the
+   placeholder file without overwriting an existing `.env`:
 
-   ```bash
-   cp .env.example .env
+   ```sh
+   # macOS zsh
+   (set -C; cat .env.example > .env)
+   chmod 600 .env
    ```
 
-   Set `FASTGPT_API_KEY`, `FASTGPT_API_URL`, and `FASTGPT_APP_ID` for your published workflow. `PORT` defaults to `8787`. The backend accepts HTTPS endpoints, or HTTP endpoints on localhost/loopback. The template's example endpoint is not a working deployment.
+   ```powershell
+   # Windows PowerShell
+   [System.IO.File]::Copy((Join-Path $PWD '.env.example'), (Join-Path $PWD '.env'), $false)
+   ```
+
+   If `.env` exists, follow the linked migration procedure instead. Set
+   `FASTGPT_API_KEY`, `FASTGPT_API_URL`, and `FASTGPT_APP_ID` privately for your
+   legacy workflow. `PORT` defaults to `8787`. The backend accepts HTTPS endpoints,
+   or HTTP endpoints on localhost/loopback. Leave unused TEST binding fields blank;
+   they cannot inherit legacy credentials. The public template contains no working
+   endpoint or credential.
 5. **Run locally:**
 
    ```bash
@@ -246,6 +347,39 @@ Prerequisites: Node.js **20.6 or newer** for the documented `--env-file` command
 6. Open [http://127.0.0.1:8787](http://127.0.0.1:8787), or the port configured in `.env`. The server binds to `127.0.0.1`.
 
 The portable export omits API credentials, account-specific model IDs, and concrete knowledge-base IDs. Keep credentials server-side and never commit real environment files. [.gitignore](.gitignore) excludes local `.env` files and backups; [.env.example](.env.example) contains placeholders only.
+
+## v2.1 source and offline reproducibility
+
+The [54-product Master](catalogue/mytech_products_v2_1_test.json) is the maintained
+product source. `tools/sync_catalogue.py` reproduces local TEST assets and hosted
+AIEP output; the general generated workflow uses short prompts and portable
+model bindings, so it is **not** the actual deployed Original export.
+`tools/build_glm47_prompt_ab.py` reproduces the controlled GLM long/short candidates.
+The versioned actual Original/Optimized snapshots are preserved separately and
+must not be silently regenerated or replaced. Existing runtime paths remain unchanged.
+
+Use a reviewed checkout/scratch output directory for later regeneration; no
+generation command deploys or changes FastGPT/KB configuration. Run the offline
+checks below before integration:
+
+```sh
+.venv/bin/python -B -m unittest discover -s tests -p 'test_*.py' -v
+node --test tests/*.test.mjs
+.venv/bin/python -B tools/validate_products.py --strict-v1
+.venv/bin/python -B tools/validate_products.py --dataset catalogue/mytech_products_v2_1_test.json --test-v21
+.venv/bin/python -B tools/build_knowledge.py --check knowledge/MyTech_Product_Knowledge_v1.md
+.venv/bin/python -B tools/check_catalogue_consistency.py
+.venv/bin/python -B tools/build_aiep_test.py --check
+.venv/bin/python -B tools/build_prompt_ab_test.py --check
+.venv/bin/python -B tools/build_glm47_prompt_ab.py --check
+.venv/bin/python -B tools/check_workflow_registry.py
+git diff --check
+```
+
+The active future A/B plan stays at three pairs/six requests with fresh chats;
+the single reported T01 smoke test does not fill those paired result rows.
+The wider reconstructed 28/80-request plan is deferred and not authorized to run.
+See [CHANGELOG](CHANGELOG.md) and the [exact proposed staging groups](docs/v21-integration-staging-plan.md).
 
 ## Repository Guide
 
@@ -263,15 +397,15 @@ The portable export omits API credentials, account-specific model IDs, and concr
 | [docs/tool3-architecture.md](docs/tool3-architecture.md) | Agent architecture, security boundaries, and manual live verification. |
 | [evaluations/](evaluations/) | Scripted scenarios, isolated fixtures, offline Runner, deterministic scorer, and versioned evidence reporter. |
 | [docs/agent-evaluation.md](docs/agent-evaluation.md) | Offline evaluation architecture, scenario guide, report commands and interpretation, and security/reproducibility boundaries. |
-| [tests/](tests/) | 226 Python tests (90 tooling, 134 evaluation, and 2 workflow graph) and 26 Node.js tests. |
+| [tests/](tests/) | v2/v2.1, workflow, catalogue, AIEP, registry/security and independent Tool 3/evaluation regressions; current run results are in the integration report. |
 | [.github/workflows/ci.yml](.github/workflows/ci.yml), [.github/workflows/tests.yml](.github/workflows/tests.yml) | Cross-platform checks and Node.js syntax/test CI. |
 | [docs/screenshots/](docs/screenshots/) | Local demonstration screenshots. |
 
 ## Prototype Limitations
 
 - Prices are fixed RMB reference values; live retailer pricing, inventory, and purchasing are not supported.
-- The classroom catalogue contains only 27 products. Recommendations are limited by that dataset and the configured retrieval/model behavior.
+- Historical v2 contains 27 products; v2.1 TEST contains 54, with 27 provisional additions. Recommendations remain limited by catalogue evidence and configured retrieval/model behavior.
 - Running recommendations requires a configured external FastGPT workflow, available models, and the imported knowledge base. The “FastGPT Ready” status checks configuration, not live connectivity.
 - Tool 3 requires TokenProxy only for live orchestration and remains separate from the chatbot. Its executor allows two read-only operations; arbitrary shell commands, model-selected paths, and file-writing actions are unsupported. Controlled Knowledge Generation / Phase 3 is not implemented.
 - Tool 3's structured statuses are execution evidence; its generated explanation is not independently fact-checked. Real-model task-completion and tool-selection accuracy have not been benchmarked. Local JSON/Markdown consistency checks do not verify the deployed FastGPT knowledge base or the workflow's static catalogue.
-- The project is a local coursework/portfolio prototype, with no public production deployment. Public hosting would require authentication, rate limiting, monitoring, and appropriate secret management and operational controls.
+- The project is a coursework/portfolio prototype with a university AIEP TEST deployment, not a public production release. Experimental optimized prompts have no demonstrated controlled performance advantage.

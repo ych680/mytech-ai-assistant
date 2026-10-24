@@ -24,15 +24,26 @@ build/
 *.p12
 *.pfx
 
+# Raw/private exports and local credential JSON (reviewed snapshots live elsewhere)
+/private/exports/
+/secrets/
+*.private-export.json
+# Exact raw FastGPT download names; only reviewed sanitized snapshots belong in Git
+MyTech v2.1 — TEST Knowledge.json
+MyTech v2.1 — GLM47 Optimized TEST.json
+MyTech_Current_Working_Export_Reference.json
+
 # Operating-system files
 .DS_Store
 Thumbs.db
 Desktop.ini
 
 # Local editor settings
-.vscode/
+.vscode/*
+!.vscode/settings.json
 
 # Python environments and caches
 .venv/
 __pycache__/
+.pytest_cache/
 *.py[cod]

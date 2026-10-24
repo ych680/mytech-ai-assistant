@@ -1,0 +1,24 @@
+{
+  "prepared_date": "2026-10-24 Asia/Hong_Kong",
+  "scope": "Non-secret pre-task checksums; unchanged after candidate preparation. Environment files excluded.",
+  "files_sha256": {
+    "aiep-candidate/README.md": "c4572bdab8b4129e9276abea140c249df952acab3d11b26d1435185b96e42728",
+    "aiep-candidate/site/index.html": "979e0e9c663a8cb9063e9cc6e3cc3373204156765b71c5a318f550f533d0cb35",
+    "MyTech_Chatbot_v2.html": "d31736eb1156a4f08f8ef6e7c5bddfacc0adb5bc63cb88688e07ed2b6ca4cf97",
+    "mytech_v2_server.mjs": "4e08d758ac15cd359af72668c1f22eef589fd73c8f626f63fc5b3651f1dd4243",
+    "mytech_response.mjs": "a56419e430b4f9052e11e70a858b39d966ee0e1f966b09f921e6f1713ea22735",
+    "mytech_v1_product_dataset.json": "e91182572567bb34fcb7f19fe24ac308346dc764fb65e368dada67102f1039b9",
+    "mytech_v1_system_prompt.txt": "77f6c42635da712aa9d50eb1dffa551beff32471a530465598857cf16c573b0c",
+    "workflow/mytech-fastgpt-workflow.json": "a31898201c82429302634a5bdfe02fc1b36746985031e843ff41379c932382f4",
+    "knowledge/MyTech_Product_Knowledge_v1.md": "e065a9a63d65bc096bfb8daf90887bd90bec027c9bc0111dc8a1c9fb7600c50e",
+    "catalogue/mytech_products_v2_1_test.json": "0e99d7df0238b67d321f729a6ecbe87ed35f16aec1c6e923f2d00e3d69bf85ac",
+    "mytech_v2_1_test_server.mjs": "6fce94658f009bdd1dcf473eba821cf1dd93f63172de5e2f38ec59f5b8f8d8f0",
+    "mytech_v2_1_test_adapter.mjs": "c4279f03a5fca43cd2692556efee9071399e332a113392d9cc8bedfe61c78e4f",
+    "mytech_v2_1_test_response.mjs": "457578d24283b5b23cbc8307fb41a25fc20936af845d42512221d4f42d9d6dea",
+    "generated/v2_1_test/index.html": "874da44557c22e00c082e0f57411ddffebbb16eee3e8647d426f22f9e790c50b",
+    "generated/v2_1_test/MyTech_Product_Knowledge_v2_1_TEST.md": "96bca468f19799fca9a17adfce1a37e2fa6fe8e099835f47a3b12c59931af4f4",
+    "generated/v2_1_test/mytech-fastgpt-workflow-v2_1-TEST.json": "de3851f579daa1dc1a493345779497a0b4a5d90bd15db16efbab16697c5b9109",
+    "generated/v2_1_test/catalogue.json": "0e99d7df0238b67d321f729a6ecbe87ed35f16aec1c6e923f2d00e3d69bf85ac",
+    "generated/v2_1_test/manifest.json": "9b51b1a979124ea724df1bbc84133ed9dfda5879ef8efeabccb654dcd90b28ba"
+  }
+}

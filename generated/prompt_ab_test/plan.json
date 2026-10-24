@@ -1,0 +1,233 @@
+{
+  "scope": "DEFERRED broader offline fixture plan; superseded, not authorized for live execution",
+  "phase_status": "DEFERRED_NOT_AUTHORIZED",
+  "active_plan": "generated/glm47_prompt_ab/plan.json",
+  "live_parity_gate": "PENDING: compare A against the currently published working TEST prompts/configuration",
+  "variants": {
+    "A": "mytech-v21-prompt-A-control.json",
+    "B": "mytech-v21-prompt-B-short.json"
+  },
+  "scenarios": [
+    {
+      "id": "C01",
+      "group": "currency",
+      "turns": [
+        {
+          "message": "I need a laptop under RMB 6000 for gaming.",
+          "expected_kind": "recommendation",
+          "assertions": [
+            "supported; Laptop budget exactly 6000 and Gaming usage",
+            "one eligible grounded Laptop; exact catalogue price/source; price <= 6000"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C02",
+      "group": "currency",
+      "turns": [
+        {
+          "message": "I need a laptop under RMB 6,000 for gaming.",
+          "expected_kind": "recommendation",
+          "assertions": [
+            "supported; Laptop budget exactly 6000 and Gaming usage",
+            "one eligible grounded Laptop; exact catalogue price/source; price <= 6000"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C03",
+      "group": "currency",
+      "turns": [
+        {
+          "message": "I need a laptop under ¥6000 for gaming.",
+          "expected_kind": "recommendation",
+          "assertions": [
+            "supported; Laptop budget exactly 6000 and Gaming usage",
+            "one eligible grounded Laptop; exact catalogue price/source; price <= 6000"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C04",
+      "group": "currency",
+      "turns": [
+        {
+          "message": "I need a laptop under ¥6,000 for gaming.",
+          "expected_kind": "recommendation",
+          "assertions": [
+            "supported; Laptop budget exactly 6000 and Gaming usage",
+            "one eligible grounded Laptop; exact catalogue price/source; price <= 6000"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S01",
+      "group": "single",
+      "turns": [
+        {
+          "message": "I need a laptop for studying under RMB 6000.",
+          "expected_kind": "recommendation",
+          "assertions": [
+            "Laptop / 6000 / Study",
+            "one eligible grounded Laptop; no unrelated category"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "M01",
+      "group": "multi",
+      "turns": [
+        {
+          "message": "I need a laptop for studying under RMB 6000 and a gaming mouse under RMB 300.",
+          "expected_kind": "recommendation",
+          "assertions": [
+            "Laptop / 6000 / Study AND Mouse / 300 / Gaming; independent fields",
+            "two eligible recommendations; no Office-only mouse for Gaming; no partial invalid batch"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T01",
+      "group": "follow_up",
+      "turns": [
+        {
+          "message": "I need a laptop for studying under RMB 6000 and a gaming mouse under RMB 500.",
+          "expected_kind": "recommendation",
+          "assertions": [
+            "two eligible recommendations; save separate validated anchors and requests"
+          ]
+        },
+        {
+          "message": "Cheaper mouse.",
+          "expected_kind": "comparison_or_no_match",
+          "assertions": [
+            "only Mouse is targeted; Gaming and budget 500 retained",
+            "strictly cheaper than its prior validated Mouse or truthful no-match; Laptop anchor unchanged"
+          ]
+        },
+        {
+          "message": "Another laptop.",
+          "expected_kind": "comparison_or_no_match",
+          "assertions": [
+            "only Laptop is targeted; Study and budget 6000 retained",
+            "different eligible Laptop or truthful no-match; Mouse anchor unchanged"
+          ]
+        },
+        {
+          "message": "More expensive mouse.",
+          "expected_kind": "comparison_or_no_match",
+          "assertions": [
+            "only Mouse; strictly above latest validated Mouse but <=500; Gaming retained",
+            "truthful no-match allowed; invalid/no-match reply must not replace anchors"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "N01",
+      "group": "no_match",
+      "turns": [
+        {
+          "message": "I need a gaming mouse under RMB 50.",
+          "expected_kind": "no_match",
+          "assertions": [
+            "complete Mouse / 50 / Gaming; no eligible product in this Master",
+            "recommendations=[]; clarification_needed=false; no budget widening"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Q01",
+      "group": "clarification",
+      "turns": [
+        {
+          "message": "I need a gaming mouse.",
+          "expected_kind": "clarification",
+          "assertions": [
+            "ask only for missing budget; no recommendations; preserve Mouse/Gaming"
+          ]
+        },
+        {
+          "message": "RMB 300.",
+          "expected_kind": "recommendation",
+          "assertions": [
+            "Mouse / 300 / Gaming recovered from same chat; one eligible recommendation"
+          ]
+        }
+      ]
+    }
+  ],
+  "schedule": {
+    "repetitions": 3,
+    "turns_per_variant_per_repetition": 13,
+    "measured_request_ceiling": 78,
+    "warmup_requests": 2,
+    "all_request_ceiling_without_retries": 80,
+    "smoke_requests_including_warmup": 28,
+    "pair_order": "For zero-based scenario_index and repetition_index: AB if their sum is even, otherwise BA; run the whole session before its pair",
+    "session_policy": "Fresh distinct chat per variant/scenario/repetition; keep chat only within that scenario's turns; no automatic retries"
+  },
+  "offline_fault_cases": [
+    "wrong exact price",
+    "wrong source",
+    "wrong category",
+    "over budget",
+    "wrong usage",
+    "malformed JSON",
+    "duplicate category batch"
+  ],
+  "result_columns": [
+    "campaign_id",
+    "pair_id",
+    "run_id",
+    "scenario_id",
+    "repetition",
+    "variant",
+    "order",
+    "turn_index",
+    "session_label",
+    "entrypoint",
+    "started_at",
+    "expected_kind",
+    "outcome",
+    "scope_ok",
+    "state_ok",
+    "json_contract_ok",
+    "turn_pass",
+    "eligible_requests",
+    "returned_recommendations",
+    "valid_recommendations",
+    "validation_fallback",
+    "safety_violations",
+    "total_workflow_ms",
+    "wall_ms",
+    "input_tokens",
+    "output_tokens",
+    "credit_delta",
+    "credit_unit",
+    "credit_scope",
+    "cache_status",
+    "evidence_ref",
+    "notes"
+  ],
+  "node_metric_columns": [
+    "run_id",
+    "node_id",
+    "node_name",
+    "executed",
+    "duration_ms",
+    "input_tokens",
+    "output_tokens",
+    "credits",
+    "credit_unit",
+    "evidence_ref"
+  ],
+  "no_live_results": true
+}

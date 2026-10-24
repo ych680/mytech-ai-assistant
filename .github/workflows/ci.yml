@@ -47,5 +47,17 @@ jobs:
       - name: Check knowledge consistency
         run: uv run --locked python -B tools/build_knowledge.py --check knowledge/MyTech_Product_Knowledge_v1.md
 
+      - name: Check v2.1 local and AIEP TEST catalogue synchronization (read-only)
+        run: uv run --locked python -B tools/check_catalogue_consistency.py
+
+      - name: Check deferred prompt fixtures (read-only; not authoritative)
+        run: uv run --locked python -B tools/build_prompt_ab_test.py --check
+
+      - name: Check actual-export GLM-4.7 six-request preparation (read-only)
+        run: uv run --locked python -B tools/build_glm47_prompt_ab.py --check
+
+      - name: Check actual workflow registry and release snapshots (read-only)
+        run: uv run --locked python -B tools/check_workflow_registry.py
+
       - name: Run Node.js tests
-        run: node --test tests/response.test.mjs tests/frontend-recovery.test.mjs
+        run: node --test tests/*.test.mjs

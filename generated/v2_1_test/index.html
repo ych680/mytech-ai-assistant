@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="MyTech v2 — a FastGPT-powered electronic product recommendation chatbot using validated reference product data.">
+  <title>MyTech v2.1 TEST — Product Candidates</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f6f3;
+      --surface: #ffffff;
+      --surface-soft: #f2f1ee;
+      --surface-raised: #f2f1ee;
+      --border: #dedcd7;
+      --border-strong: #c9c6c0;
+      --text: #1c1c1c;
+      --text-soft: #6f6d69;
+      --text-muted: #726f6a;
+      --green: #21b66f;
+      --shadow: 0 8px 28px rgba(20, 20, 20, 0.035);
+      --header-height: 82px;
+      --composer-height: 212px;
+      --radius-xl: 20px;
+      --radius-lg: 16px;
+      --radius-md: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, "SF Pro Text", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    body::before {
+      display: none;
+    }
+
+    button,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      color: inherit;
+    }
+
+    button:focus-visible,
+    textarea:focus-visible {
+      outline: 3px solid rgba(31, 31, 31, 0.55);
+      outline-offset: 2px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .topbar {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 20;
+      height: var(--header-height);
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.97);
+    }
+
+    .topbar-inner {
+      width: min(100% - 32px, 1120px);
+      height: 100%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .topbar-left,
+    .topbar-right,
+    .identity-list,
+    .status {
+      display: flex;
+      align-items: center;
+    }
+
+    .topbar-left {
+      min-width: 0;
+      gap: 18px;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border: 1px solid #111111;
+      border-radius: 12px;
+      background: #1f1f1f;
+      box-shadow: 0 2px 8px rgba(20, 20, 20, 0.12);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .identity-list {
+      min-width: 0;
+      gap: 24px;
+    }
+
+    .identity-item {
+      min-width: 0;
+    }
+
+    .identity-key,
+    .identity-value {
+      display: block;
+      white-space: nowrap;
+    }
+
+    .identity-key {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 650;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .identity-value {
+      margin-top: 1px;
+      color: var(--text);
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    .topbar-right {
+      flex: 0 0 auto;
+      gap: 14px;
+    }
+
+    .status {
+      gap: 9px;
+      color: var(--text-soft);
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(33, 182, 111, 0.1);
+    }
+
+    .status.is-generating .status-dot {
+      background: #6f6d69;
+      box-shadow: 0 0 0 3px rgba(111, 109, 105, 0.12);
+      animation: status-pulse 1s ease-in-out infinite;
+    }
+
+    .status.is-unavailable .status-dot {
+      background: #8e8a84;
+      box-shadow: 0 0 0 3px rgba(142, 138, 132, 0.12);
+    }
+
+    .restart-button {
+      min-height: 40px;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #ffffff;
+      color: #292929;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .restart-button:hover {
+      border-color: var(--border-strong);
+      background: #f2f1ee;
+      transform: translateY(-1px);
+    }
+
+    .chat-card {
+      position: fixed;
+      top: calc(var(--header-height) + 16px);
+      bottom: calc(var(--composer-height) + 14px);
+      left: 50%;
+      width: min(calc(100% - 32px), 980px);
+      transform: translateX(-50%);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .chat-card::before {
+      display: none;
+    }
+
+    .messages {
+      height: 100%;
+      overflow-y: auto;
+      padding: 30px clamp(18px, 4vw, 42px) 38px;
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: #c9c6c0 transparent;
+    }
+
+    .messages::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .messages::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: #c9c6c0;
+    }
+
+    .message {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      margin: 0 0 24px;
+      animation: message-in 220ms ease both;
+    }
+
+    .message.user {
+      justify-content: flex-end;
+    }
+
+    .assistant-avatar {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      margin-top: 22px;
+      border: 1px solid #111111;
+      border-radius: 10px;
+      background: #1f1f1f;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      box-shadow: 0 2px 7px rgba(20, 20, 20, 0.1);
+    }
+
+    .message-stack {
+      min-width: 0;
+      max-width: min(82%, 720px);
+    }
+
+    .user .message-stack {
+      max-width: min(72%, 640px);
+    }
+
+    .assistant-label {
+      margin: 0 0 6px 3px;
+      color: #292929;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .bubble {
+      border: 1px solid #ebe9e5;
+      border-radius: var(--radius-lg);
+      background: var(--surface-raised);
+      color: var(--text);
+      font-size: 1rem;
+      line-height: 1.58;
+      padding: 14px 17px;
+      box-shadow: none;
+      overflow-wrap: anywhere;
+    }
+
+    .user .bubble {
+      border-color: #262626;
+      border-radius: var(--radius-lg);
+      background: #262626;
+      color: #ffffff;
+      box-shadow: none;
+    }
+
+    .bubble p {
+      margin: 0;
+    }
+
+    .bubble p + p {
+      margin-top: 10px;
+    }
+
+    .support-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 12px 0 2px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .support-list li {
+      padding: 5px 9px;
+      border: 1px solid #d8d6d1;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #474541;
+      font-family: inherit;
+      font-size: 0.78rem;
+    }
+
+    .thinking-bubble {
+      min-width: 142px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      color: var(--text-soft);
+    }
+
+    .thinking-dots {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 20px;
+    }
+
+    .thinking-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #6f6d69;
+      animation: dot-bounce 900ms ease-in-out infinite;
+    }
+
+    .thinking-dots span:nth-child(2) {
+      animation-delay: 130ms;
+    }
+
+    .thinking-dots span:nth-child(3) {
+      animation-delay: 260ms;
+    }
+
+    .recommendation-intro {
+      margin-bottom: 12px !important;
+    }
+
+    .product-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .product-card {
+      padding: 13px;
+      border: 1px solid #d8d6d1;
+      border-radius: var(--radius-md);
+      background: #ffffff;
+    }
+
+    .product-topline {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .product-name {
+      color: #1c1c1c;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .product-price {
+      color: #1f1f1f;
+      font-family: inherit;
+      font-size: 0.98rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .product-meta {
+      margin-top: 5px;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .product-specs {
+      margin: 9px 0 0;
+      color: #54514c;
+      font-family: inherit;
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+
+    .product-reason {
+      margin-top: 8px !important;
+      color: #333230;
+      font-size: 0.88rem;
+      line-height: 1.52;
+    }
+
+    .product-source {
+      margin-top: 8px !important;
+      color: #77736d;
+      font-size: 0.76rem;
+      line-height: 1.45;
+    }
+
+    .next-step {
+      margin-top: 12px !important;
+      color: #474541;
+      font-size: 0.9rem;
+    }
+
+    .demo-note {
+      margin-top: 12px !important;
+      color: var(--text-muted);
+      font-size: 0.76rem;
+    }
+
+    .composer-shell {
+      position: fixed;
+      inset: auto 0 0;
+      z-index: 20;
+      height: var(--composer-height);
+      border-top: 1px solid var(--border);
+      background: rgba(247, 246, 243, 0.98);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+
+    .composer-inner {
+      width: min(calc(100% - 32px), 980px);
+      height: 100%;
+      margin: 0 auto;
+      padding: 16px 0 13px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .quick-prompts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .prompt-button,
+    .recovery-button {
+      min-height: 34px;
+      padding: 7px 11px;
+      border: 1px solid #d8d6d1;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #292929;
+      font-size: 0.77rem;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: color 150ms ease, border-color 150ms ease, background 150ms ease, transform 150ms ease;
+    }
+
+    .prompt-button:hover:not(:disabled),
+    .recovery-button:hover:not(:disabled) {
+      border-color: #aaa7a1;
+      background: #f1f0ed;
+      color: #1c1c1c;
+      transform: translateY(-1px);
+    }
+
+    .recovery-button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .composer-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      padding: 7px;
+      border: 1px solid #d7d5d0;
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 4px 16px rgba(20, 20, 20, 0.035);
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .composer-row:focus-within {
+      border-color: #808080;
+      box-shadow: 0 4px 16px rgba(20, 20, 20, 0.035), 0 0 0 3px rgba(31, 31, 31, 0.08);
+    }
+
+    #messageInput {
+      width: 100%;
+      min-height: 46px;
+      max-height: 132px;
+      resize: none;
+      overflow-y: hidden;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      padding: 11px 10px;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    #messageInput::placeholder {
+      color: #77736d;
+    }
+
+    .send-button {
+      width: 46px;
+      height: 46px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 12px;
+      background: #1f1f1f;
+      color: #ffffff;
+      box-shadow: none;
+      cursor: pointer;
+      transition: background 150ms ease, transform 150ms ease, opacity 150ms ease;
+    }
+
+    .send-button:hover:not(:disabled) {
+      background: #000000;
+      transform: translateY(-1px);
+    }
+
+    .send-button svg {
+      width: 21px;
+      height: 21px;
+      fill: none;
+      stroke: currentColor;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 2;
+    }
+
+    textarea:disabled,
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .composer-help {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      white-space: nowrap;
+    }
+
+    .mock-label {
+      color: var(--text-soft);
+    }
+
+    @keyframes message-in {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes dot-bounce {
+      0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.48;
+      }
+      30% {
+        transform: translateY(-5px);
+        opacity: 1;
+      }
+    }
+
+    @keyframes status-pulse {
+      0%, 100% {
+        opacity: 0.46;
+        transform: scale(0.85);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.08);
+      }
+    }
+
+    @media (max-width: 760px) {
+      :root {
+        --composer-height: 174px;
+      }
+
+      .quick-prompts {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding: 1px 1px 5px;
+        scrollbar-width: none;
+      }
+
+      .quick-prompts::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    @media (max-width: 700px) {
+      :root {
+        --header-height: 116px;
+        --composer-height: 174px;
+      }
+
+      .topbar-inner {
+        width: min(100% - 24px, 980px);
+        padding: 9px 0;
+        align-content: center;
+        flex-wrap: wrap;
+        gap: 7px 12px;
+      }
+
+      .topbar-left,
+      .topbar-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .topbar-left {
+        gap: 12px;
+      }
+
+      .identity-list {
+        width: 100%;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .brand-mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+        font-size: 0.78rem;
+      }
+
+      .identity-key {
+        font-size: 0.63rem;
+      }
+
+      .identity-value {
+        font-size: 0.79rem;
+      }
+
+      .status {
+        font-size: 0.76rem;
+      }
+
+      .restart-button {
+        min-height: 34px;
+        padding: 6px 10px;
+        font-size: 0.73rem;
+      }
+
+      .chat-card {
+        top: calc(var(--header-height) + 8px);
+        bottom: calc(var(--composer-height) + 8px);
+        width: calc(100% - 20px);
+        border-radius: 18px;
+      }
+
+      .messages {
+        padding: 22px 14px 28px;
+      }
+
+      .message {
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .assistant-avatar {
+        width: 31px;
+        height: 31px;
+        margin-top: 21px;
+        border-radius: 9px;
+        font-size: 0.65rem;
+      }
+
+      .message-stack,
+      .user .message-stack {
+        max-width: calc(100% - 39px);
+      }
+
+      .bubble {
+        padding: 12px 14px;
+        font-size: 0.94rem;
+      }
+
+      .product-topline {
+        gap: 9px;
+      }
+
+      .composer-inner {
+        width: calc(100% - 20px);
+        padding: 10px 0 9px;
+        gap: 8px;
+      }
+
+      .quick-prompts {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding: 1px 1px 5px;
+        scrollbar-width: none;
+      }
+
+      .quick-prompts::-webkit-scrollbar {
+        display: none;
+      }
+
+      .prompt-button {
+        min-height: 32px;
+        font-size: 0.72rem;
+      }
+
+      .composer-row {
+        border-radius: 15px;
+        padding: 5px;
+      }
+
+      #messageInput {
+        min-height: 44px;
+        padding: 10px 8px;
+        font-size: 0.95rem;
+      }
+
+      .send-button {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+      }
+
+      .composer-help span:first-child {
+        display: none;
+      }
+
+      .composer-help {
+        justify-content: flex-end;
+        font-size: 0.68rem;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .identity-list {
+        gap: 8px;
+      }
+
+      .identity-value {
+        font-size: 0.73rem;
+      }
+
+      .restart-button {
+        max-width: 170px;
+        line-height: 1.2;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+  <style>
+    [hidden] { display: none !important; }
+    .chat-card { display: flex; flex-direction: column; }
+    .messages { flex: 1; min-height: 0; height: auto; }
+    .key-panel { flex: 0 0 auto; max-height: 45%; overflow-y: auto; padding: 12px 18px; border-bottom: 1px solid var(--border); }
+    .key-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .key-panel input[type="password"] { flex: 1; min-width: 130px; width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 10px; font: inherit; }
+    .key-panel input:focus-visible { outline: 3px solid rgba(31,31,31,.55); outline-offset: 2px; }
+    .key-panel p { margin: 6px 0 0; font-size: .78rem; color: var(--text-soft); }
+    .key-panel label { font-size: .78rem; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-left">
+        <div class="brand-mark" aria-hidden="true">MT</div>
+        <div class="identity-list" aria-label="Account and assistant information">
+          <div class="identity-item">
+            <span class="identity-key">User</span>
+            <span class="identity-value">Guest Shopper</span>
+          </div>
+          <div class="identity-item">
+            <span class="identity-key">Assistant</span>
+            <span class="identity-value">MyTech</span>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="status" id="sessionStatus" role="status" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="statusText">Loading reference data...</span>
+        </div>
+        <button class="restart-button" id="restartButton" type="button">Clear Conversation / Restart</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="chat-card" aria-label="MyTech conversation">
+    <section id="key-panel" class="key-panel" aria-label="FastGPT connection" hidden>
+      <form id="key-form" class="key-form" autocomplete="off">
+        <input id="key" type="password" placeholder="Your FastGPT application key" aria-label="FastGPT application key" spellcheck="false">
+        <button class="restart-button" type="submit">Use key</button>
+        <button class="restart-button" id="forget" type="button">Forget</button>
+      </form>
+      <p id="remember-row" hidden><label><input id="remember" type="checkbox"> Remember on this device</label></p>
+      <p id="key-status" role="status" aria-live="polite">Enter your own FastGPT key. Requests use that key's application and budget.</p>
+    </section>
+    <div class="messages" id="messages" aria-live="polite" aria-relevant="additions text"></div>
+  </main>
+
+  <footer class="composer-shell">
+    <div class="composer-inner">
+      <div class="quick-prompts" aria-label="Starter questions">
+        <button class="prompt-button" type="button" data-prompt="What can you help me with?">What can you help me with?</button>
+        <button class="prompt-button" type="button" data-prompt="I need a laptop under ¥6,000 for gaming.">I need a laptop under ¥6,000 for gaming.</button>
+        <button class="prompt-button" type="button" data-prompt="I need a monitor under ¥2,000 for gaming.">I need a monitor under ¥2,000 for gaming.</button>
+        <button class="prompt-button" type="button" data-prompt="I need a laptop under ¥6,000 and a mouse under ¥300 for gaming.">I need a laptop under ¥6,000 and a mouse under ¥300 for gaming.</button>
+        <button class="prompt-button" type="button" data-prompt="I'm not sure which device suits my needs.">I'm not sure which device suits my needs.</button>
+      </div>
+
+      <div class="composer-row">
+        <label class="sr-only" for="messageInput">Message MyTech</label>
+        <textarea id="messageInput" rows="1" placeholder="Describe the product, budget, or main usage…" aria-label="Message MyTech"></textarea>
+        <button class="send-button" id="sendButton" type="button" aria-label="Send message">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M22 2 11 13"></path>
+            <path d="m22 2-7 20-4-9-9-4Z"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="composer-help">
+        <span>Enter to send · Shift + Enter for a new line</span>
+        <span class="mock-label">v2.1 TEST ONLY · Provisional candidates · Not approved for Current · RMB reference prices</span>
+      </div>
+    </div>
+  </footer>
+
+  <script type="application/json" id="mytech-dataset">{"dataset_name":"MyTech v2.1 TEST \u2014 Product Candidates (NOT APPROVED FOR CURRENT)","version":"2.1-TEST","snapshot_date":"2026-10-23","currency":"RMB","price_note":"TEST-ONLY: research reference quotes, not live prices. 27 new candidates are provisional; verify exact SKU, usage, and prices before any Current/public deployment.","supported_categories":["Laptop","Desktop","Smartphone","Tablet","Headphones","Monitor","Smartwatch","Mouse","Keyboard"],"products":[{"id":"LAP-001","category":"Laptop","product":"Lenovo Xiaoxin 14 (2025, Ryzen 7 H255, 16GB/512GB)","price_rmb":5799,"tier":"Entry","main_usage":["Study","Office","Daily use"],"key_features":["14-inch display","16GB RAM","512GB SSD","Ryzen 7 H255"],"source":"Lenovo Official Store","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"LAP-002","category":"Laptop","product":"HUAWEI MateBook 14","price_rmb":6599,"tier":"Mid-range","main_usage":["Study","Office","Creative work"],"key_features":["2.8K OLED display","HarmonyOS AI features","Long battery-life positioning"],"source":"Huawei Official Website","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"LAP-003","category":"Laptop","product":"Lenovo Xiaoxin Pro 14 (Ryzen 7 H255, 32GB/1TB)","price_rmb":8999,"tier":"Premium","main_usage":["Heavy multitasking","Creative work","Productivity"],"key_features":["14-inch display","32GB RAM","1TB SSD","Ryzen 7 H255"],"source":"Lenovo Official Store","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"LAP-004","category":"Laptop","product":"HONOR MagicBook X14 2025 Battle Edition (i5-13420H, 16GB/512GB)","price_rmb":3299,"tier":"Entry","main_usage":["Study","Office","Portable use"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.ithome.com/0/821/402.htm","price_evidence":"Launch list price, 2024-12-31"},{"id":"LAP-005","category":"Laptop","product":"MECHREVO Jiaolong 16K (R7-7435H, RTX 4050, 16GB/512GB, 165Hz)","price_rmb":4999,"tier":"Mid-range","main_usage":["Gaming","Study"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://nb.zol.com.cn/964/9648215.html","price_evidence":"Quoted regular sale price, 2025-03-26; excludes subsidies"},{"id":"LAP-006","category":"Laptop","product":"Lenovo Legion R7000 2025 (Ryzen 7 H 255, RTX 5060, 16GB/512GB)","price_rmb":7999,"tier":"Premium","main_usage":["Gaming","Creative work","Multitasking"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.lenovo.com.cn/wiki/product-doc-36144.html","price_evidence":"Official reference listing, 2026-09-11"},{"id":"DES-001","category":"Desktop","product":"Lenovo Tianyi 510S (Core i3-14100, 16GB/512GB)","price_rmb":4099,"tier":"Entry","main_usage":["Office","Study","Home use"],"key_features":["Core i3-14100","16GB RAM","512GB SSD","Compact desktop"],"source":"Lenovo Official Store","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"DES-002","category":"Desktop","product":"Lenovo Tianyi 510S (Core i5-14400, 16GB/512GB)","price_rmb":5099,"tier":"Mid-range","main_usage":["Office","Multitasking","Home productivity"],"key_features":["Core i5-14400","16GB RAM","512GB SSD","Compact desktop"],"source":"Lenovo Official Store","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"DES-003","category":"Desktop","product":"Apple Mac mini (M4 Pro)","price_rmb":10999,"tier":"Premium","main_usage":["Creative work","Professional productivity","Development"],"key_features":["Apple M4 Pro chip","Compact desktop design"],"source":"Apple China","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"DES-004","category":"Desktop","product":"MINISFORUM UM870 Slim (Ryzen 7 8745H, 16GB/1TB; complete system)","price_rmb":2699,"tier":"Entry","main_usage":["Office","Home use","Study","Mini PC"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.ithome.com/0/807/797.htm","price_evidence":"Launch complete-system price, 2024-11-04"},{"id":"DES-005","category":"Desktop","product":"Lenovo GeekPro (i5-14400F, RTX 5060, 32GB/1TB)","price_rmb":9699,"tier":"Mid-range","main_usage":["Gaming","Creative work","Multitasking"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.lenovo.com.cn/wiki/product-doc-37534.html","price_evidence":"Official reference listing, 2026-10-12"},{"id":"DES-006","category":"Desktop","product":"Lenovo Legion Blade 7000K 2025 (i7-14650HX, RTX 5070, 32GB/1TB)","price_rmb":11999,"tier":"Premium","main_usage":["Gaming","Content creation","Heavy multitasking"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.lenovo.com.cn/wiki/product-doc-34040.html","price_evidence":"Official reference listing, 2026-09-11"},{"id":"PHO-001","category":"Smartphone","product":"HUAWEI nova 14 \u6d3b\u529b\u7248","price_rmb":2399,"tier":"Entry","main_usage":["Daily use","Photography","Social media"],"key_features":["Front and rear 50MP imaging","66W fast charging","HarmonyOS features"],"source":"Huawei Official Website","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"PHO-002","category":"Smartphone","product":"HONOR 400 Pro (12GB/256GB)","price_rmb":3399,"tier":"Mid-range","main_usage":["Photography","Daily use","Entertainment"],"key_features":["12GB RAM","256GB storage","HONOR 400-series photography focus"],"source":"HONOR Official Launch Information","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"PHO-003","category":"Smartphone","product":"Apple iPhone 17 (256GB)","price_rmb":6799,"tier":"Premium","main_usage":["Daily use","Photography","Video","Apple ecosystem"],"key_features":["256GB storage","6.3-inch display","A19 chip"],"source":"Apple China","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"PHO-004","category":"Smartphone","product":"REDMI 14C (4GB/128GB)","price_rmb":599,"tier":"Entry","main_usage":["Daily use","Calls","Basic social media"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.ithome.com/0/821/084.htm","price_evidence":"Launch list price, 2024-12-30"},{"id":"PHO-005","category":"Smartphone","product":"iQOO Z10 Turbo Pro (12GB/256GB)","price_rmb":1999,"tier":"Mid-range","main_usage":["Gaming","Battery life","Daily use"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.ithome.com/0/849/624.htm","price_evidence":"Launch list price, 2025-04-28"},{"id":"PHO-006","category":"Smartphone","product":"REDMI K80 Ultra (12GB/256GB)","price_rmb":2599,"tier":"Premium","main_usage":["Gaming","High performance","Entertainment"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.ithome.com/0/863/945.htm","price_evidence":"Launch list price, 2025-06-26"},{"id":"TAB-001","category":"Tablet","product":"HUAWEI MatePad 11.5 S (2025)","price_rmb":2199,"tier":"Entry","main_usage":["Study","Note-taking","Reading"],"key_features":["Paper-like display option","Huawei Notes","HarmonyOS AI study features"],"source":"Huawei Official Website","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"TAB-002","category":"Tablet","product":"HUAWEI MatePad 11.5 (2026)","price_rmb":2599,"tier":"Mid-range","main_usage":["Study","Media","Note-taking"],"key_features":["11.5-inch 2.5K display","120Hz refresh rate","10100mAh battery"],"source":"Huawei Official Website","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"TAB-003","category":"Tablet","product":"Apple iPad Air 11-inch (M3, Wi-Fi)","price_rmb":4799,"tier":"Premium","main_usage":["Creative work","Study","Productivity"],"key_features":["Apple M3 chip","11-inch display"],"source":"Apple China","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"TAB-004","category":"Tablet","product":"HONOR Pad X9 (6GB/128GB)","price_rmb":899,"tier":"Entry","main_usage":["Reading","Study","Media"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.ithome.com/0/802/849.htm","price_evidence":"List price (not RMB799 launch discount), 2024-10-16"},{"id":"TAB-005","category":"Tablet","product":"Lenovo Legion Y700 4th Gen (12GB/256GB)","price_rmb":3299,"tier":"Mid-range","main_usage":["Gaming","Media","Portable use"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.ithome.com/0/857/523.htm","price_evidence":"Launch list price, 2025-05-31"},{"id":"TAB-006","category":"Tablet","product":"Apple iPad Pro 11-inch (M5, Wi-Fi, 256GB)","price_rmb":8999,"tier":"Premium","main_usage":["Creative work","Drawing","Productivity"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.apple.com.cn/newsroom/2025/10/apple-introduces-ipad-pro-with-m5/","price_evidence":"Apple official launch price, 2025-10"},{"id":"AUD-001","category":"Headphones","product":"Sony WH-CH520","price_rmb":350,"tier":"Entry","main_usage":["Daily music","Study","Calls"],"key_features":["Bluetooth 5.2","Up to 50-hour battery-life specification","Lightweight on-ear design"],"source":"Sony / JD Reference","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"AUD-002","category":"Headphones","product":"Apple AirPods Pro 3","price_rmb":1899,"tier":"Mid-range","main_usage":["Commute","Noise cancellation","Apple ecosystem"],"key_features":["Active noise cancellation","Up to 8 hours listening with ANC","Heart-rate sensing"],"source":"Apple China","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"AUD-003","category":"Headphones","product":"Sony WH-1000XM6","price_rmb":4799,"tier":"Premium","main_usage":["Travel","Premium noise cancellation","Music"],"key_features":["Flagship over-ear noise-cancelling positioning"],"source":"Sony China","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"AUD-004","category":"Headphones","product":"Razer BlackShark V2 X (3.5mm wired)","price_rmb":279,"tier":"Entry","main_usage":["Gaming","Voice chat","PC use"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://detail.zol.com.cn/microphone/index1398825.shtml","price_evidence":"Retail offer shown in reference listing, checked 2026-10"},{"id":"AUD-005","category":"Headphones","product":"Sony WH-CH720N","price_rmb":1009,"tier":"Mid-range","main_usage":["Commute","Noise cancellation","Music"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://detail.zol.com.cn/microphone/index1465657.shtml","price_evidence":"ZOL reference price, checked 2026-10"},{"id":"AUD-006","category":"Headphones","product":"Bose QuietComfort Ultra Headphones II","price_rmb":3599,"tier":"Premium","main_usage":["Travel","Premium noise cancellation","Music"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.bose.cn/zh_cn/pressroom/featured/bose_unveils_the_next_generation_of_the_quietcomfort_ultra_headphones.html","price_evidence":"Official launch price, 2025-09-12"},{"id":"MON-001","category":"Monitor","product":"AOC Q27G40E","price_rmb":879,"tier":"Entry","main_usage":["Gaming","Study","General use"],"key_features":["27-inch","2560\u00d71440 resolution","180Hz refresh rate","Fast IPS","1ms GTG"],"source":"AOC China Official Store","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"MON-002","category":"Monitor","product":"REDMI G27Q 320Hz","price_rmb":1199,"tier":"Mid-range","main_usage":["Competitive gaming","Gaming"],"key_features":["27-inch","2560\u00d71440 resolution","320Hz refresh rate","1ms response time"],"source":"JD / Market Reference","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"MON-003","category":"Monitor","product":"LG UltraGear 27GS95QE","price_rmb":3499,"tier":"Premium","main_usage":["Premium gaming","High-refresh gaming"],"key_features":["26.5-inch QHD OLED","240Hz refresh rate","0.03ms GTG"],"source":"LG China / Market Reference","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"MON-004","category":"Monitor","product":"REDMI A24 2026 (23.8-inch IPS, 1080p, 144Hz)","price_rmb":449,"tier":"Entry","main_usage":["Office","Study","Light gaming"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://dir.jd.com/guide/jd-geo-guide-10bit-1080p-xiao-chi-cun-xian-shi-qi-v1","price_evidence":"JD category guide estimate, 2026-10"},{"id":"MON-005","category":"Monitor","product":"Dell S2725QS (27-inch 4K IPS, 120Hz)","price_rmb":1899,"tier":"Mid-range","main_usage":["Office","Creative work","Media"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.dell.com/zh-cn/shop/dell-27-plus-4k--s2725qs/apd/210-bqvq/","price_evidence":"Dell China listed price, checked 2026-10"},{"id":"MON-006","category":"Monitor","product":"LG 34WR50QK-B (34-inch 3440x1440 curved, 100Hz)","price_rmb":2499,"tier":"Premium","main_usage":["Office","Multitasking","Ultrawide productivity"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://wap.zol.com.cn/2123/2122982/index.html","price_evidence":"ZOL reference quote, checked 2026-10"},{"id":"WAT-001","category":"Smartwatch","product":"HUAWEI WATCH GT 5 (41mm)","price_rmb":1488,"tier":"Entry","main_usage":["Fitness","Daily health tracking","Daily wear"],"key_features":["41mm model","Fitness and daily smartwatch positioning"],"source":"Huawei Official Website","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"WAT-002","category":"Smartwatch","product":"Apple Watch SE 3","price_rmb":1999,"tier":"Mid-range","main_usage":["Fitness","Daily health tracking","Apple ecosystem"],"key_features":["40mm or 44mm","Heart-rate tracking","Sleep tracking","50m water resistance"],"source":"Apple China","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"WAT-003","category":"Smartwatch","product":"HUAWEI WATCH 5","price_rmb":2699,"tier":"Premium","main_usage":["Smart features","Health tracking","Independent connectivity"],"key_features":["X-TAP sensing","Huawei AI features","eSIM support"],"source":"Huawei Official Website","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"WAT-004","category":"Smartwatch","product":"Xiaomi Watch S4 41mm (fluororubber strap)","price_rmb":999,"tier":"Entry","main_usage":["Daily wear","Fitness","Style"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.ithome.com/0/863/949.htm","price_evidence":"Launch list price, 2025-06-26"},{"id":"WAT-005","category":"Smartwatch","product":"Garmin Forerunner 165 (standard, non-Music)","price_rmb":2080,"tier":"Mid-range","main_usage":["Running","Fitness","Training"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.garmin.com.cn/news/garmin/garmin-news-forerunner165/","price_evidence":"Official recommended retail starting price"},{"id":"WAT-006","category":"Smartwatch","product":"Garmin fenix 8 AMOLED (43mm; entry variant)","price_rmb":7980,"tier":"Premium","main_usage":["Outdoor sports","Hiking","Training","Navigation"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.garmin.com.cn/minisite/find-your-watch/","price_evidence":"Garmin official series starting price; exact SKU recheck required"},{"id":"MOU-001","category":"Mouse","product":"Logitech M240","price_rmb":109,"tier":"Entry","main_usage":["Office","Study","Portable use"],"key_features":["Bluetooth","Quiet-click positioning","Lightweight portable design"],"source":"JD Reference","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"MOU-002","category":"Mouse","product":"Logitech G304 LIGHTSPEED","price_rmb":229,"tier":"Mid-range","main_usage":["Gaming","General use"],"key_features":["Wireless gaming mouse","LIGHTSPEED wireless positioning"],"source":"JD / Market Reference","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"MOU-003","category":"Mouse","product":"Logitech MX Master 3S","price_rmb":429,"tier":"Premium","main_usage":["Office","Creative work","Productivity"],"key_features":["8,000 DPI sensor","Quiet clicks","MagSpeed scrolling"],"source":"Logitech / Market Reference","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"MOU-004","category":"Mouse","product":"Razer DeathAdder Essential (black wired)","price_rmb":109,"tier":"Entry","main_usage":["Gaming","General use"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://item.jd.com/product/v5zKcPGJuDWA1AOJa71zrQ.html","price_evidence":"JD displayed price, checked 2026-10"},{"id":"MOU-005","category":"Mouse","product":"Logitech Lift Vertical Ergonomic Mouse","price_rmb":499,"tier":"Mid-range","main_usage":["Office","Ergonomics","Productivity"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://detail.zol.com.cn/Ergonomics_mouse/index1404738.shtml","price_evidence":"ZOL reference price, checked 2026-10"},{"id":"MOU-006","category":"Mouse","product":"Razer Viper V3 Pro (black wireless)","price_rmb":1299,"tier":"Premium","main_usage":["Competitive gaming","Gaming","FPS"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://detail.zol.com.cn/mice/index2125025.shtml","price_evidence":"ZOL reference price, checked 2026-10"},{"id":"KEY-001","category":"Keyboard","product":"Logitech K848","price_rmb":249,"tier":"Entry","main_usage":["Office","General typing","Light gaming"],"key_features":["Wired mechanical keyboard","Backlighting","Full-size layout"],"source":"JD / Market Reference","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"KEY-002","category":"Keyboard","product":"Logitech Signature K650","price_rmb":299,"tier":"Mid-range","main_usage":["Office","Long typing sessions","Productivity"],"key_features":["Wireless and Bluetooth","Integrated palm rest","Full-size layout"],"source":"Logitech / JD Reference","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"KEY-003","category":"Keyboard","product":"Logitech MX Keys S","price_rmb":529,"tier":"Premium","main_usage":["Office","Productivity","Multi-device use"],"key_features":["Wireless and Bluetooth","Smart backlighting","Multi-device switching"],"source":"Logitech / JD Reference","review_status":"EXISTING BASELINE","evidence_url":"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json","price_evidence":"Existing v1 baseline snapshot: 2026-09-12"},{"id":"KEY-004","category":"Keyboard","product":"Rapoo V500PRO (full-size wired mechanical)","price_rmb":199,"tier":"Entry","main_usage":["Gaming","General typing"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://www.rapoo.cn/product/769","price_evidence":"Rapoo official listed price, checked 2026-10"},{"id":"KEY-005","category":"Keyboard","product":"AULA F75 (Glacier Blue, Reaper switch; tri-mode)","price_rmb":329,"tier":"Mid-range","main_usage":["Gaming","Office","Multi-device use"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://detail.zol.com.cn/keyboard/index1969156.shtml","price_evidence":"ZOL reference price, checked 2026-10"},{"id":"KEY-006","category":"Keyboard","product":"Logitech G PRO X TKL","price_rmb":1549,"tier":"Premium","main_usage":["Competitive gaming","Gaming","FPS"],"key_features":["Only the model/configuration stated in the Product field is selected","detailed performance and other specifications require source verification."],"source":"Candidate research reference \u2014 not independently verified","review_status":"NEW CANDIDATE \u2014 provisional","evidence_url":"https://detail.zol.com.cn/2100/2099769/price.shtml","price_evidence":"ZOL reference price, checked 2026-10"}]}</script>
+  <script type="application/json" id="mytech-reference-prompt">"You are MyTech, an electronic product recommendation chatbot.\n\nTARGET USER\nYou help general consumers who are not familiar with electronic product specifications and need simple purchase guidance.\n\nMAIN GOAL\nYour main job is to recommend suitable electronic products based mainly on the user's product category, budget, and main usage.\n\nINSTRUCTIONS\n1. Identify the user's product category, budget, and main usage before making a final recommendation.\n2. Once enough information is available, recommend a suitable product that matches the user's product category, budget, and main usage, and briefly explain why it is suitable.\n3. For follow-up requests, use the user's existing preferences and adjust the recommendation according to the new request instead of simply repeating the previous recommendation.\n4. If the user clearly starts a new recommendation request, start a new recommendation flow instead of automatically reusing previous preferences.\n5. When multiple suitable products are available, prioritize the option that best matches the user's main usage and budget instead of giving too many recommendations at once, unless the user explicitly asks for multiple alternatives.\n6. If the user clearly requests multiple supported products in the same message, treat each product request separately and provide a suitable recommendation for each one. Keep the category, budget, and main usage of each product request separate.\n\nTONE\nUse a clear, concise, friendly, and beginner-friendly tone.\nAvoid unnecessary technical jargon and explain technical terms simply when needed.\n\nCONSTRAINTS\n1. Use English only in all user-facing responses.\n2. Use RMB (¥) for all product prices and budgets.\n3. Treat the user's stated budget as a hard limit unless the user explicitly agrees to increase it. Do not present an over-budget product as a valid match.\n4. Only recommend products and product information that are included in the approved MyTech product dataset. Do not invent or fabricate product names, specifications, prices, availability, sources, or other product information.\n5. Treat prices in the MyTech product dataset as fixed reference prices for this classroom prototype. Do not claim that they are live retailer prices or invent current stock or availability.\n\nBOUNDARIES\n1. Only provide recommendations and guidance related to supported electronic product categories.\n2. The currently supported product categories are Laptop, Desktop, Smartphone, Tablet, Headphones, Monitor, Smartwatch, Mouse, and Keyboard.\n3. Do not provide advice on topics unrelated to electronic product selection.\n\nCLARIFICATION\n1. If product category, budget, or main usage is missing, ask one concise clarification question to collect the missing information before making a final recommendation.\n2. If the user's request contains an unclear preference such as \"better\", ask what aspect they want to improve instead of guessing.\n3. If it is unclear whether the user wants to continue the current recommendation or start a new one, ask for confirmation before reusing previous preferences.\n4. If one product request in a multi-product message is missing key information, ask only for the missing information for that specific request and preserve the information already provided for the other requests.\n\nFALLBACK\n1. If no available product matches the user's requirements, clearly explain that no suitable match is currently available and suggest a reasonable next step, such as adjusting the budget or requirements.\n2. If the user requests an unsupported product category, explain that the category is not currently supported and briefly list the supported categories.\n3. If the request is unrelated to electronic product selection, politely explain that it is outside MyTech's scope and redirect the user to supported electronic product recommendations.\n4. For a multi-product request, if one requested product cannot be matched but another can, return the valid recommendation or recommendations and clearly explain the unmatched request instead of failing the entire message.\n\nSTRUCTURED OUTPUT\nReturn only an object that follows the supplied JSON Schema. Always include answer, recommendations, next_step, and clarification_needed. Use an empty recommendations array when no product should be recommended. Use the exact dataset product name, category, numeric price, and source. Do not place product specifications in answer or next_step; the application renders specifications from the dataset after validation.\n\nCONTEXT RULES\nUse the supplied conversation history and session context. For \"cheaper\", \"more expensive\", or \"another option\", retain the relevant request details and do not repeat the previous product. A more expensive product must still stay within an active hard budget unless the user explicitly changes it. For \"better\", ask which aspect should improve and return no recommendation. A clear new request must not inherit stale category, budget, or usage details. Keep multiple request objects separate.\n"</script>
+  <script>
+    "use strict";
+    const TEST_USAGE_POLICY = {"Gaming":["gaming"],"Study":["study","note-taking","reading"],"Office":["office","productivity","multitasking","home use"],"Creative":["creative","content creation","drawing"],"Photography":["photography"],"Media":["media","entertainment","video"],"Music":["music"],"Calls":["calls","voice chat"],"Travel":["travel","commute","portable"],"Fitness":["fitness","health tracking","daily health","running","training","outdoor sports"],"Development":["development"],"Productivity":["productivity","office","multitasking"],"Typing":["typing"],"Noise cancellation":["noise cancellation"],"Daily":["daily","general use","home use"]};
+    const TEST_DEFAULT_TIMEOUT_MS = 120000;
+// TEST-only deterministic policy. Product evidence always comes from the
+// generated Master Dataset; aliases describe requests, never product facts.
+function checkCatalogueUsage(product, requestedUsage, catalogue, compatibility) {
+  if (typeof requestedUsage !== "string" || !requestedUsage.trim() || requestedUsage.length > 300) {
+    return { valid: false, error: "A non-empty, supported main usage is required." };
+  }
+  const normalize = value => value.normalize("NFKC").toLowerCase()
+    .replace(/[\u2010-\u2015_-]/g, " ").replace(/[.,;!?()[\]"]/g, " ")
+    .replace(/[&+/]/g, " and ").replace(/\s+/g, " ").trim();
+  const vocabulary = new Map();
+  for (const entry of Object.values(catalogue)) {
+    for (const tag of entry.main_usage) {
+      vocabulary.set(normalize(tag), { tag: normalize(tag) });
+    }
+  }
+  for (const group of Object.keys(compatibility)) {
+    vocabulary.set(normalize(group), { group });
+  }
+  const aliases = {
+    Gaming: ["game", "games", "play game", "play games", "playing games", "play a game", "playing a game", "video games", "videogames", "video gaming", "play video games", "playing video games", "playing computer games", "casual gaming"],
+    Study: ["studying", "studies", "school", "schoolwork", "school work", "coursework", "homework", "student", "classes", "classwork", "taking notes", "take notes"],
+    Office: ["work", "working", "office work", "office tasks", "business", "documents", "document editing", "spreadsheets"],
+    Creative: ["design", "designing", "graphic design", "illustration", "video editing", "photo editing", "photo and video editing"],
+    Photography: ["photo", "photos", "take photos", "taking photos", "photo taking", "take pictures", "taking pictures", "camera quality"],
+    Media: ["movies", "videos", "watch movies", "watching movies", "watch videos", "watching videos", "video streaming", "streaming"],
+    Music: ["listen to music", "listening to music", "listening", "audio", "songs", "podcasts"],
+    Calls: ["call", "calling", "video calls", "voice calls"],
+    Travel: ["travelling", "traveling", "commuting", "portable", "portability", "on the go"],
+    Fitness: ["exercise", "exercising", "workout", "workouts", "working out", "daily health", "health monitoring"],
+    Development: ["programming", "coding", "software development", "software programming", "software engineering"],
+    Productivity: ["productive work", "multi tasking"],
+    Typing: ["type documents"],
+    "Noise cancellation": ["noise cancelling", "noise canceling", "active noise cancellation", "anc"],
+    Daily: ["everyday", "everyday use", "basic use", "normal use", "casual use"]
+  };
+  for (const [group, phrases] of Object.entries(aliases)) {
+    for (const phrase of phrases) {
+      // Explicit dataset phrases take priority over aliases with broader meaning.
+      if (!vocabulary.has(phrase)) vocabulary.set(phrase, { group });
+    }
+  }
+  const phrases = [...vocabulary.keys()].sort((a, b) => b.split(" ").length - a.split(" ").length || b.length - a.length);
+  const fillers = new Set(["i", "am", "would", "like", "want", "need", "looking", "it", "this", "device", "my", "mainly", "mostly", "primarily", "for", "to", "the", "a", "an", "and", "also", "use", "using", "with", "please", "only"]);
+  const words = normalize(requestedUsage).split(" ");
+  const requirements = [];
+  for (let index = 0; index < words.length;) {
+    const phrase = phrases.find(candidate => {
+      const parts = candidate.split(" ");
+      return parts.every((part, offset) => words[index + offset] === part);
+    });
+    if (phrase) {
+      requirements.push(vocabulary.get(phrase));
+      index += phrase.split(" ").length;
+    } else if (fillers.has(words[index])) {
+      index += 1;
+    } else {
+      // Includes unknown qualifiers, negation and ambiguous 'or' expressions.
+      // A recognized substring must never hide unsupported request wording.
+      return { valid: false, error: "Unrecognized or ambiguous main usage; please restate the intended use." };
+    }
+  }
+  if (!requirements.length) return { valid: false, error: "A supported main usage is required." };
+  const tags = product.main_usage.map(normalize);
+  const supported = requirements.every(requirement => requirement.tag
+    ? tags.includes(requirement.tag)
+    : tags.some(tag => compatibility[requirement.group].some(term =>
+      (" " + tag + " ").includes(" " + normalize(term) + " "))));
+  return { valid: supported, error: supported ? "" : "The product's Master Dataset usage tags do not support the requested usage." };
+}
+
+// Render-only cleanup. Exact identity, category, price and source are untouched.
+// Keep the original validated output/history so citation provenance is retained.
+function stripTestCitationMarkers(text) {
+  if (typeof text !== "string") return text;
+  return text.replace(/\[citation:\s*\d+(?:\s*[,，]\s*\d+)*\]/gi, "")
+    .replace(/【\d+†[^】\r\n]+】/g, "")
+    .replace(/\uE200cite\uE202[^\uE201\r\n]*\uE201/g, "")
+    .replace(/[ \t]+(?=[.,;:!?])/g, "").trim();
+}
+
+function testDisplayOutput(output) {
+  if (!output || typeof output !== "object" || Array.isArray(output)) return output;
+  return { ...output, answer: stripTestCitationMarkers(output.answer), next_step: stripTestCitationMarkers(output.next_step),
+    recommendations: Array.isArray(output.recommendations) ? output.recommendations.map(item =>
+      item && typeof item === "object" && !Array.isArray(item) ? { ...item, reason: stripTestCitationMarkers(item.reason) } : item) : output.recommendations };
+}
+
+    const LOCAL_TEST = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)
+      && /^https?:$/.test(location.protocol);
+    let localTestReady = false;
+    let localDeadlineMs = null;
+    let testUsageCatalogue = {};
+
+    function testBrowserTimeout() {
+      let value = window.MYTECH_TEST_CONFIG?.requestTimeoutMs;
+      try { value ??= new URLSearchParams(location.search || "").get("timeout_ms"); } catch {}
+      const number = Number(value);
+      return value !== null && value !== undefined && Number.isInteger(number) && number >= 5000 && number <= 300000
+        ? number : TEST_DEFAULT_TIMEOUT_MS;
+    }
+    function testDeadlineMs() { return localDeadlineMs || CONFIG.requestTimeoutMs; }
+    function testConnectionAvailable() { return LOCAL_TEST ? localTestReady : HOSTED || Boolean(apiKey); }
+    function testNow() { return typeof performance !== "undefined" ? performance.now() : Date.now(); }
+    function emitTestTiming(phase, startedAt, status) {
+      const detail = { phase, durationMs: Math.max(0, Math.round(testNow() - startedAt)), status };
+      if (typeof window.dispatchEvent === "function" && typeof CustomEvent !== "undefined") {
+        window.dispatchEvent(new CustomEvent("mytech:test-timing", { detail }));
+      }
+    }
+    async function configureLocalTest() {
+      if (!LOCAL_TEST) return;
+      const response = await fetch("/api/test/config", { cache: "no-store" });
+      const config = await response.json();
+      if (!response.ok || config.catalogueVersion !== "2.1-TEST" || config.productCount !== TEST_CATALOGUE_CONTRACT.count
+        || !Number.isInteger(config.requestTimeoutMs) || config.requestTimeoutMs < 5000 || config.requestTimeoutMs > 300000) {
+        throw new Error("INVALID_TEST_SERVER_CONFIG");
+      }
+      localTestReady = config.configured === true;
+      localDeadlineMs = config.requestTimeoutMs + 5000;
+    }
+
+
+    const TEST_CATALOGUE_CONTRACT = {"dataset_name":"MyTech v2.1 TEST \u2014 Product Candidates (NOT APPROVED FOR CURRENT)","version":"2.1-TEST","count":54};
+
+    // MyTech v2 keeps the approved Editorial Clean interface while routing
+    // recommendation intelligence through a secure FastGPT adapter.
+    const IDENTITY = Object.freeze({
+      name: "MyTech",
+      role: "electronic product recommendation chatbot",
+      supportedCategories: Object.freeze([
+        "Laptop",
+        "Desktop",
+        "Smartphone",
+        "Tablet",
+        "Headphones",
+        "Monitor",
+        "Smartwatch",
+        "Mouse",
+        "Keyboard"
+      ])
+    });
+
+    // Official INT6137 routing (do not change).
+    const HOSTED = LOCAL_TEST || /^project-(cmi|emi|demo)-\d{2}\.aidcec-ai-agent\.com$/i.test(location.hostname);
+    // Only a file on the visitor's own computer may remember the key; shared sites such as Moodle must not.
+    const PRIVATE = location.protocol === "file:" || /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+    const API_BASE = "https://api.aidcec-ai-agent.com";
+    const KB_BASE = "https://db.aidcec-ai-agent.com";
+    const FASTGPT_BASE = "https://maas.eduhk.hk/api";
+    const KEY_STORE = "mytech-v21-test-key";
+
+    let apiKey = "";
+
+    function storage() {
+      try { return window.localStorage; } catch { return null; }
+    }
+
+    function endpoint(path) {
+      if (LOCAL_TEST) return "/api/test/mytech";
+      if (HOSTED) return path;
+      if (path === "/fastgpt/v1/chat/completions" || (apiKey.startsWith("openapi-") && (path === "/v1/chat/completions" || path === "/api/v1/chat/completions"))) {
+        return FASTGPT_BASE + "/v1/chat/completions";
+      }
+      if (path === "/tokenproxy/v1/chat/completions") {
+        return API_BASE + "/v1/chat/completions";
+      }
+      return (path.startsWith("/kb/") ? KB_BASE : API_BASE) + path;
+    }
+
+    function headers() {
+      const result = { "content-type": "application/json" };
+      if (!HOSTED) result.authorization = "Bearer " + apiKey;
+      return result;
+    }
+
+    const CONFIG = Object.freeze({
+      maximumHistoryMessages: 16,
+      minimumThinkingTimeMs: 1000,
+      requestTimeoutMs: testBrowserTimeout(),
+      maxTokens: 4096
+    });
+
+    const MYTECH_OUTPUT_SCHEMA = Object.freeze({
+      type: "object",
+      properties: {
+        answer: { type: "string" },
+        recommendations: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              category: {
+                type: "string",
+                enum: [...IDENTITY.supportedCategories]
+              },
+              recommended_product: { type: "string" },
+              price: { type: "number", minimum: 0 },
+              reason: { type: "string" },
+              source: { type: "string" }
+            },
+            required: ["category", "recommended_product", "price", "reason"],
+            additionalProperties: false
+          }
+        },
+        next_step: { type: "string" },
+        clarification_needed: { type: "boolean" }
+      },
+      required: ["answer", "recommendations", "next_step", "clarification_needed"],
+      additionalProperties: false
+    });
+
+    const CATEGORY_MATCHERS = Object.freeze([
+      { category: "Headphones", pattern: "\\b(?:headphones?|headsets?|earbuds?|earphones?)\\b" },
+      { category: "Smartphone", pattern: "\\b(?:smartphones?|smart phones?|phones?|mobiles?)\\b" },
+      { category: "Laptop", pattern: "\\b(?:laptops?|notebooks?|ultrabooks?)\\b" },
+      { category: "Desktop", pattern: "\\b(?:desktops?|desktop computers?|gaming pcs?|personal computers?|pcs?|towers?)\\b" },
+      { category: "Tablet", pattern: "\\b(?:tablets?|ipads?)\\b" },
+      { category: "Monitor", pattern: "\\b(?:monitors?)\\b" },
+      { category: "Smartwatch", pattern: "\\b(?:smartwatch(?:es)?|smart watches?)\\b" },
+      { category: "Mouse", pattern: "\\b(?:mouse|mice)\\b" },
+      { category: "Keyboard", pattern: "\\b(?:keyboards?)\\b" }
+    ]);
+
+    const USAGE_MATCHERS = Object.freeze([
+      { usage: "Gaming", pattern: "\\b(?:gaming|games?|competitive gaming|play games?)\\b" },
+      { usage: "Study", pattern: "\\b(?:study|studying|school|student|classes|coursework|note[- ]?taking|reading)\\b" },
+      { usage: "Office", pattern: "\\b(?:office|work|working|documents?|spreadsheets?|meetings?|business)\\b" },
+      { usage: "Creative", pattern: "\\b(?:creative|design|drawing|illustration|video editing|photo editing|content creation)\\b" },
+      { usage: "Photography", pattern: "\\b(?:photography|taking photos?|camera quality|photos?|social media)\\b" },
+      { usage: "Media", pattern: "\\b(?:media|movies?|videos?|streaming|entertainment)\\b" },
+      { usage: "Music", pattern: "\\b(?:music|listening|audio|songs?|podcasts?)\\b" },
+      { usage: "Calls", pattern: "\\b(?:calls?|calling|video calls?|voice chat)\\b" },
+      { usage: "Travel", pattern: "\\b(?:travel|travelling|traveling|commute|commuting|portable|on the go)\\b" },
+      { usage: "Fitness", pattern: "\\b(?:fitness|exercise|workout|health tracking|daily health)\\b" },
+      { usage: "Development", pattern: "\\b(?:development|programming|coding|software development)\\b" },
+      { usage: "Productivity", pattern: "\\b(?:productivity|multitasking|heavy multitasking)\\b" },
+      { usage: "Typing", pattern: "\\b(?:typing|long typing sessions?)\\b" },
+      { usage: "Noise cancellation", pattern: "\\b(?:noise cancellation|noise cancelling|noise-cancelling|anc)\\b" },
+      { usage: "Daily", pattern: "\\b(?:daily|everyday|general|basic|normal use|casual use|home use)\\b" }
+    ]);
+
+    const USAGE_COMPATIBILITY = Object.freeze({
+      Gaming: ["gaming"],
+      Study: ["study", "note-taking", "reading"],
+      Office: ["office", "productivity", "multitasking", "home use"],
+      Creative: ["creative"],
+      Photography: ["photography", "video", "social media"],
+      Media: ["media", "entertainment", "video"],
+      Music: ["music", "daily music"],
+      Calls: ["calls"],
+      Travel: ["travel", "commute", "portable"],
+      Fitness: ["fitness", "health tracking", "daily health", "daily wear"],
+      Development: ["development", "professional productivity", "heavy multitasking"],
+      Productivity: ["productivity", "office", "multitasking", "creative work"],
+      Typing: ["typing", "office", "productivity"],
+      "Noise cancellation": ["noise cancellation", "travel", "commute"],
+      Daily: ["daily", "general use", "home use", "daily wear"]
+    });
+
+    const messagesElement = document.getElementById("messages");
+    const inputElement = document.getElementById("messageInput");
+    const sendButton = document.getElementById("sendButton");
+    const restartButton = document.getElementById("restartButton");
+    const statusElement = document.getElementById("sessionStatus");
+    const statusText = document.getElementById("statusText");
+    const promptButtons = Array.from(document.querySelectorAll(".prompt-button"));
+
+    let productDataset = null;
+    let systemPrompt = "";
+    let productByName = new Map();
+    let datasetReady = false;
+    let modelConnectionReady = false; // True only after a validated response.
+    let isGenerating = false;
+    let requestVersion = 0;
+    let activeAbortController = null;
+    let modelHistory = [];
+    let fastGptChatId = "";
+    let activeRecovery = null;
+
+    const sessionContext = {
+      activeCategories: [],
+      requirementsByCategory: {},
+      lastRecommendationsByCategory: {},
+      targetCategories: [],
+      pendingComparison: null
+    };
+
+    function formatPrice(value) {
+      return `¥${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value)}`;
+    }
+
+    function delay(milliseconds) {
+      return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+    }
+
+    function createFastGptChatId() {
+      const randomId = typeof window.crypto?.randomUUID === "function"
+        ? window.crypto.randomUUID()
+        : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 14)}`;
+      return `mytech-${randomId}`;
+    }
+
+    function rotateFastGptChatId() {
+      fastGptChatId = createFastGptChatId();
+    }
+
+    function scrollToNewest() {
+      requestAnimationFrame(() => {
+        messagesElement.scrollTop = messagesElement.scrollHeight;
+      });
+    }
+
+    function setControlsDisabled(value) {
+      inputElement.disabled = value;
+      sendButton.disabled = value;
+      promptButtons.forEach((button) => {
+        button.disabled = value;
+      });
+    }
+
+    function setStatus(mode, text) {
+      statusElement.classList.toggle("is-generating", mode === "generating");
+      statusElement.classList.toggle("is-unavailable", mode === "unavailable");
+      statusText.textContent = text;
+    }
+
+    function restoreConnectionStatus() {
+      if (!datasetReady) setStatus("unavailable", "Reference Data Unavailable");
+      else if (!testConnectionAvailable()) setStatus("unavailable", LOCAL_TEST ? "Configure the separate TEST server connection" : "FastGPT TEST Key Required");
+      else if (modelConnectionReady) setStatus("ready", "Online / FastGPT Ready");
+      else setStatus("ready", HOSTED ? "AIEP / Ready to Connect" : "Key Set / Ready to Connect");
+    }
+
+    function createAssistantMessage() {
+      const row = document.createElement("article");
+      row.className = "message assistant";
+
+      const avatar = document.createElement("div");
+      avatar.className = "assistant-avatar";
+      avatar.textContent = "MT";
+      avatar.setAttribute("aria-hidden", "true");
+
+      const stack = document.createElement("div");
+      stack.className = "message-stack";
+
+      const label = document.createElement("div");
+      label.className = "assistant-label";
+      label.textContent = IDENTITY.name;
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+
+      stack.append(label, bubble);
+      row.append(avatar, stack);
+      messagesElement.appendChild(row);
+      return { row, bubble };
+    }
+
+    function addUserMessage(text) {
+      const row = document.createElement("article");
+      row.className = "message user";
+
+      const stack = document.createElement("div");
+      stack.className = "message-stack";
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.textContent = text;
+
+      stack.appendChild(bubble);
+      row.appendChild(stack);
+      messagesElement.appendChild(row);
+      scrollToNewest();
+    }
+
+    function addTextResponse(response) {
+      const { bubble } = createAssistantMessage();
+      const paragraphs = Array.isArray(response.paragraphs) ? response.paragraphs : [];
+
+      paragraphs.forEach((text) => {
+        const paragraph = document.createElement("p");
+        paragraph.textContent = text;
+        bubble.appendChild(paragraph);
+      });
+
+      if (Array.isArray(response.list) && response.list.length) {
+        const list = document.createElement("ul");
+        list.className = "support-list";
+        response.list.forEach((item) => {
+          const listItem = document.createElement("li");
+          listItem.textContent = item;
+          list.appendChild(listItem);
+        });
+        bubble.appendChild(list);
+      }
+
+      scrollToNewest();
+      return bubble;
+    }
+
+    function refreshRecoveryAvailability() {
+      if (!activeRecovery) return;
+      activeRecovery.button.disabled = isGenerating || !datasetReady || (!testConnectionAvailable())
+        || inputElement.value.length > 0 || activeRecovery.requestVersion !== requestVersion;
+    }
+
+    function invalidateRecovery() {
+      if (activeRecovery) activeRecovery.button.disabled = true;
+      activeRecovery = null;
+    }
+
+    function createRecoveryAction(bubble, text, version) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "recovery-button";
+      button.textContent = "Edit and try again";
+      const recovery = { button, text, requestVersion: version };
+      activeRecovery = recovery;
+      button.addEventListener("click", () => {
+        if (activeRecovery !== recovery || recovery.requestVersion !== requestVersion
+          || isGenerating || !datasetReady || (!testConnectionAvailable()) || inputElement.value.length > 0) return;
+        inputElement.value = recovery.text;
+        autoResizeInput();
+        inputElement.focus({ preventScroll: true });
+        refreshRecoveryAvailability();
+      });
+      bubble.appendChild(button);
+      refreshRecoveryAvailability();
+    }
+
+    function addStructuredResponse(response) {
+      const { bubble } = createAssistantMessage();
+
+      const answer = document.createElement("p");
+      answer.className = "recommendation-intro";
+      answer.textContent = response.answer;
+      bubble.appendChild(answer);
+
+      if (response.recommendations.length) {
+        const productList = document.createElement("div");
+        productList.className = "product-list";
+
+        response.recommendations.forEach((recommendation) => {
+          const product = productByName.get(recommendation.recommended_product);
+          const card = document.createElement("section");
+          card.className = "product-card";
+
+          const topline = document.createElement("div");
+          topline.className = "product-topline";
+
+          const name = document.createElement("div");
+          name.className = "product-name";
+          name.textContent = product.product;
+
+          const price = document.createElement("div");
+          price.className = "product-price";
+          price.textContent = formatPrice(product.price_rmb);
+          topline.append(name, price);
+
+          const meta = document.createElement("div");
+          meta.className = "product-meta";
+          meta.textContent = `${product.category} · ${product.tier} · Reference price`;
+
+          const specs = document.createElement("p");
+          specs.className = "product-specs";
+          specs.textContent = product.key_features.join(" · ");
+
+          const reason = document.createElement("p");
+          reason.className = "product-reason";
+          reason.textContent = recommendation.reason;
+
+          const source = document.createElement("p");
+          source.className = "product-source";
+          source.textContent = `Source: ${product.source}`;
+
+          card.append(topline, meta, specs, reason, source);
+          productList.appendChild(card);
+        });
+
+        bubble.appendChild(productList);
+      }
+
+      if (response.next_step && response.next_step !== response.answer) {
+        const nextStep = document.createElement("p");
+        nextStep.className = "next-step";
+        nextStep.textContent = response.next_step;
+        bubble.appendChild(nextStep);
+      }
+
+      scrollToNewest();
+    }
+
+    function addThinkingMessage() {
+      const { row, bubble } = createAssistantMessage();
+      bubble.classList.add("thinking-bubble");
+
+      const text = document.createElement("span");
+      text.textContent = "Thinking...";
+
+      const dots = document.createElement("span");
+      dots.className = "thinking-dots";
+      dots.setAttribute("aria-hidden", "true");
+      dots.append(document.createElement("span"), document.createElement("span"), document.createElement("span"));
+
+      bubble.append(text, dots);
+      scrollToNewest();
+      return row;
+    }
+
+    function setGenerating(value) {
+      isGenerating = value;
+      refreshRecoveryAvailability();
+      setControlsDisabled(value || !datasetReady || (!testConnectionAvailable()));
+      messagesElement.setAttribute("aria-busy", String(value));
+      if (value) {
+        setStatus("generating", "Generating...");
+      } else {
+        restoreConnectionStatus();
+      }
+    }
+
+    function autoResizeInput() {
+      inputElement.style.height = "auto";
+      const nextHeight = Math.min(inputElement.scrollHeight, 132);
+      inputElement.style.height = `${nextHeight}px`;
+      inputElement.style.overflowY = inputElement.scrollHeight > 132 ? "auto" : "hidden";
+    }
+
+    function collectMatches(text, definitions) {
+      const matches = [];
+      definitions.forEach((definition) => {
+        const regex = new RegExp(definition.pattern, "gi");
+        for (const match of text.matchAll(regex)) {
+          matches.push({
+            value: definition.category || definition.usage,
+            index: match.index,
+            end: match.index + match[0].length
+          });
+        }
+      });
+      return matches.sort((first, second) => first.index - second.index);
+    }
+
+    function uniqueCategoryMatches(matches) {
+      const seen = new Set();
+      return matches.filter((match) => {
+        if (seen.has(match.value)) return false;
+        seen.add(match.value);
+        return true;
+      });
+    }
+
+    function parseAmount(rawAmount, suffix) {
+      const numeric = Number.parseFloat(rawAmount.replace(/,/g, ""));
+      if (!Number.isFinite(numeric) || numeric <= 0) return null;
+      return suffix && suffix.toLowerCase() === "k" ? Math.round(numeric * 1000) : Math.round(numeric);
+    }
+
+    function collectBudgetMatches(text) {
+      const regex = /(?:under|below|up to|less than|maximum|max|budget(?:\s+is|\s+of|\s+around)?|spend(?:\s+up to)?|around|about)\s*(?:¥|rmb|cny)?\s*([\d,]+(?:\.\d+)?)\s*(k)?\b|(?:¥|rmb|cny)\s*([\d,]+(?:\.\d+)?)\s*(k)?\b|([\d,]+(?:\.\d+)?)\s*(k)?\s*(?:rmb|cny|yuan)\b/gi;
+      const matches = [];
+      for (const match of text.matchAll(regex)) {
+        const rawAmount = match[1] || match[3] || match[5];
+        const suffix = match[2] || match[4] || match[6];
+        const amount = parseAmount(rawAmount, suffix);
+        if (amount) {
+          matches.push({ amount, index: match.index, end: match.index + match[0].length });
+        }
+      }
+      return matches;
+    }
+
+    function clearSessionContext() {
+      sessionContext.activeCategories = [];
+      sessionContext.requirementsByCategory = {};
+      sessionContext.lastRecommendationsByCategory = {};
+      sessionContext.targetCategories = [];
+      sessionContext.pendingComparison = null;
+    }
+
+    function requirementFor(category) {
+      if (!sessionContext.requirementsByCategory[category]) {
+        sessionContext.requirementsByCategory[category] = {
+          category,
+          budget: null,
+          usage: null
+        };
+      }
+      return sessionContext.requirementsByCategory[category];
+    }
+
+    function assignDetailsToCategories(text, categoryMatches, budgetMatches, usageMatches) {
+      const usageByCategory = new Map();
+      const clauseBoundary = /,(?!\d)|[;.!?]|\b(?:and|also|plus|as well as)\b/i;
+      usageMatches.forEach((usage) => {
+        const previous = categoryMatches.filter((match) => match.end <= usage.index).pop();
+        const next = categoryMatches.find((match) => match.index >= usage.end);
+        // A modifier belongs to its following device, not the preceding device's
+        // category-to-category span. A new clause may also put usage before its noun.
+        const followsUsage = next && (/^[\s-]*$/.test(text.slice(usage.end, next.index))
+          || (!clauseBoundary.test(text.slice(usage.end, next.index))
+            && (!previous || clauseBoundary.test(text.slice(previous.end, usage.index)))));
+        const owner = categoryMatches.length === 1 ? categoryMatches[0]
+          : followsUsage ? next : previous;
+        if (owner && !usageByCategory.has(owner.value)) usageByCategory.set(owner.value, usage.value);
+      });
+      categoryMatches.forEach((categoryMatch, index) => {
+        const nextCategoryIndex = categoryMatches[index + 1]?.index ?? text.length;
+        const requirement = requirementFor(categoryMatch.value);
+        const segmentBudget = budgetMatches.find((match) => match.index >= categoryMatch.index && match.index < nextCategoryIndex);
+        if (segmentBudget) requirement.budget = segmentBudget.amount;
+
+        if (usageByCategory.has(categoryMatch.value)) requirement.usage = usageByCategory.get(categoryMatch.value);
+      });
+
+      if (categoryMatches.length === 1 && budgetMatches.length === 1) {
+        requirementFor(categoryMatches[0].value).budget = budgetMatches[0].amount;
+      }
+    }
+
+    function updateSessionContext(text) {
+      const categoryMatches = uniqueCategoryMatches(collectMatches(text, CATEGORY_MATCHERS));
+      const usageMatches = collectMatches(text, USAGE_MATCHERS);
+      const budgetMatches = collectBudgetMatches(text);
+      const mentioned = categoryMatches.map((match) => match.value);
+      const explicitReset = /^(?:(?:please\s+)?(?:start over|start again|restart|new conversation|new recommendation)\b|I'm not sure which device|I am not sure which device)/i.test(text.trim());
+      const controlText = text.trim().toLowerCase().replace(/[.!?]+$/, "").replace(/\s+/g, " ");
+      const cancellation = /^(?:never ?mind(?:[,;]?\s+(?:please )?cancel (?:that|the|this) comparison)?|(?:please )?cancel (?:(?:(?:that|the|this) )?(?:comparison|follow[- ]?up)|that|it)|(?:please )?stop (?:that|the|this) comparison)(?: please)?$/.test(controlText);
+      // Bound the common control phrases, as in Phase1B.1: unrelated tasks and
+      // negated clauses must not rewrite a pending comparison just by keyword.
+      const categoryPattern = CATEGORY_MATCHERS.map((item) => item.pattern.replace(/^\\b|\\b$/g, "")).join("|");
+      const comparisonPattern = new RegExp(
+        "^(?:(?:please )?(?:(?:can|could|would) you (?:please )?)?(?:recommend|suggest|show|give)(?: me)? "
+        + "|do you have |is there |are there |(?:can|could|may) i (?:get|have) )?"
+        + "(?:a |an |any |anything |something )?"
+        + "(cheaper|more affordable|less expensive|lower[- ]priced|more expensive|higher[- ]priced|alternative|another|different|other)"
+        + "(?: (?:one|ones|option|options|product|products|(?:" + categoryPattern + ")"
+        + "(?: (?:or|and) (?:" + categoryPattern + "))*(?: options?)?))?(?: please)?$"
+      );
+      const phrase = controlText.replace(/^(?:now|next)[,\s]+/, "").replace(/,\s*please$/, " please").match(comparisonPattern)?.[1];
+      const comparison = cancellation || !phrase ? null
+        : /^(?:cheaper|more affordable|less expensive|lower[- ]priced)$/.test(phrase) ? "cheaper"
+        : /^(?:more expensive|higher[- ]priced)$/.test(phrase) ? "more_expensive" : "another";
+      const hasDetails = budgetMatches.length > 0 || usageMatches.length > 0;
+      const categoryOnly = mentioned.length === 1 && !hasDetails
+        && new RegExp("^\\s*(?:the\\s+)?(?:" + CATEGORY_MATCHERS.find((item) => item.category === mentioned[0]).pattern.replace(/^\\b|\\b$/g, "") + ")(?: please)?[.!?]?\\s*$", "i").test(text);
+      if (explicitReset) {
+        clearSessionContext();
+        modelHistory = [];
+        rotateFastGptChatId();
+      }
+      if (cancellation) sessionContext.pendingComparison = null;
+      // A complete new request supersedes a pending action; a category-only reply resumes it.
+      if (mentioned.length && hasDetails && !comparison) sessionContext.pendingComparison = null;
+      let intent = comparison || (categoryOnly ? sessionContext.pendingComparison : null);
+      if (cancellation || explicitReset) intent = null;
+      if (intent && mentioned.length === 0 && sessionContext.activeCategories.length > 1) {
+        sessionContext.pendingComparison = intent;
+        sessionContext.targetCategories = [];
+      } else if (intent) {
+        const targets = mentioned.length ? mentioned : [...sessionContext.activeCategories];
+        sessionContext.targetCategories = targets;
+        sessionContext.pendingComparison = targets.length === 1 ? null : intent;
+      } else if (mentioned.length) {
+        sessionContext.targetCategories = mentioned;
+      }
+      // Comparisons retain saved constraints. New details update their own category only.
+      if (!cancellation) {
+        sessionContext.activeCategories = [...new Set([...sessionContext.activeCategories, ...mentioned])];
+        if (!intent || hasDetails) assignDetailsToCategories(text, categoryMatches, budgetMatches, usageMatches);
+        if (!mentioned.length && !intent && !explicitReset) {
+          for (const [kind, matches] of [["budget", budgetMatches], ["usage", usageMatches]]) {
+            const pending = sessionContext.activeCategories.filter((category) => !requirementFor(category)[kind]);
+            const targets = pending.length === 1 ? pending
+              : sessionContext.targetCategories.length === 1 ? sessionContext.targetCategories : [];
+            if (matches.length === 1) targets.forEach((category) => {
+              requirementFor(category)[kind] = kind === "budget" ? matches[0].amount : matches[0].value;
+            });
+          }
+        }
+      }
+      const budgetsByCategory = {};
+      const usagesByCategory = {};
+      sessionContext.activeCategories.forEach((category) => {
+        const requirement = requirementFor(category);
+        if (requirement.budget) budgetsByCategory[category] = requirement.budget;
+        if (requirement.usage) usagesByCategory[category] = requirement.usage;
+      });
+      return {
+        startsNewFlow: explicitReset,
+        activeCategories: [...sessionContext.activeCategories],
+        targetCategories: [...sessionContext.targetCategories],
+        ambiguousComparison: Boolean(intent && sessionContext.targetCategories.length !== 1),
+        cancelled: cancellation,
+        budgetsByCategory,
+        usagesByCategory,
+        previousRecommendationsByCategory: { ...sessionContext.lastRecommendationsByCategory },
+        ambiguousBetter: /\bbetter\b/i.test(text) && !/\b(?:better\s+(?:screen|display|battery|camera|performance|value|comfort|sound|microphone|portability)|better\s+for)\b/i.test(text),
+        comparison: intent
+      };
+    }
+
+    function isPlainObject(value) {
+      return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+    }
+
+    function hasExactKeys(object, requiredKeys, allowedKeys, label, errors) {
+      const keys = Object.keys(object);
+      requiredKeys.forEach((key) => {
+        if (!keys.includes(key)) errors.push(`${label} is missing ${key}.`);
+      });
+      keys.forEach((key) => {
+        if (!allowedKeys.includes(key)) errors.push(`${label} contains unsupported field ${key}.`);
+      });
+    }
+
+    function usageIsCompatible(product, requestedUsage) {
+      return checkCatalogueUsage(product, requestedUsage, testUsageCatalogue, TEST_USAGE_POLICY).valid;
+    }
+
+    function validateStructuredOutput(output, guard) {
+      const errors = [];
+      if (!isPlainObject(output)) {
+        return { valid: false, errors: ["The model output is not a JSON object."] };
+      }
+
+      const requiredTopLevel = ["answer", "recommendations", "next_step", "clarification_needed"];
+      hasExactKeys(output, requiredTopLevel, requiredTopLevel, "Response", errors);
+
+      if (typeof output.answer !== "string" || !output.answer.trim()) errors.push("answer must be a non-empty string.");
+      if (!Array.isArray(output.recommendations)) errors.push("recommendations must be an array.");
+      if (typeof output.next_step !== "string") errors.push("next_step must be a string.");
+      if (typeof output.clarification_needed !== "boolean") errors.push("clarification_needed must be a boolean.");
+
+      const recommendations = Array.isArray(output.recommendations) ? output.recommendations : [];
+      if ((guard.ambiguousComparison || guard.cancelled || output.clarification_needed) && recommendations.length) {
+        errors.push("Clarification or cancellation must not contain product recommendations.");
+      }
+      const seenCategories = new Set();
+      if (guard.ambiguousBetter && recommendations.length) {
+        errors.push("An ambiguous 'better' request must ask for clarification without a recommendation.");
+      }
+
+      recommendations.forEach((recommendation, index) => {
+        const label = `Recommendation ${index + 1}`;
+        if (!isPlainObject(recommendation)) {
+          errors.push(`${label} must be an object.`);
+          return;
+        }
+
+        if (seenCategories.has(recommendation.category)) errors.push("Duplicate recommendation category.");
+        seenCategories.add(recommendation.category);
+        if (!guard.activeCategories.includes(recommendation.category)) errors.push("Recommendation has no active request.");
+        if (guard.comparison && !guard.targetCategories.includes(recommendation.category)) errors.push("Recommendation is outside the comparison target.");
+        const required = ["category", "recommended_product", "price", "reason", "source"];
+        const allowed = [...required, "source"];
+        hasExactKeys(recommendation, required, allowed, label, errors);
+
+        if (!IDENTITY.supportedCategories.includes(recommendation.category)) {
+          errors.push(`${label} has an unsupported category.`);
+        }
+        if (typeof recommendation.recommended_product !== "string") {
+          errors.push(`${label} has an invalid product name.`);
+          return;
+        }
+
+        const product = productByName.get(recommendation.recommended_product);
+        if (!product) {
+          errors.push(`${label} is not in the approved dataset.`);
+          return;
+        }
+        if (recommendation.category !== product.category) errors.push(`${label} category does not match the dataset.`);
+        if (typeof recommendation.price !== "number" || recommendation.price !== product.price_rmb) {
+          errors.push(`${label} price does not match the dataset.`);
+        }
+        if (typeof recommendation.reason !== "string" || !recommendation.reason.trim()) {
+          errors.push(`${label} reason must be a non-empty string.`);
+        }
+        if (Object.prototype.hasOwnProperty.call(recommendation, "source")
+          && (typeof recommendation.source !== "string" || recommendation.source !== product.source)) {
+          errors.push(`${label} source does not match the dataset.`);
+        }
+
+        const hardBudget = guard.budgetsByCategory[product.category];
+        if (!Number.isFinite(hardBudget) || hardBudget <= 0 || product.price_rmb > hardBudget) {
+          errors.push(`${label} exceeds the active hard budget of ${formatPrice(hardBudget)}.`);
+        }
+
+        const requestedUsage = guard.usagesByCategory[product.category];
+        if (!requestedUsage || !usageIsCompatible(product, requestedUsage)) {
+          errors.push(`${label} does not match the dataset usage tags for ${requestedUsage}.`);
+        }
+
+        const previous = guard.previousRecommendationsByCategory[product.category];
+        if (guard.comparison && !previous) errors.push(`${label} has no validated comparison anchor.`);
+        if (previous && guard.comparison === "another" && product.product === previous.product) {
+          errors.push(`${label} repeats the previous product instead of giving another option.`);
+        }
+        if (previous && guard.comparison === "cheaper" && product.price_rmb >= previous.price) {
+          errors.push(`${label} is not cheaper than the previous recommendation.`);
+        }
+        if (previous && guard.comparison === "more_expensive" && product.price_rmb <= previous.price) {
+          errors.push(`${label} is not more expensive than the previous recommendation.`);
+        }
+      });
+
+      const visibleText = [
+        typeof output.answer === "string" ? output.answer : "",
+        typeof output.next_step === "string" ? output.next_step : "",
+        ...recommendations.map((item) => typeof item?.reason === "string" ? item.reason : "")
+      ].join(" ");
+      if (/\b(?:live (?:price|pricing|availability)|currently in stock|available right now)\b/i.test(visibleText)) {
+        errors.push("The response makes an unsupported live price or availability claim.");
+      }
+
+      return { valid: errors.length === 0, errors };
+    }
+
+    function coerceStructuredOutput(result) {
+      const text = result?.choices?.[0]?.message?.content;
+      if (typeof text !== "string" || !text.trim()) throw new Error("EMPTY_MODEL_OUTPUT");
+      const whole = text.trim();
+      const fenced = /^\x60\x60\x60json\r?\n([\s\S]*?)\r?\n\x60\x60\x60$/.exec(whole);
+      let output;
+      try { output = JSON.parse(fenced ? fenced[1] : whole); }
+      catch { throw new Error("MODEL_OUTPUT_NOT_JSON"); }
+      if (isPlainObject(output) && Array.isArray(output.recommendations)) {
+        output.recommendations = output.recommendations.map((item) => {
+          if (!isPlainObject(item)) return item;
+          const normalised = { ...item };
+          if (normalised.source === null) delete normalised.source;
+          return normalised;
+        });
+      }
+      return output;
+    }
+
+    async function callModel(payload, signal) {
+      if (!testConnectionAvailable()) throw new Error("KEY_REQUIRED");
+      if (!/^[A-Za-z0-9][A-Za-z0-9_-]{7,127}$/.test(payload.chatId)) throw new Error("INVALID_CHAT_ID");
+      const response = await fetch(endpoint("/fastgpt/v1/chat/completions"), {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify(LOCAL_TEST ? payload : {
+          chatId: payload.chatId, // Proxy pass-through and persistence require live verification.
+          stream: false,
+          max_tokens: CONFIG.maxTokens,
+          messages: [{ role: "user", content: payload.message }]
+        }),
+        signal
+      });
+      const body = await response.json().catch(() => null);
+      if (!response.ok) {
+        const error = new Error("MODEL_HTTP_ERROR");
+        error.status = response.status;
+        throw error; // Never surface upstream body/error messages or credentials.
+      }
+      if (body?.choices?.[0]?.finish_reason === "length") throw new Error("MODEL_OUTPUT_NOT_JSON");
+      return body;
+    }
+
+    function serializableContext() {
+      return {
+        activeRequests: sessionContext.activeCategories.map((category) => ({
+          ...requirementFor(category),
+          lastRecommendation: sessionContext.lastRecommendationsByCategory[category]?.product || null
+        }))
+      };
+    }
+
+    async function requestValidatedModel(message, guard, signal) {
+      const rawResult = await callModel({
+        message,
+        chatId: fastGptChatId,
+        context: serializableContext(),
+        budgetConstraints: guard.budgetsByCategory,
+        usageConstraints: guard.usagesByCategory,
+        validationContext: guard
+      }, signal);
+
+      const output = coerceStructuredOutput(rawResult);
+      const display = testDisplayOutput(output);
+      const validation = validateStructuredOutput(output, guard);
+      if (validation.valid && validateStructuredOutput(display, guard).valid) return output;
+
+      const error = new Error("MODEL_OUTPUT_VALIDATION_FAILED");
+      error.code = "MODEL_OUTPUT_VALIDATION_FAILED";
+      error.validationErrors = validation.errors;
+      throw error;
+    }
+
+    function updateContextAfterResponse(response) {
+      response.recommendations.forEach((recommendation) => {
+        sessionContext.lastRecommendationsByCategory[recommendation.category] = {
+          product: recommendation.recommended_product,
+          price: recommendation.price
+        };
+      });
+    }
+
+    function safeErrorResponse(error) {
+      const status = error.status;
+      let message;
+      if (status === 401) message = HOSTED ? "Please reload the page and sign in again." : "That key was not accepted. Check your FastGPT application key.";
+      else if (status === 402) message = "This month's budget is used up. Ask your teacher.";
+      else if (status === 403) message = HOSTED ? "This chatbot is paused right now." : "This key cannot use that feature.";
+      else if (status === 429) message = "Too many messages at once. Wait a few seconds and try again.";
+      else if (status >= 500) message = "The AI service is busy. Try again in a moment.";
+      else if (error.message === "KEY_REQUIRED") message = "Enter your own FastGPT application key to continue.";
+      else if (error.message === "MODEL_TIMEOUT") message = "The FastGPT request timed out. Please try again.";
+      else if (["MODEL_OUTPUT_VALIDATION_FAILED", "MODEL_OUTPUT_NOT_JSON", "EMPTY_MODEL_OUTPUT"].includes(error.message)) {
+        return { paragraphs: ["I couldn't safely validate the model response, so I did not show any product recommendation.", "Please try the request again or restate the category, maximum budget, and main usage."] };
+      } else message = "Cannot reach the AI service. Check your internet connection.";
+      return { paragraphs: [message] };
+    }
+
+    async function sendMessage() {
+      const text = inputElement.value.trim().slice(0, 8000);
+      if (!text || isGenerating || !datasetReady || (!testConnectionAvailable())) return;
+
+      invalidateRecovery();
+      addUserMessage(text);
+      inputElement.value = "";
+      autoResizeInput();
+
+      const guard = updateSessionContext(text);
+      const currentRequest = ++requestVersion;
+      activeAbortController = new AbortController();
+      const turnController = activeAbortController;
+      let timedOut = false;
+      const startedAt = testNow();
+      let timingStatus = "rejected";
+      const timeout = window.setTimeout(() => { timedOut = true; turnController.abort(); }, testDeadlineMs());
+      setGenerating(true);
+      const thinkingMessage = addThinkingMessage();
+      const thinkingDelay = delay(CONFIG.minimumThinkingTimeMs);
+
+      try {
+        const response = await requestValidatedModel(text, guard, turnController.signal);
+        if (timedOut) throw new Error("MODEL_TIMEOUT");
+        await thinkingDelay;
+        if (currentRequest !== requestVersion) return;
+
+        thinkingMessage.remove();
+        addStructuredResponse(testDisplayOutput(response));
+        updateContextAfterResponse(response);
+        timingStatus = "validated";
+        modelConnectionReady = true;
+        modelHistory.push(
+          { role: "user", content: text },
+          { role: "assistant", content: JSON.stringify(response) }
+        );
+        if (modelHistory.length > CONFIG.maximumHistoryMessages) {
+          modelHistory = modelHistory.slice(-CONFIG.maximumHistoryMessages);
+        }
+      } catch (error) {
+        await thinkingDelay;
+        if (currentRequest !== requestVersion) return;
+        if (timedOut) error = new Error("MODEL_TIMEOUT");
+        thinkingMessage.remove();
+        const bubble = addTextResponse(safeErrorResponse(error));
+        createRecoveryAction(bubble, text, currentRequest);
+      } finally {
+        window.clearTimeout(timeout);
+        emitTestTiming("turn", startedAt, timedOut ? "timeout" : currentRequest !== requestVersion ? "cancelled" : timingStatus);
+        if (currentRequest === requestVersion) {
+          activeAbortController = null;
+          setGenerating(false);
+          inputElement.focus({ preventScroll: true });
+        }
+      }
+    }
+
+    function resetConversation() {
+      invalidateRecovery();
+      requestVersion += 1;
+      if (activeAbortController) {
+        activeAbortController.abort();
+        activeAbortController = null;
+      }
+
+      modelHistory = [];
+      rotateFastGptChatId();
+      clearSessionContext();
+      setGenerating(false);
+      messagesElement.replaceChildren();
+      inputElement.value = "";
+      autoResizeInput();
+
+      addTextResponse({
+        paragraphs: [
+          "Hi! I'm MyTech. I can help you choose laptops, desktops, smartphones, tablets, headphones, monitors, smartwatches, mice, and keyboards. Tell me what you need, your budget in RMB, and your main usage."
+        ]
+      });
+
+      if (datasetReady) inputElement.focus({ preventScroll: true });
+    }
+
+    function validateProductDataset(dataset) {
+      const nonempty = value => typeof value === "string" && value.trim().length > 0;
+      const strings = value => Array.isArray(value) && value.length > 0 && value.every(nonempty);
+      if (!isPlainObject(dataset) || !Array.isArray(dataset.products)
+        || dataset.dataset_name !== TEST_CATALOGUE_CONTRACT.dataset_name
+        || dataset.version !== "2.1-TEST" || dataset.currency !== "RMB"
+        || dataset.products.length !== TEST_CATALOGUE_CONTRACT.count
+        || !nonempty(dataset.snapshot_date) || !nonempty(dataset.price_note)
+        || !dataset.price_note.includes("TEST")) throw new Error("INVALID_TEST_PRODUCT_DATASET");
+      if (JSON.stringify(dataset.supported_categories) !== JSON.stringify(IDENTITY.supportedCategories)) {
+        throw new Error("INVALID_SUPPORTED_CATEGORIES");
+      }
+      const prefixes = ["LAP", "DES", "PHO", "TAB", "AUD", "MON", "WAT", "MOU", "KEY"];
+      const ids = new Set(), names = new Set();
+      dataset.products.forEach(product => {
+        if (!isPlainObject(product)) throw new Error("INVALID_PRODUCT_DATASET_ENTRY");
+        const prefix = prefixes[IDENTITY.supportedCategories.indexOf(product.category)];
+        const valid = ["id", "category", "product", "tier", "source", "review_status", "evidence_url", "price_evidence"]
+          .every(key => nonempty(product[key]) && product[key] === product[key].trim())
+          && IDENTITY.supportedCategories.includes(product.category)
+          && new RegExp("^" + prefix + "-[0-9]{3,9}$").test(product.id)
+          && Number(product.id.split("-")[1]) > 0
+          && Number.isSafeInteger(product.price_rmb) && product.price_rmb > 0
+          && ["Entry", "Mid-range", "Premium"].includes(product.tier)
+          && ["EXISTING BASELINE", "NEW CANDIDATE — provisional", "NEW CANDIDATE — unverified"].includes(product.review_status)
+          && strings(product.main_usage) && strings(product.key_features);
+        const name = String(product.product).toLowerCase();
+        if (!valid || ids.has(product.id) || names.has(name)) throw new Error("INVALID_PRODUCT_DATASET_ENTRY");
+        ids.add(product.id);
+        names.add(name);
+      });
+    }
+
+    async function loadApplicationData() {
+      const dataset = JSON.parse(document.getElementById("mytech-dataset").textContent);
+      const promptText = JSON.parse(document.getElementById("mytech-reference-prompt").textContent);
+      validateProductDataset(dataset);
+      if (typeof promptText !== "string" || !promptText.trim().startsWith("You are MyTech")) throw new Error("INVALID_SYSTEM_PROMPT");
+      productDataset = dataset;
+      systemPrompt = promptText.trim(); // Reference only; the published FastGPT app owns its prompts.
+      productByName = new Map(dataset.products.map((product) => [product.product, product]));
+      testUsageCatalogue = Object.fromEntries(dataset.products.map(product => [product.id, product]));
+      datasetReady = true;
+    }
+
+    function readRememberedKey() {
+      if (HOSTED || !PRIVATE) return "";
+      try { return storage()?.getItem(KEY_STORE) || ""; } catch { return ""; }
+    }
+
+    function rememberKey(remember) {
+      if (HOSTED || !PRIVATE) return true;
+      try {
+        const store = storage();
+        if (!store) return false;
+        if (remember && apiKey) store.setItem(KEY_STORE, apiKey);
+        else store.removeItem(KEY_STORE);
+        return true;
+      } catch { return false; }
+    }
+
+    function setKey(value, remember) {
+      if (HOSTED) return;
+      const next = value.trim();
+      const changed = next !== apiKey;
+      apiKey = next;
+      const stored = rememberKey(remember);
+      document.getElementById("key").value = "";
+      document.getElementById("key").placeholder = apiKey ? "Key set" : "Your FastGPT application key";
+      if (changed) {
+        modelConnectionReady = false;
+        resetConversation();
+      }
+      setControlsDisabled(isGenerating || !datasetReady || !apiKey);
+      restoreConnectionStatus();
+      return stored;
+    }
+
+    function initializeKeyPanel() {
+      if (HOSTED) return;
+      document.getElementById("key-panel").hidden = false;
+      document.getElementById("remember-row").hidden = !PRIVATE;
+      const saved = readRememberedKey();
+      // A TokenProxy key must never silently replace the MyTech FastGPT workflow.
+      const valid = saved.startsWith("openapi-") && saved.length > 8 ? saved : "";
+      document.getElementById("remember").checked = Boolean(valid);
+      setKey(valid, Boolean(valid));
+      document.getElementById("key-form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const value = document.getElementById("key").value.trim();
+        if (!value.startsWith("openapi-") || value.length <= 8) {
+          document.getElementById("key").value = "";
+          document.getElementById("key-status").textContent = "Use a FastGPT application key for MyTech; a classroom model key cannot run this workflow.";
+          return;
+        }
+        const stored = setKey(value, document.getElementById("remember").checked);
+        document.getElementById("key-status").textContent = stored
+          ? "Key set. It is sent only to the school's FastGPT service."
+          : "Key set for this session. Browser storage could not be updated; a previously saved key may remain.";
+      });
+      document.getElementById("remember").addEventListener("change", () => {
+        if (!rememberKey(document.getElementById("remember").checked)) {
+          document.getElementById("key-status").textContent = "Browser storage could not be updated; a previously saved key may remain.";
+        }
+      });
+      document.getElementById("forget").addEventListener("click", () => {
+        const stored = setKey("", false);
+        document.getElementById("remember").checked = false;
+        document.getElementById("key-status").textContent = stored
+          ? "Key forgotten." : "Key cleared for this session. Browser storage could not be cleared.";
+      });
+    }
+
+    async function initialize() {
+      setControlsDisabled(true);
+      resetConversation();
+      setStatus("ready", "Loading reference data...");
+      try {
+        await loadApplicationData();
+        await configureLocalTest();
+        initializeKeyPanel();
+        setControlsDisabled(!testConnectionAvailable());
+        restoreConnectionStatus();
+      } catch {
+        datasetReady = false;
+        setControlsDisabled(true);
+        restoreConnectionStatus();
+        addTextResponse({ paragraphs: ["MyTech could not load its approved reference data and has disabled recommendations."] });
+      }
+    }
+
+    inputElement.addEventListener("input", () => {
+      autoResizeInput();
+      refreshRecoveryAvailability();
+    });
+    inputElement.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+
+    sendButton.addEventListener("click", sendMessage);
+    restartButton.addEventListener("click", resetConversation);
+    promptButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        if (isGenerating || !datasetReady || (!testConnectionAvailable())) return;
+        inputElement.value = button.dataset.prompt;
+        autoResizeInput();
+        sendMessage();
+      });
+    });
+
+    initialize();
+  </script>
+</body>
+</html>

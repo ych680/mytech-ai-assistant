@@ -1,0 +1,25 @@
+{
+  "difference_count": 6,
+  "changed_paths": [
+    "/nodes/10/inputs/0/value",
+    "/nodes/10/inputs/13/value",
+    "/nodes/19/position/x",
+    "/nodes/19/position/y",
+    "/nodes/2/inputs/0/value",
+    "/nodes/2/inputs/1/value"
+  ],
+  "prompt_change_paths": [
+    "/nodes/10/inputs/13/value",
+    "/nodes/2/inputs/1/value"
+  ],
+  "model_change_paths": [
+    "/nodes/10/inputs/0/value",
+    "/nodes/2/inputs/0/value"
+  ],
+  "layout_change_paths": [
+    "/nodes/19/position/x",
+    "/nodes/19/position/y"
+  ],
+  "other_change_paths": [],
+  "routing_validation_memory_output_and_other_configuration_identical": true
+}

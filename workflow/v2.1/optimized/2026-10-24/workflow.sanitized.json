@@ -1,0 +1,2974 @@
+{
+  "nodes": [
+    {
+      "nodeId": "userGuide",
+      "name": "common:core.module.template.system_config",
+      "intro": "common:core.module.template.system_config_info",
+      "avatar": "core/workflow/template/systemConfig",
+      "flowNodeType": "userGuide",
+      "position": {
+        "x": 255,
+        "y": -390
+      },
+      "version": "481",
+      "inputs": [
+        {
+          "key": "welcomeText",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "valueType": "string",
+          "label": "core.app.Welcome Text",
+          "value": ""
+        },
+        {
+          "key": "variables",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "valueType": "any",
+          "label": "core.app.Chat Variable",
+          "value": []
+        },
+        {
+          "key": "questionGuide",
+          "valueType": "any",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "core.app.Question Guide",
+          "value": {
+            "open": false
+          }
+        },
+        {
+          "key": "tts",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "valueType": "any",
+          "label": "",
+          "value": {
+            "type": "web"
+          }
+        },
+        {
+          "key": "whisper",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "valueType": "any",
+          "label": "",
+          "value": {
+            "open": false,
+            "autoSend": false,
+            "autoTTSResponse": false
+          }
+        },
+        {
+          "key": "scheduleTrigger",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "valueType": "any",
+          "label": "",
+          "value": null
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "nodeId": "448745",
+      "name": "common:core.module.template.work_start",
+      "intro": "",
+      "avatar": "core/workflow/template/workflowStart",
+      "flowNodeType": "workflowStart",
+      "position": {
+        "x": 765,
+        "y": -330
+      },
+      "version": "481",
+      "inputs": [
+        {
+          "key": "userChatInput",
+          "renderTypeList": [
+            "reference",
+            "textarea"
+          ],
+          "valueType": "string",
+          "label": "workflow:user_question",
+          "required": true,
+          "toolDescription": "用户问题",
+          "debugLabel": ""
+        }
+      ],
+      "outputs": [
+        {
+          "id": "userChatInput",
+          "key": "userChatInput",
+          "label": "common:core.module.input.label.user question",
+          "type": "static",
+          "valueType": "string",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "nodeId": "etNrwEXVwr5sySpK",
+      "name": "文本内容提取",
+      "intro": "可从文本中提取指定的数据，例如：sql语句、搜索关键词、代码等",
+      "avatar": "core/workflow/template/extractJson",
+      "flowNodeType": "contentExtract",
+      "showStatus": true,
+      "position": {
+        "x": 1215,
+        "y": -525
+      },
+      "version": "4.9.2",
+      "inputs": [
+        {
+          "key": "model",
+          "renderTypeList": [
+            "selectLLMModel",
+            "reference"
+          ],
+          "label": "common:core.module.input.label.aiModel",
+          "required": true,
+          "valueType": "string",
+          "llmModelType": "extractFields",
+          "value": "glm-4.7",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "description",
+          "renderTypeList": [
+            "textarea",
+            "reference"
+          ],
+          "valueType": "string",
+          "label": "workflow:extraction_requirements_description",
+          "description": "workflow:extraction_requirements_description_detail",
+          "placeholder": "workflow:extraction_requirements_placeholder",
+          "value": "You extract the latest valid task state for MyTech, an electronic product recommendation chatbot. Use the current message with recent conversation history.\n\nSupported categories only: Laptop, Desktop, Smartphone, Tablet, Headphones, Monitor, Smartwatch, Mouse, Keyboard.\nFor each product request keep category, numeric budget in RMB (or null), and main_usage separate. Support multiple requests; never mix their fields or invent missing facts.\n\nSTATE AND BUDGET\nPreserve established valid facts unless the user changes them; the newest valid correction wins. A budget update preserves category and usage unless also changed. An explicit category/usage update replaces that field for its request. A comparison alone must not change category.\nThe stated numeric budget is a hard maximum, including around/about/approximately/roughly. Never increase, widen, round up or reinterpret it without the user's explicit change. Examples: around ¥300 → 300; about ¥1500 → 1500; approximately ¥6000 → 6000; roughly ¥1000 → 1000. Updating 1500 to \"Actually, make it around ¥1000\" yields 1000.\n\nFOLLOW-UP PRIORITY\nfollow_up_intent is exactly none, cheaper, more_expensive or alternative:\n- cheaper: cheaper/more affordable/less expensive option.\n- more_expensive: more expensive/higher-priced option.\n- alternative: another/different/alternative option.\n- none: no comparison intent.\nA short comparison continuing a valid supported request is supported, not help/unrelated. Resolve it from history even when category, budget and usage are omitted. Preserve every separate active request and its established fields unless explicitly updated; do not invent, replace or drop categories or known facts. A previously complete request remains complete. Clarify only genuinely missing required facts or a newly introduced incomplete request.\nExamples (other fields preserved, missing_fields_json=[], clarification_needed=false, scope_status=supported):\n- Laptop / 6000 / study and office use + \"Can you recommend a cheaper option?\" → same request, cheaper.\n- Headphones / 1500 / gaming + \"Give me an alternative.\" → same request, alternative.\n- Monitor / 2000 / gaming + \"Show me a more expensive one.\" → same request, more_expensive.\n\"Anything cheaper?\" after a valid Laptop request follows the same supported/cheaper rule.\n\nSCOPE\nscope_status is exactly supported, unsupported, help or unrelated:\n- supported: requesting, continuing or clarifying a recommendation for supported categories, including valid follow-ups. If unsure which device to buy (\"I'm not sure which device suits my needs\", \"I don't know what device I should buy\", \"Which type of device would suit me?\"), set clarification_needed=true; identify the missing need/usage and keep old state only if clearly relevant.\n- unsupported: requesting a category outside the whitelist. Set clarification_needed=false; never substitute a supported category.\n- help: capabilities/category questions or greetings/casual openings, including repeated/stylistic Hi/Hello/Hey, \"Hi hi\", \"Hello there\", \"Hey MyTech\", or \"What can MyTech recommend?\". Normally product_requests_json=[], missing_fields_json=[], follow_up_intent=none, clarification_needed=false. A greeting plus a capability question remains help.\n- unrelated: other tasks, e.g. writing an essay, a joke, weather or homework help. Set clarification_needed=false; do not reinterpret them as recommendations.\nA greeting plus a product request takes priority over help: \"Hi, I need a gaming mouse under ¥300\" and \"Hello, can you recommend a laptop for study?\" are supported. A valid contextual comparison takes priority over help/unrelated even when short or lacking a category.\n\nCOMPLETENESS AND OUTPUT\nFor supported requests require category, budget and main_usage per product. If any are missing, set clarification_needed=true and list their names in missing_fields_json; otherwise false and []. Preserve a complete historical request on a comparison rather than asking again.\nReturn only the requested structured extraction fields: product_requests_json, missing_fields_json, clarification_needed, follow_up_intent, scope_status. The first two are valid JSON array strings; each request is {\"category\":\"...\",\"budget\":number or null,\"main_usage\":\"...\"}. Encode arrays compactly without changing values. No product recommendations, explanation or reasoning.\n\n\nV2.1 TEST INPUT CONSISTENCY RULES\n\nThe current input is normalized deterministically before extraction. RMB 6000,\nRMB 6,000, ¥6000 and ¥6,000 represent the same exact RMB maximum budget: 6000.\nA thousands separator does not change the numeric value or the request scope.\n\"I need a laptop under RMB 6000 for gaming.\" is a supported purchase request,\nwith Laptop / 6000 / gaming; it is not unrelated or help, including on repeats.\n\nClassify scope using the current task, not the existence or absence of old\nconversation facts. Preserve relevant prior facts for genuine continuations,\nbut do not let unrelated/help turns erase them or import stale facts into a\nnew explicit request. Mentioning a device in a joke, quotation, translation,\nrepair or capability question does not by itself establish purchase intent.\n\nNever convert explicitly foreign or mixed currencies to RMB. USD, JPY, EUR,\nHKD and other explicit non-RMB currencies are not RMB even when ¥ also appears.\nFor a supported request with a foreign/ambiguous budget, leave budget null and\nrequest an explicit maximum budget in RMB; do not reuse an earlier RMB budget\nas if it were the newly stated foreign amount. Do not invent an exchange rate.\nReturn only the existing extraction fields and enum values.\n",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "history",
+          "renderTypeList": [
+            "numberInput",
+            "reference"
+          ],
+          "valueType": "chatHistory",
+          "label": "common:core.module.input.label.chat history",
+          "description": "workflow:max_dialog_rounds",
+          "required": true,
+          "min": 0,
+          "max": 50,
+          "value": 6,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "content",
+          "renderTypeList": [
+            "reference",
+            "textarea"
+          ],
+          "label": "workflow:text_to_extract",
+          "required": true,
+          "valueType": "string",
+          "toolDescription": "需要检索的内容",
+          "value": [
+            "v21RmbInputNormalize",
+            "v21NormalizedQuestion"
+          ],
+          "debugLabel": ""
+        },
+        {
+          "key": "extractKeys",
+          "renderTypeList": [
+            "custom"
+          ],
+          "label": "",
+          "valueType": "any",
+          "description": "workflow:target_fields_description",
+          "value": [
+            {
+              "valueType": "string",
+              "required": true,
+              "defaultValue": "[]",
+              "desc": "A valid JSON array string representing the latest active product requests. Each item uses {\"category\":\"...\", \"budget\":number or null, \"main_usage\":\"...\"}. Return [] if there is no active product request.",
+              "key": "product_requests_json",
+              "enum": ""
+            },
+            {
+              "valueType": "string",
+              "required": true,
+              "defaultValue": "[]",
+              "desc": "A valid JSON array string listing missing required fields. Return [] if none are missing.",
+              "key": "missing_fields_json",
+              "enum": ""
+            },
+            {
+              "valueType": "string",
+              "required": true,
+              "defaultValue": "false",
+              "desc": "Return exactly true if required information is missing, otherwise false.",
+              "key": "clarification_needed",
+              "enum": "true\nfalse"
+            },
+            {
+              "valueType": "string",
+              "required": true,
+              "defaultValue": "none",
+              "desc": "Return exactly one of: none, cheaper, more_expensive, alternative.",
+              "key": "follow_up_intent",
+              "enum": "none\ncheaper\nmore_expensive\nalternative"
+            },
+            {
+              "valueType": "string",
+              "required": true,
+              "defaultValue": "unrelated",
+              "desc": "Return exactly one of: supported, unsupported, help, unrelated.",
+              "key": "scope_status",
+              "enum": "supported\nunsupported\nunrelated\nhelp"
+            }
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": [
+        {
+          "id": "success",
+          "key": "success",
+          "label": "workflow:full_field_extraction",
+          "required": true,
+          "description": "提取字段全部填充时返回 true （模型提取或使用默认值均属于成功）",
+          "valueType": "boolean",
+          "type": "static",
+          "valueDesc": ""
+        },
+        {
+          "id": "fields",
+          "key": "fields",
+          "label": "workflow:complete_extraction_result",
+          "required": true,
+          "description": "一个 JSON 字符串，例如：{\"name:\":\"YY\",\"Time\":\"2023/7/2 18:00\"}",
+          "valueType": "string",
+          "type": "static",
+          "valueDesc": ""
+        },
+        {
+          "id": "system_error_text",
+          "key": "system_error_text",
+          "type": "error",
+          "valueType": "string",
+          "label": "workflow:error_text",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "bHjOabzWZ7pY37wf",
+          "key": "product_requests_json",
+          "label": "提取结果-product_requests_json",
+          "valueType": "string",
+          "type": "static"
+        },
+        {
+          "id": "etAbL1BzFfN5HLdh",
+          "key": "missing_fields_json",
+          "label": "提取结果-missing_fields_json",
+          "valueType": "string",
+          "type": "static"
+        },
+        {
+          "id": "cwnWZj9Z6ScwkMQH",
+          "key": "clarification_needed",
+          "label": "提取结果-clarification_needed",
+          "valueType": "string",
+          "type": "static"
+        },
+        {
+          "id": "b9HMaFTNxzmlxibr",
+          "key": "follow_up_intent",
+          "label": "提取结果-follow_up_intent",
+          "valueType": "string",
+          "type": "static"
+        },
+        {
+          "id": "v9oqsVzg42jYzdUv",
+          "key": "scope_status",
+          "label": "提取结果-scope_status",
+          "valueType": "string",
+          "type": "static"
+        }
+      ],
+      "catchError": false
+    },
+    {
+      "nodeId": "tWP2LwPvzFadPPtk",
+      "name": "代码运行",
+      "intro": "执行一段简单的脚本代码，通常用于进行复杂的数据处理。",
+      "avatar": "core/workflow/template/codeRun",
+      "flowNodeType": "code",
+      "showStatus": true,
+      "position": {
+        "x": 1950,
+        "y": -495
+      },
+      "inputs": [
+        {
+          "key": "system_addInputParam",
+          "renderTypeList": [
+            "addInputParam"
+          ],
+          "valueType": "dynamic",
+          "label": "",
+          "required": false,
+          "description": "workflow:these_variables_will_be_input_parameters_for_code_execution",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "codeType",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "value": "js",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "code",
+          "renderTypeList": [
+            "custom"
+          ],
+          "label": "",
+          "valueType": "string",
+          "value": "// TEST-only pure input helpers. No currency conversion and no history inference.\nfunction normalizeRmbInput(value) {\n  const text = String(value == null ? \"\" : value);\n  const codes = \"(?:USD|EUR|GBP|JPY|HKD|AUD|CAD|SGD|NZD|KRW|TWD|INR|CHF|THB|MYR|IDR|PHP|VND|ZAR|BRL|AED|SAR|RUB|TRY|PLN|SEK|NOK|DKK)\";\n  const foreign = /\\b(?:dollars?|euros?|pounds?|yen|rupees?|won|baht|ringgit|rand|dirhams?|francs?|roubles?|rubles?)\\b|JP\\s*[¥￥]/i.test(text)\n    || new RegExp(\"\\\\b\" + codes + \"\\\\s*[¥￥$]?\\\\s*\\\\d|\\\\d\\\\s*\" + codes + \"\\\\b|\\\\b(?:in|currency(?: is)?)\\\\s+\" + codes + \"\\\\b\", \"i\").test(text)\n    || [...text.matchAll(/\\b(?:under|below|up to|budget(?: is| of| in| to)?|maximum)\\s+([A-Za-z]{3})\\s*(?=\\d)/gi)].some(match => ![\"RMB\", \"CNY\", \"MAX\"].includes(match[1].toUpperCase()))\n    || [...text.matchAll(/\\p{Sc}/gu)].some(match => ![\"¥\", \"￥\"].includes(match[0]));\n  if (foreign) return { normalized_question: text, currency_status: \"foreign_or_mixed\" };\n  const amount = \"(?:[1-9]\\\\d{0,2}(?:,\\\\d{3})+|(?:0|[1-9]\\\\d*))(?:\\\\.\\\\d+)?\";\n  const completeAmount = new RegExp(\"^\" + amount + \"$\");\n  const statedAmounts = [...text.matchAll(/(?:\\b(?:RMB|CNY)\\s*|[¥￥]\\s*)([+-]?\\d[\\w.,+-]*)/gi)];\n  if (statedAmounts.some(match => {\n    const number = match[1].replace(/[.,]$/, \"\"); // Sentence punctuation, not decimal rounding.\n    const numeric = Number(number.replace(/,/g, \"\"));\n    return !completeAmount.test(number) || !Number.isFinite(numeric) || numeric <= 0 || numeric > Number.MAX_SAFE_INTEGER;\n  })) return { normalized_question: text, currency_status: \"invalid_rmb_amount\" };\n  const currency = new RegExp(\"(\\\\b(?:RMB|CNY)\\\\s*|[¥￥]\\\\s*)(\" + amount + \")(?!\\\\w|[,.]\\\\d)\", \"gi\");\n  const normalized = text.replace(currency, (whole, _prefix, number) => {\n    const digits = number.replace(/,/g, \"\");\n    const numeric = Number(digits);\n    return Number.isFinite(numeric) && numeric > 0 && numeric <= Number.MAX_SAFE_INTEGER ? \"RMB \" + digits : whole;\n  });\n  return { normalized_question: normalized, currency_status: \"rmb_or_unspecified\" };\n}\n\nfunction normalizeRmbBudget(value) {\n  if (typeof value === \"number\") return Number.isFinite(value) && value > 0 && value <= Number.MAX_SAFE_INTEGER ? value : null;\n  if (typeof value !== \"string\") return null;\n  const normalized = normalizeRmbInput(value.trim());\n  if (normalized.currency_status !== \"rmb_or_unspecified\") return null;\n  const match = /^(?:RMB\\s+)?((?:[1-9]\\d{0,2}(?:,\\d{3})+|(?:0|[1-9]\\d*))(?:\\.\\d+)?)$/i.exec(normalized.normalized_question);\n  if (!match) return null;\n  return normalizeRmbBudget(Number(match[1].replace(/,/g, \"\")));\n}\n\nfunction currentPurchaseEvidence(value) {\n  // Recognize an explicit, bounded purchase utterance, not arbitrary category\n  // mentions, quotations, capability questions, repairs or negative intent.\n  const text = normalizeRmbInput(value).normalized_question.trim().replace(/[.!?]+$/, \"\");\n  if (/[\"“”\\n]/.test(text) || /\\b(?:not|never|don't|do not|if|pretend|translate|translation|quote|repair|broken)\\b/i.test(text)) return null;\n  if (/[.!?]/.test(text.replace(/(\\d)\\.(?=\\d)/g, \"$1_\"))) return null;\n  const lead = /^(?:please\\s+)?(?:i\\s+(?:need|want)\\s+|i(?:'d| would)\\s+like\\s+|i(?:'m| am)\\s+looking for\\s+|(?:(?:can|could|would) you\\s+(?:please\\s+)?)?(?:recommend|suggest|find|show)\\s+(?:me\\s+)?)/i.exec(text);\n  if (!lead) return null;\n  const body = text.slice(lead[0].length);\n  // Mixed unsupported requests are left to the original extractor/whitelist.\n  if (/\\b(?:cameras?|printers?|televisions?|TVs?|routers?|speakers?|projectors?|consoles?)\\b/i.test(body)) return null;\n  const names = { laptop: \"Laptop\", laptops: \"Laptop\", desktop: \"Desktop\", desktops: \"Desktop\",\n    smartphone: \"Smartphone\", smartphones: \"Smartphone\", tablet: \"Tablet\", tablets: \"Tablet\",\n    headphone: \"Headphones\", headphones: \"Headphones\", monitor: \"Monitor\", monitors: \"Monitor\",\n    smartwatch: \"Smartwatch\", smartwatches: \"Smartwatch\", mouse: \"Mouse\", mice: \"Mouse\", keyboard: \"Keyboard\", keyboards: \"Keyboard\" };\n  const noun = \"(?:\" + Object.keys(names).sort((a, b) => b.length - a.length).join(\"|\") + \")\";\n  const modifier = \"(?:(?:a|an|some|new|gaming|study|office|budget|portable)\\\\s+)*\";\n  const clauses = body.split(new RegExp(\"(?:,?\\\\s+and\\\\s+|,?\\\\s+plus\\\\s+|;\\\\s*)(?=\" + modifier + noun + \"\\\\b)\", \"i\"));\n  const result = [], seen = new Set();\n  for (const clause of clauses) {\n    const match = new RegExp(\"^\" + modifier + \"(\" + noun + \")\\\\b(.*)$\", \"i\").exec(clause.trim());\n    if (!match) return null;\n    const tail = match[2].trim();\n    if (tail && !/^(?:under|below|up to|less than|around|about|for|with (?:a )?budget|budget)\\b/i.test(tail)) return null;\n    const category = names[match[1].toLowerCase()];\n    if (seen.has(category)) return null; // Ambiguous duplicate requests need extraction/clarification.\n    seen.add(category);\n    const amounts = [...clause.matchAll(/\\bRMB\\s+(\\d+(?:\\.\\d+)?)(?!\\w|[,.]\\d)/gi)];\n    const range = /\\d\\s*(?:[-–—]|to|or)\\s*(?:RMB\\s*)?\\d/i.test(clause);\n    result.push({ category, budget: amounts.length === 1 && !range ? normalizeRmbBudget(amounts[0][1]) : null });\n  }\n  return result.length ? result : null;\n}\n\nfunction main({\n  product_requests_json,\n  missing_fields_json,\n  clarification_needed_text,\n  follow_up_intent,\n  scope_status,\n  user_question,\n  stored_product_requests,\n  stored_follow_up_intent,\n  stored_missing_fields\n}) {\n  let product_requests = [];\n  let missing_fields = [];\n\n  // --------------------------------------------------\n  // 1. Parse extraction outputs\n  // --------------------------------------------------\n\n  try {\n    const parsedProducts = JSON.parse(product_requests_json || \"[]\");\n    product_requests = Array.isArray(parsedProducts)\n      ? parsedProducts\n      : [];\n  } catch (e) {\n    product_requests = [];\n  }\n\n  try {\n    const parsedMissing = JSON.parse(missing_fields_json || \"[]\");\n    missing_fields = Array.isArray(parsedMissing)\n      ? parsedMissing\n      : [];\n  } catch (e) {\n    missing_fields = [];\n  }\n\n  let clarification_needed =\n    String(clarification_needed_text || \"\")\n      .trim()\n      .toLowerCase() === \"true\";\n\n  let normalizedIntent =\n    String(follow_up_intent || \"none\")\n      .trim()\n      .toLowerCase();\n\n  let normalizedScope =\n    String(scope_status || \"unrelated\")\n      .trim()\n      .toLowerCase();\n\n  const storedRequests =\n    Array.isArray(stored_product_requests)\n      ? stored_product_requests\n      : [];\n\n  const question =\n    String(user_question || \"\")\n      .trim()\n      .toLowerCase();\n\n\n  // --------------------------------------------------\n  // 2. Supported category whitelist\n  // --------------------------------------------------\n\n  const supportedCategories = {\n    laptop: \"Laptop\",\n    desktop: \"Desktop\",\n    smartphone: \"Smartphone\",\n    tablet: \"Tablet\",\n    headphones: \"Headphones\",\n    monitor: \"Monitor\",\n    smartwatch: \"Smartwatch\",\n    mouse: \"Mouse\",\n    keyboard: \"Keyboard\"\n  };\n\n\n  // TEST-only consistency check, before comparison resolution. History alone\n  // never supplies purchase intent or repairs a contradictory extraction.\n  const currentInput = normalizeRmbInput(user_question);\n  const purchaseEvidence = currentPurchaseEvidence(user_question);\n  const hasExtractedUnsupported = product_requests.some(request => {\n    const category = String(request?.category || \"\").trim().toLowerCase();\n    return category && !Object.prototype.hasOwnProperty.call(supportedCategories, category);\n  });\n  const scopeContradiction = purchaseEvidence && normalizedScope !== \"unsupported\" && !hasExtractedUnsupported\n    && (normalizedScope !== \"supported\" || product_requests.length === 0);\n  if (scopeContradiction) {\n    // Recover only literal current category/budget. Usage is unconfirmed when\n    // extraction contradicts the message, so use the existing clarification path.\n    product_requests = purchaseEvidence.map(request => ({ ...request, main_usage: null }));\n    normalizedScope = \"supported\";\n    normalizedIntent = \"none\";\n    missing_fields = [\"main_usage\"];\n    clarification_needed = true;\n  }\n\n\n  // --------------------------------------------------\n  // 3. Deterministically detect common follow-up intent\n  // --------------------------------------------------\n\n  let detectedIntent = \"none\";\n  // Test negation immediately before each matched phrase. A negated cheaper\n  // clause must not suppress an affirmative comparison in a later clause.\n  const negatedPrefix = /\\b(?:(?:do not|don't|does not|doesn't|no longer|never)\\s+(?:want|need|recommend|suggest|show|give|ask for)|not|no)\\s+(?:(?:a|an|any|the|something|anything)\\s+)?$/;\n  function hasAffirmativeComparison(pattern) {\n    return [...question.matchAll(new RegExp(pattern.source, \"g\"))].some(match =>\n      !negatedPrefix.test(question.slice(0, match.index)));\n  }\n\n  if (hasAffirmativeComparison(/\\b(?:cheaper|more affordable|less expensive|lower[- ]priced)\\b/)) {\n    detectedIntent = \"cheaper\";\n  } else if (hasAffirmativeComparison(/\\b(?:more expensive|higher[- ]priced)\\b/)) {\n    detectedIntent = \"more_expensive\";\n  } else if (hasAffirmativeComparison(/\\b(?:alternative|another (?:one|option|product)|different (?:one|option|product)|other option)\\b/)) {\n    detectedIntent = \"alternative\";\n  }\n\n  // A complete, explicitly priced current purchase with no extracted comparison\n  // intent takes priority over the old pending action and incidental keywords.\n  const explicitCurrentPurchase = normalizedScope === \"supported\" && normalizedIntent === \"none\"\n    && product_requests.length > 0 && getMissingFields(product_requests).length === 0\n    && /\\b(?:i (?:need|want)|i(?:'m| am) looking for|i(?:'d| would) like)\\b/.test(question)\n    && /\\d/.test(question);\n\n  const effectiveIntent =\n    detectedIntent !== \"none\"\n      ? detectedIntent\n      : normalizedIntent;\n\n  const isFollowUp =\n    effectiveIntent === \"cheaper\" ||\n    effectiveIntent === \"more_expensive\" ||\n    effectiveIntent === \"alternative\";\n\n\n  // --------------------------------------------------\n  // 4. Resolve a comparison target without changing saved request facts\n  // --------------------------------------------------\n  // Recover only a bounded comparison phrase, not keyword matches in new tasks.\n  const categoryKey = value => String(value || \"\").trim().toLowerCase();\n  const categoryPattern = Object.keys(supportedCategories).join(\"|\");\n  const comparisonText = question.replace(/[.!?]+$/, \"\")\n    .replace(/,\\s*please$/, \" please\").replace(/\\s+/g, \" \");\n  const comparisonPattern = new RegExp(\n    \"^(?:(?:please )?(?:(?:can|could|would) you (?:please )?)?\"\n    + \"(?:recommend|suggest|show|give)(?: me)? |do you have |is there |are there |(?:can|could|may) i (?:get|have) )?\"\n    + \"(?:a |an |any |anything |something )?\"\n    + \"(cheaper|more affordable|less expensive|lower[- ]priced|more expensive|higher[- ]priced|alternative|another|different|other)\"\n    + \"(?: (?:one|ones|option|options|product|products|(?:\" + categoryPattern + \")\"\n    + \"(?: (?:or|and) (?:\" + categoryPattern + \"))*(?: options?)?))?(?: please)?$\"\n  );\n  const comparison = comparisonText.match(comparisonPattern);\n  const categoryReply = comparisonText.match(new RegExp(\"^(?:the )?(\" + categoryPattern + \")(?: please)?$\"));\n  const pendingIntent = categoryKey(stored_follow_up_intent);\n  // Existing globals carry the pending action together. Intent alone is stale\n  // history, never authorization to reinterpret a category-only message.\n  const pendingTarget = Array.isArray(stored_missing_fields)\n    && stored_missing_fields.includes(\"follow_up_target\")\n    && [\"cheaper\", \"more_expensive\", \"alternative\"].includes(pendingIntent);\n  const extractedUnsupported = product_requests.some(request => {\n    const key = categoryKey(request?.category);\n    return key && !Object.prototype.hasOwnProperty.call(supportedCategories, key);\n  });\n  // Cancellation is a bounded conversation-control message, never a keyword\n  // match inside a different request. Route it through the existing supported\n  // writer so clearing the pending pair is persisted before the acknowledgement.\n  const pendingDetails = Array.isArray(stored_missing_fields)\n    && stored_missing_fields.includes(\"follow_up_details\");\n  const comparison_cancelled = (pendingTarget || pendingDetails)\n    && /^(?:never ?mind(?:[,;]?\\s+(?:please )?cancel (?:that|the|this) comparison)?|(?:please )?cancel (?:(?:(?:that|the|this) )?(?:comparison|follow[- ]?up)|that|it)|(?:please )?stop (?:that|the|this) comparison)(?: please)?$/.test(comparisonText);\n  let targetCategory = \"\";\n  let awaitingTarget = false;\n  let clarificationField = \"follow_up_target\";\n  const canResolve = normalizedScope !== \"unsupported\" && !extractedUnsupported\n    && storedRequests.length > 0;\n\n  if (comparison_cancelled) {\n    product_requests = storedRequests.map(item => ({ ...item }));\n    normalizedScope = \"supported\";\n    normalizedIntent = \"none\";\n    missing_fields = [];\n    clarification_needed = false;\n  } else if (canResolve && (comparison || (pendingTarget && categoryReply))) {\n    const phrase = comparison?.[1] || \"\";\n    normalizedIntent = comparison\n      ? (/^(cheaper|more affordable|less expensive|lower[- ]priced)$/.test(phrase) ? \"cheaper\"\n        : /^(more expensive|higher[- ]priced)$/.test(phrase) ? \"more_expensive\" : \"alternative\")\n      : pendingIntent;\n    normalizedScope = \"supported\";\n    // These phrases contain no budget/usage edits. Saved facts take priority\n    // over omitted or hallucinated extraction, including unrelated categories.\n    product_requests = storedRequests.map(item => ({ ...item }));\n    const mentioned = [...new Set(comparisonText.match(new RegExp(\"\\\\b(?:\" + categoryPattern + \")\\\\b\", \"g\")) || [])];\n    if (mentioned.length === 1) targetCategory = mentioned[0];\n    else if (mentioned.length === 0 && storedRequests.length === 1) targetCategory = categoryKey(storedRequests[0]?.category);\n    awaitingTarget = !Object.prototype.hasOwnProperty.call(supportedCategories, targetCategory)\n      || storedRequests.filter(item => categoryKey(item?.category) === targetCategory).length !== 1;\n    if (awaitingTarget) targetCategory = \"\";\n  } else if (canResolve && normalizedScope === \"supported\" && isFollowUp && !explicitCurrentPurchase\n    && (storedRequests.length > 1 || product_requests.length === 0)) {\n    // Unrecognized comparison wording must not apply one intent globally.\n    // Field-update semantics are deliberately deferred to Phase 1B.2.\n    product_requests = storedRequests.map(item => ({ ...item }));\n    normalizedIntent = \"none\";\n    clarificationField = \"follow_up_details\";\n    awaitingTarget = true;\n  } else if (normalizedScope === \"supported\" && comparison && !extractedUnsupported\n    && storedRequests.length === 0) {\n    // A bounded comparison contains no budget or usage facts. Without saved\n    // context, retain only an explicit category rather than fabricated extraction.\n    const mentioned = [...new Set(comparisonText.match(new RegExp(\"\\\\b(?:\" + categoryPattern + \")\\\\b\", \"g\")) || [])];\n    product_requests = mentioned.length === 1\n      ? [{ category: supportedCategories[mentioned[0]], budget: null, main_usage: null }] : [];\n    normalizedIntent = \"none\";\n    missing_fields = product_requests.length > 0 ? getMissingFields(product_requests)\n      : [\"category\", \"budget\", \"main_usage\"];\n    clarification_needed = true;\n  }\n\n\n  // --------------------------------------------------\n  // 5. Category whitelist guard\n  // --------------------------------------------------\n  //\n  // Supported categories are a hard business rule.\n  // If the extractor returns Camera, TV, Printer, Router, etc.,\n  // the request must be routed to unsupported instead of asking\n  // clarification questions.\n  // --------------------------------------------------\n\n  let hasUnsupportedCategory = false;\n\n  product_requests = product_requests.map(request => {\n    if (!request || typeof request !== \"object\") {\n      return request;\n    }\n\n    const rawCategory =\n      String(request.category || \"\").trim();\n\n    if (!rawCategory) {\n      return request;\n    }\n\n    const canonicalCategory =\n      Object.prototype.hasOwnProperty.call(supportedCategories, rawCategory.toLowerCase())\n        ? supportedCategories[rawCategory.toLowerCase()] : undefined;\n\n    if (!canonicalCategory) {\n      hasUnsupportedCategory = true;\n      return request;\n    }\n\n    return {\n      ...request,\n      category: canonicalCategory\n    };\n  });\n\n  if (hasUnsupportedCategory) {\n    normalizedScope = \"unsupported\";\n    normalizedIntent = \"none\";\n    clarification_needed = false;\n    missing_fields = [];\n  }\n\n\n  // --------------------------------------------------\n  // 6. Recalculate missing fields for supported requests\n  // --------------------------------------------------\n\n  // Normalize budgets without accepting foreign amounts, booleans or NaN.\n  product_requests = product_requests.map(request => request && typeof request === \"object\"\n    ? { ...request, budget: normalizeRmbBudget(request.budget) } : request);\n  if (normalizedScope === \"supported\" && purchaseEvidence && !awaitingTarget && !comparison_cancelled) {\n    product_requests = product_requests.map(request => {\n      const literal = purchaseEvidence.find(item => categoryKey(item.category) === categoryKey(request?.category));\n      return literal?.budget !== null && literal?.budget !== undefined\n        ? { ...request, budget: literal.budget } : request;\n    });\n  }\n  // Never convert foreign/mixed/invalid money or reuse old RMB for it.\n  if (normalizedScope === \"supported\" && currentInput.currency_status !== \"rmb_or_unspecified\") {\n    product_requests = product_requests.map(request => request && typeof request === \"object\"\n      && (!targetCategory || categoryKey(request.category) === targetCategory)\n      ? { ...request, budget: null } : request);\n  }\n\n  const target_requests = normalizedScope === \"supported\" && !awaitingTarget && !comparison_cancelled\n    ? product_requests.filter(request => !targetCategory || categoryKey(request?.category) === targetCategory)\n    : [];\n\n  if (\n    normalizedScope === \"supported\" &&\n    target_requests.length > 0\n  ) {\n    missing_fields = getMissingFields(target_requests);\n\n    clarification_needed =\n      missing_fields.length > 0;\n  }\n\n\n  // --------------------------------------------------\n  // Pending state is consumed when a unique target resolves or a new supported\n  // task overwrites these fields. Ordinary non-supported routes leave saved state\n  // alone; explicit cancellation has already selected the supported writer path.\n  if (normalizedScope === \"supported\" && awaitingTarget) {\n    missing_fields = [clarificationField];\n    clarification_needed = true;\n  }\n\n  // 7. Normalize allowed intent values\n  // --------------------------------------------------\n\n  const allowedIntents = [\n    \"none\",\n    \"cheaper\",\n    \"more_expensive\",\n    \"alternative\"\n  ];\n\n  if (!allowedIntents.includes(normalizedIntent)) {\n    normalizedIntent = \"none\";\n  }\n\n\n  // --------------------------------------------------\n  // 8. Normalize allowed scope values\n  // --------------------------------------------------\n\n  const allowedScopes = [\n    \"supported\",\n    \"unsupported\",\n    \"help\",\n    \"unrelated\"\n  ];\n\n  if (!allowedScopes.includes(normalizedScope)) {\n    normalizedScope = \"unrelated\";\n  }\n\n\n  // --------------------------------------------------\n  // 9. Return normalized state\n  // --------------------------------------------------\n\n  return {\n    product_requests,\n    target_requests,\n    comparison_cancelled,\n    skip_retrieval: clarification_needed || comparison_cancelled,\n    missing_fields,\n    clarification_needed,\n    follow_up_intent: normalizedIntent,\n    scope_status: normalizedScope\n  };\n\n\n  // --------------------------------------------------\n  // Helper: determine missing required fields\n  // --------------------------------------------------\n\n  function getMissingFields(requests) {\n    const missing = new Set();\n\n    for (const request of requests) {\n      if (\n        !request ||\n        !String(request.category || \"\").trim()\n      ) {\n        missing.add(\"category\");\n      }\n\n      if (\n        request == null || normalizeRmbBudget(request.budget) === null\n      ) {\n        missing.add(\"budget\");\n      }\n\n      if (\n        !request ||\n        !String(request.main_usage || \"\").trim()\n      ) {\n        missing.add(\"main_usage\");\n      }\n    }\n\n    return Array.from(missing);\n  }\n}",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "string",
+          "canEdit": true,
+          "key": "product_requests_json",
+          "label": "product_requests_json",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "etNrwEXVwr5sySpK",
+            "bHjOabzWZ7pY37wf"
+          ]
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "string",
+          "canEdit": true,
+          "key": "missing_fields_json",
+          "label": "missing_fields_json",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "etNrwEXVwr5sySpK",
+            "etAbL1BzFfN5HLdh"
+          ]
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "string",
+          "canEdit": true,
+          "key": "clarification_needed_text",
+          "label": "clarification_needed_text",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "etNrwEXVwr5sySpK",
+            "cwnWZj9Z6ScwkMQH"
+          ]
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "string",
+          "canEdit": true,
+          "key": "follow_up_intent",
+          "label": "follow_up_intent",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "etNrwEXVwr5sySpK",
+            "b9HMaFTNxzmlxibr"
+          ]
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "string",
+          "canEdit": true,
+          "key": "scope_status",
+          "label": "scope_status",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "etNrwEXVwr5sySpK",
+            "v9oqsVzg42jYzdUv"
+          ]
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "string",
+          "canEdit": true,
+          "key": "user_question",
+          "label": "user_question",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "448745",
+            "userChatInput"
+          ]
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "arrayObject",
+          "canEdit": true,
+          "key": "stored_product_requests",
+          "label": "stored_product_requests",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "VARIABLE_NODE_ID",
+            "tsPXY04c"
+          ]
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "string",
+          "canEdit": true,
+          "key": "stored_follow_up_intent",
+          "label": "stored_follow_up_intent",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "VARIABLE_NODE_ID",
+            "fD4C5VOp"
+          ]
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "arrayString",
+          "canEdit": true,
+          "key": "stored_missing_fields",
+          "label": "stored_missing_fields",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "VARIABLE_NODE_ID",
+            "dMoZisLb"
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "id": "system_rawResponse",
+          "key": "system_rawResponse",
+          "label": "workflow:full_response_data",
+          "valueType": "object",
+          "type": "static",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "error",
+          "key": "error",
+          "label": "workflow:error_text",
+          "valueType": "string",
+          "type": "error",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "system_addOutputParam",
+          "key": "system_addOutputParam",
+          "type": "dynamic",
+          "valueType": "dynamic",
+          "label": "",
+          "customFieldConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": false
+          },
+          "description": "将代码中 return 的对象作为输出，传递给后续的节点。变量名需要对应 return 的 key",
+          "valueDesc": ""
+        },
+        {
+          "id": "qLUQfhG0ILRX",
+          "type": "dynamic",
+          "key": "product_requests",
+          "valueType": "arrayObject",
+          "label": "product_requests",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "gR0mkQpJ4Og8",
+          "type": "dynamic",
+          "key": "missing_fields",
+          "valueType": "arrayString",
+          "label": "missing_fields",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "ftq6j0",
+          "type": "dynamic",
+          "key": "clarification_needed",
+          "label": "clarification_needed",
+          "valueType": "boolean",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "v3V1iU",
+          "type": "dynamic",
+          "key": "follow_up_intent",
+          "label": "follow_up_intent",
+          "valueType": "string",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "maDANa",
+          "type": "dynamic",
+          "key": "scope_status",
+          "label": "scope_status",
+          "valueType": "string",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "school1bTargets",
+          "type": "dynamic",
+          "key": "target_requests",
+          "valueType": "arrayObject",
+          "label": "target_requests",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "school1bCancelled",
+          "type": "dynamic",
+          "key": "comparison_cancelled",
+          "valueType": "boolean",
+          "label": "comparison_cancelled",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "school1bSkipRag",
+          "type": "dynamic",
+          "key": "skip_retrieval",
+          "valueType": "boolean",
+          "label": "skip_retrieval",
+          "valueDesc": "",
+          "description": ""
+        }
+      ],
+      "catchError": false
+    },
+    {
+      "nodeId": "hMbWAx9XxkNcfG6V",
+      "name": "变量更新",
+      "intro": "可以更新指定节点的输出值或更新全局变量",
+      "avatar": "core/workflow/template/variableUpdate",
+      "flowNodeType": "variableUpdate",
+      "showStatus": false,
+      "position": {
+        "x": 3660,
+        "y": -412
+      },
+      "inputs": [
+        {
+          "key": "updateList",
+          "valueType": "any",
+          "label": "",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": [
+            {
+              "variable": [
+                "VARIABLE_NODE_ID",
+                "tsPXY04c"
+              ],
+              "value": [
+                [
+                  "tWP2LwPvzFadPPtk",
+                  "qLUQfhG0ILRX"
+                ]
+              ],
+              "valueType": "arrayObject",
+              "renderType": "reference"
+            },
+            {
+              "variable": [
+                "VARIABLE_NODE_ID",
+                "dMoZisLb"
+              ],
+              "value": [
+                [
+                  "tWP2LwPvzFadPPtk",
+                  "gR0mkQpJ4Og8"
+                ]
+              ],
+              "renderType": "reference",
+              "valueType": "arrayString"
+            },
+            {
+              "variable": [
+                "VARIABLE_NODE_ID",
+                "w967Jp1P"
+              ],
+              "value": [
+                "tWP2LwPvzFadPPtk",
+                "ftq6j0"
+              ],
+              "renderType": "reference",
+              "valueType": "boolean"
+            },
+            {
+              "variable": [
+                "VARIABLE_NODE_ID",
+                "fD4C5VOp"
+              ],
+              "value": [
+                "tWP2LwPvzFadPPtk",
+                "v3V1iU"
+              ],
+              "renderType": "reference",
+              "valueType": "string"
+            }
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "nodeId": "yrfKbYdd3I61H9JN",
+      "name": "判断器",
+      "intro": "根据一定的条件，执行不同的分支。",
+      "avatar": "core/workflow/template/ifelse",
+      "flowNodeType": "ifElseNode",
+      "showStatus": true,
+      "position": {
+        "x": 2715,
+        "y": -210
+      },
+      "inputs": [
+        {
+          "key": "ifElseList",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "valueType": "any",
+          "label": "",
+          "value": [
+            {
+              "condition": "AND",
+              "list": [
+                {
+                  "variable": [
+                    "tWP2LwPvzFadPPtk",
+                    "maDANa"
+                  ],
+                  "condition": "equalTo",
+                  "value": "supported",
+                  "valueType": "input"
+                }
+              ]
+            },
+            {
+              "condition": "AND",
+              "list": [
+                {
+                  "variable": [
+                    "tWP2LwPvzFadPPtk",
+                    "maDANa"
+                  ],
+                  "condition": "equalTo",
+                  "value": "unsupported",
+                  "valueType": "input"
+                }
+              ]
+            },
+            {
+              "condition": "AND",
+              "list": [
+                {
+                  "variable": [
+                    "tWP2LwPvzFadPPtk",
+                    "maDANa"
+                  ],
+                  "condition": "equalTo",
+                  "value": "help",
+                  "valueType": "input"
+                }
+              ]
+            }
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": [
+        {
+          "id": "ifElseResult",
+          "key": "ifElseResult",
+          "label": "workflow:judgment_result",
+          "valueType": "string",
+          "type": "static",
+          "valueDesc": "",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "nodeId": "bgcB6pN1kaSjIiAk",
+      "name": "指定回复",
+      "intro": "该模块可以直接回复一段指定的内容。常用于引导、提示。非字符串内容传入时，会转成字符串进行输出。",
+      "avatar": "core/workflow/template/reply",
+      "flowNodeType": "answerNode",
+      "position": {
+        "x": 3660,
+        "y": 321
+      },
+      "inputs": [
+        {
+          "key": "text",
+          "renderTypeList": [
+            "textarea",
+            "reference"
+          ],
+          "valueType": "any",
+          "required": true,
+          "isRichText": false,
+          "maxLength": 100000,
+          "label": "common:core.module.input.label.Response content",
+          "description": "common:core.module.input.description.Response content",
+          "placeholder": "common:core.module.input.description.Response content",
+          "value": "{\n  \"answer\": \"Sorry, MyTech does not currently support that product category. I can help with Laptop, Desktop, Smartphone, Tablet, Headphones, Monitor, Smartwatch, Mouse, and Keyboard.\",\n  \"recommendations\": [],\n  \"next_step\": \"\",\n  \"clarification_needed\": false\n}",
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "nodeId": "wwmnkseAaXixej19",
+      "name": "指定回复#2",
+      "intro": "该模块可以直接回复一段指定的内容。常用于引导、提示。非字符串内容传入时，会转成字符串进行输出。",
+      "avatar": "core/workflow/template/reply",
+      "flowNodeType": "answerNode",
+      "position": {
+        "x": 3660,
+        "y": 710
+      },
+      "inputs": [
+        {
+          "key": "text",
+          "renderTypeList": [
+            "textarea",
+            "reference"
+          ],
+          "valueType": "any",
+          "required": true,
+          "isRichText": false,
+          "maxLength": 100000,
+          "label": "common:core.module.input.label.Response content",
+          "description": "common:core.module.input.description.Response content",
+          "placeholder": "common:core.module.input.description.Response content",
+          "value": "{\n  \"answer\": \"Sorry, MyTech only helps with electronic product recommendations. I can help with Laptop, Desktop, Smartphone, Tablet, Headphones, Monitor, Smartwatch, Mouse, and Keyboard.\",\n  \"recommendations\": [],\n  \"next_step\": \"\",\n  \"clarification_needed\": false\n}",
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "nodeId": "fzgLdGhMS3eMuqQt",
+      "name": "判断器#2",
+      "intro": "根据一定的条件，执行不同的分支。",
+      "avatar": "core/workflow/template/ifelse",
+      "flowNodeType": "ifElseNode",
+      "showStatus": true,
+      "position": {
+        "x": 4470,
+        "y": -412
+      },
+      "inputs": [
+        {
+          "key": "ifElseList",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "valueType": "any",
+          "label": "",
+          "value": [
+            {
+              "condition": "AND",
+              "list": [
+                {
+                  "variable": [
+                    "tWP2LwPvzFadPPtk",
+                    "school1bSkipRag"
+                  ],
+                  "condition": "equalTo",
+                  "value": "true",
+                  "valueType": "input"
+                }
+              ]
+            }
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": [
+        {
+          "id": "ifElseResult",
+          "key": "ifElseResult",
+          "label": "workflow:judgment_result",
+          "valueType": "string",
+          "type": "static",
+          "valueDesc": "",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "nodeId": "ikIzMK483vihRths",
+      "name": "AI 对话",
+      "intro": "AI 大模型对话",
+      "avatar": "core/workflow/template/aiChat",
+      "flowNodeType": "chatNode",
+      "showStatus": true,
+      "position": {
+        "x": 5355,
+        "y": -1575
+      },
+      "version": "4.9.7",
+      "inputs": [
+        {
+          "key": "model",
+          "renderTypeList": [
+            "settingLLMModel",
+            "reference"
+          ],
+          "label": "common:core.module.input.label.aiModel",
+          "valueType": "string",
+          "value": "glm-4.7",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "temperature",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "number",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "maxToken",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "number",
+          "debugLabel": "",
+          "toolDescription": "",
+          "value": 800
+        },
+        {
+          "key": "isResponseAnswerText",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "value": true,
+          "valueType": "boolean",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatQuoteRole",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "value": "system",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "quoteTemplate",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "quotePrompt",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatVision",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "boolean",
+          "value": true,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatReasoning",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "boolean",
+          "value": false,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatTopP",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "number",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatStopSign",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatResponseFormat",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatJsonSchema",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "systemPrompt",
+          "renderTypeList": [
+            "textarea",
+            "reference"
+          ],
+          "maxLength": 100000,
+          "isRichText": true,
+          "valueType": "string",
+          "label": "common:core.ai.Prompt",
+          "description": "common:core.app.tip.systemPromptTip",
+          "placeholder": "common:core.app.tip.chatNodeSystemPromptTip",
+          "value": "Comparison cancelled:\n{{$tWP2LwPvzFadPPtk.school1bCancelled$}}\n\nIf Comparison cancelled is true, return ONLY this four-field JSON acknowledgement:\n{\"answer\":\"The comparison is cancelled.\",\"recommendations\":[],\"next_step\":\"Tell me what you need next.\",\"clarification_needed\":false}\nDo not ask a clarification question or recommend a product in this case.\n\nOtherwise follow the clarification instructions below.\nPending comparison intent:\n{{$VARIABLE_NODE_ID.fD4C5VOp$}}\n\nYou are the clarification assistant for MyTech, an electronic product recommendation chatbot.\n\nThe current active product requests are:\n{{$VARIABLE_NODE_ID.tsPXY04c$}}\n\nThe missing required fields are:\n{{$VARIABLE_NODE_ID.dMoZisLb$}}\nIf missing_fields contains \"follow_up_target\", ask which active product category the user means. Name the active category choices; do not ask again for known budgets or usages. If there are duplicate requests for a category, ask the user to distinguish those requests. Return no recommendations and put a short request to identify the target in next_step.\n\nIf missing_fields contains \"follow_up_details\", ask the user to restate the comparison with its category, budget and usage. Do not silently reuse an older budget after an unhandled field update.\nAsk exactly ONE short and focused clarification question in English to obtain the most important missing information.\n\nRules:\n1. Do not recommend any product yet.\n2. Do not guess missing information.\n3. Do not ask for information that is already known.\n4. If there are multiple product requests, clearly indicate which product the question refers to.\n5. The required information for each product request is category, budget, and main usage.\n6. Keep the question natural and concise.\n7. Put the clarification question in the answer field of the JSON object.\n\nReturn ONLY valid JSON.\nDo not include Markdown, code fences, or any text outside the JSON object.\n\nUse exactly this structure:\n\n{\n  \"answer\": \"one short focused clarification question in English\",\n  \"recommendations\": [],\n  \"next_step\": \"a short request to identify the target or provide missing details\",\n  \"clarification_needed\": true\n}",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "history",
+          "renderTypeList": [
+            "numberInput",
+            "reference"
+          ],
+          "valueType": "chatHistory",
+          "label": "common:core.module.input.label.chat history",
+          "description": "workflow:max_dialog_rounds",
+          "required": true,
+          "min": 0,
+          "max": 50,
+          "value": 6,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "quoteQA",
+          "renderTypeList": [
+            "settingDatasetQuotePrompt"
+          ],
+          "label": "",
+          "debugLabel": "知识库引用",
+          "valueType": "datasetQuote",
+          "description": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "fileUrlList",
+          "renderTypeList": [
+            "reference",
+            "input"
+          ],
+          "label": "app:workflow.user_file_input",
+          "debugLabel": "文件链接",
+          "description": "app:workflow.user_file_input_desc",
+          "valueType": "arrayString",
+          "value": [
+            [
+              "448745",
+              "userFiles"
+            ]
+          ],
+          "toolDescription": ""
+        },
+        {
+          "key": "userChatInput",
+          "renderTypeList": [
+            "reference",
+            "textarea"
+          ],
+          "valueType": "string",
+          "label": "workflow:user_question",
+          "toolDescription": "用户问题",
+          "required": true,
+          "value": [
+            "448745",
+            "userChatInput"
+          ],
+          "debugLabel": ""
+        }
+      ],
+      "outputs": [
+        {
+          "id": "history",
+          "key": "history",
+          "required": true,
+          "label": "common:core.module.output.label.New context",
+          "description": "将本次回复内容拼接上历史记录，作为新的上下文返回",
+          "valueType": "chatHistory",
+          "valueDesc": "{\n  obj: System | Human | AI;\n  value: string;\n}[]",
+          "type": "static"
+        },
+        {
+          "id": "answerText",
+          "key": "answerText",
+          "required": true,
+          "label": "common:core.module.output.label.Ai response content",
+          "description": "将在 stream 回复完毕后触发",
+          "valueType": "string",
+          "type": "static",
+          "valueDesc": ""
+        },
+        {
+          "id": "reasoningText",
+          "key": "reasoningText",
+          "required": false,
+          "label": "workflow:reasoning_text",
+          "valueType": "string",
+          "type": "static",
+          "invalid": false,
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "system_error_text",
+          "key": "system_error_text",
+          "type": "error",
+          "valueType": "string",
+          "label": "workflow:error_text",
+          "valueDesc": "",
+          "description": ""
+        }
+      ],
+      "catchError": false
+    },
+    {
+      "nodeId": "pskHz4kajjJnBWwG",
+      "name": "AI 对话#2",
+      "intro": "AI 大模型对话",
+      "avatar": "core/workflow/template/aiChat",
+      "flowNodeType": "chatNode",
+      "showStatus": true,
+      "position": {
+        "x": 7080,
+        "y": -345
+      },
+      "version": "4.9.7",
+      "inputs": [
+        {
+          "key": "model",
+          "renderTypeList": [
+            "settingLLMModel",
+            "reference"
+          ],
+          "label": "common:core.module.input.label.aiModel",
+          "valueType": "string",
+          "value": "glm-4.7",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "temperature",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "number",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "maxToken",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "number",
+          "debugLabel": "",
+          "toolDescription": "",
+          "value": 4096
+        },
+        {
+          "key": "isResponseAnswerText",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "value": false,
+          "valueType": "boolean",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatQuoteRole",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "value": "system",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "quoteTemplate",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "quotePrompt",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatVision",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "boolean",
+          "value": false,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatReasoning",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "boolean",
+          "value": false,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatTopP",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "number",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatStopSign",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatResponseFormat",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "aiChatJsonSchema",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "systemPrompt",
+          "renderTypeList": [
+            "textarea",
+            "reference"
+          ],
+          "maxLength": 100000,
+          "isRichText": true,
+          "valueType": "string",
+          "label": "common:core.ai.Prompt",
+          "description": "common:core.app.tip.systemPromptTip",
+          "placeholder": "common:core.app.tip.chatNodeSystemPromptTip",
+          "value": "You are MyTech, an electronic product recommendation chatbot giving general consumers simple purchase guidance.\n\nCURRENT TURN STATE\nProcess only these current-turn requests, regardless of other categories in history. Compare only against the unique same-category historical recommendation below. A no-result explanation must name the requested category and stay relevant to its usage and budget.\nProduct requests:\n{{$tWP2LwPvzFadPPtk.school1bTargets$}}\nPrevious recommendations:\n{{$sxwN5Fd17Tc8leTf.school1bHistory$}}\nFollow-up intent:\n{{$VARIABLE_NODE_ID.fD4C5VOp$}}\n\nGROUNDING AND ELIGIBILITY\nThe MyTech knowledge base is the approved product-fact source. Recommend only products supported by retrieved product records. Use their exact names, categories, fixed RMB reference prices and sources; use only explicitly supported usages/capabilities, specifications and features. Never invent facts, availability, products or sources, infer unstated capabilities, or fill missing evidence from outside/model knowledge. Reference prices are not live retailer prices.\nSupported categories: Laptop, Desktop, Smartphone, Tablet, Headphones, Monitor, Smartwatch, Mouse, Keyboard.\nEvery candidate must satisfy ALL of these:\n1. Its retrieved category exactly matches its active request. Never relabel or substitute another category, even if cheaper, more expensive or more similar. Preserve category on comparisons unless the user explicitly changes it; a cheaper Laptop remains a Laptop, as for every category.\n2. Its exact reference price is <= the active hard budget. The stated numeric maximum still applies to around/about/approximately/roughly (all variants of \"around ¥300\" mean <=300), unless explicitly changed by the user. Never widen the budget, select a slightly over-budget option, or let retrieval similarity override it.\n3. Retrieved evidence explicitly supports the requested main usage. Semantic similarity is not proof of suitability.\n4. Name, category, price and source exactly match the retrieved record.\n5. The follow-up comparison below is satisfied, when applicable.\nReject any failing candidate. Retrieval ranking/similarity is not recommendation ranking; among eligible products select the single best usage/budget match.\n\nMULTIPLE REQUESTS AND COMPARISONS\nHandle requests independently; never mix category, budget or usage. Return at most one recommendation per request/category: zero or one for a single request, at most one each for multiple requests.\nFor every comparison, the product must differ from the previous recommendation, stay in the active category, meet the current hard budget and have retrieved support for the active usage:\n- cheaper: price strictly lower than the previous recommendation.\n- more_expensive: price strictly higher than the previous recommendation, still within the active budget (use a newly increased budget only if explicitly changed).\n- alternative: a different product; the other eligibility constraints still apply.\n- none: select the best eligible product for the current request.\nNever switch categories to find a comparison. If no valid same-category candidate exists, return no recommendation for that request. This also applies if the cheapest category/usage match exceeds budget or retrieval lacks a valid product. Do not compensate with outside knowledge. Briefly explain that the current MyTech reference data has no valid match; suggest adjusting budget or requirements. This branch already has complete category, budget and usage, so clarification_needed is always false.\n\nLANGUAGE AND LENGTH\nUse English for answer, reason and next_step even when evidence/history/context uses another language. Preserve product/source names exactly; do not translate them unless that translated form is provided in the retrieved knowledge base. Use RMB (¥) for prices/budgets.\nKeep answer to normally at most two short sentences, reason to exactly one short beginner-friendly sentence per product, and next_step to exactly one short sentence. Avoid repeating product name, price, budget or usage across those fields unless needed for clarity.\nDo not list, compare or explain rejected/over-budget products unless explicitly asked for comparison or rejection reasons. Do not mention other retrieved products just to justify your choice. For no result, use one short explanation and one short next step.\n\nOUTPUT\nReturn only valid compact JSON with exactly the four top-level fields below. No Markdown fences, headings, commentary or text outside JSON. Do not change string values to remove formatting whitespace. Each recommendation has exactly category, recommended_product, numeric price, reason and source; copy identity/category/price/source exactly from retrieved evidence.\n{\"answer\":\"string in English\",\"recommendations\":[{\"category\":\"exact retrieved category\",\"recommended_product\":\"exact retrieved product name\",\"price\":0,\"reason\":\"one short beginner-friendly sentence in English\",\"source\":\"exact retrieved source\"}],\"next_step\":\"one short sentence in English\",\"clarification_needed\":false}\nIf no recommendation is valid, use recommendations=[] with the same other three fields and clarification_needed=false.\n",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "history",
+          "renderTypeList": [
+            "numberInput",
+            "reference"
+          ],
+          "valueType": "chatHistory",
+          "label": "common:core.module.input.label.chat history",
+          "description": "workflow:max_dialog_rounds",
+          "required": true,
+          "min": 0,
+          "max": 50,
+          "value": 6,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "quoteQA",
+          "renderTypeList": [
+            "settingDatasetQuotePrompt"
+          ],
+          "label": "",
+          "debugLabel": "知识库引用",
+          "valueType": "datasetQuote",
+          "description": "",
+          "toolDescription": "",
+          "value": [
+            "zWAw4oYVL1QMe8YX",
+            "quoteQA"
+          ]
+        },
+        {
+          "key": "fileUrlList",
+          "renderTypeList": [
+            "reference",
+            "input"
+          ],
+          "label": "app:workflow.user_file_input",
+          "debugLabel": "文件链接",
+          "description": "app:workflow.user_file_input_desc",
+          "valueType": "arrayString",
+          "value": [
+            [
+              "448745",
+              "userFiles"
+            ]
+          ],
+          "toolDescription": ""
+        },
+        {
+          "key": "userChatInput",
+          "renderTypeList": [
+            "reference",
+            "textarea"
+          ],
+          "valueType": "string",
+          "label": "workflow:user_question",
+          "toolDescription": "用户问题",
+          "required": true,
+          "value": [
+            "448745",
+            "userChatInput"
+          ],
+          "debugLabel": ""
+        }
+      ],
+      "outputs": [
+        {
+          "id": "history",
+          "key": "history",
+          "required": true,
+          "label": "common:core.module.output.label.New context",
+          "description": "将本次回复内容拼接上历史记录，作为新的上下文返回",
+          "valueType": "chatHistory",
+          "valueDesc": "{\n  obj: System | Human | AI;\n  value: string;\n}[]",
+          "type": "static"
+        },
+        {
+          "id": "answerText",
+          "key": "answerText",
+          "required": true,
+          "label": "common:core.module.output.label.Ai response content",
+          "description": "将在 stream 回复完毕后触发",
+          "valueType": "string",
+          "type": "static",
+          "valueDesc": ""
+        },
+        {
+          "id": "reasoningText",
+          "key": "reasoningText",
+          "required": false,
+          "label": "workflow:reasoning_text",
+          "valueType": "string",
+          "type": "static",
+          "invalid": false,
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "system_error_text",
+          "key": "system_error_text",
+          "type": "error",
+          "valueType": "string",
+          "label": "workflow:error_text",
+          "valueDesc": "",
+          "description": ""
+        }
+      ],
+      "catchError": false
+    },
+    {
+      "nodeId": "fakNM8mmlYmewx67",
+      "name": "代码运行#2",
+      "intro": "执行一段简单的脚本代码，通常用于进行复杂的数据处理。",
+      "avatar": "core/workflow/template/codeRun",
+      "flowNodeType": "code",
+      "showStatus": true,
+      "position": {
+        "x": 7830,
+        "y": -375
+      },
+      "inputs": [
+        {
+          "key": "system_addInputParam",
+          "renderTypeList": [
+            "addInputParam"
+          ],
+          "valueType": "dynamic",
+          "label": "",
+          "required": false,
+          "description": "workflow:these_variables_will_be_input_parameters_for_code_execution",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "codeType",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "value": "js",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "code",
+          "renderTypeList": [
+            "custom"
+          ],
+          "label": "",
+          "valueType": "string",
+          "value": "// TEST-only deterministic policy. Product evidence always comes from the\n// generated Master Dataset; aliases describe requests, never product facts.\nfunction checkCatalogueUsage(product, requestedUsage, catalogue, compatibility) {\n  if (typeof requestedUsage !== \"string\" || !requestedUsage.trim() || requestedUsage.length > 300) {\n    return { valid: false, error: \"A non-empty, supported main usage is required.\" };\n  }\n  const normalize = value => value.normalize(\"NFKC\").toLowerCase()\n    .replace(/[\\u2010-\\u2015_-]/g, \" \").replace(/[.,;!?()[\\]\"]/g, \" \")\n    .replace(/[&+/]/g, \" and \").replace(/\\s+/g, \" \").trim();\n  const vocabulary = new Map();\n  for (const entry of Object.values(catalogue)) {\n    for (const tag of entry.main_usage) {\n      vocabulary.set(normalize(tag), { tag: normalize(tag) });\n    }\n  }\n  for (const group of Object.keys(compatibility)) {\n    vocabulary.set(normalize(group), { group });\n  }\n  const aliases = {\n    Gaming: [\"game\", \"games\", \"play game\", \"play games\", \"playing games\", \"play a game\", \"playing a game\", \"video games\", \"videogames\", \"video gaming\", \"play video games\", \"playing video games\", \"playing computer games\", \"casual gaming\"],\n    Study: [\"studying\", \"studies\", \"school\", \"schoolwork\", \"school work\", \"coursework\", \"homework\", \"student\", \"classes\", \"classwork\", \"taking notes\", \"take notes\"],\n    Office: [\"work\", \"working\", \"office work\", \"office tasks\", \"business\", \"documents\", \"document editing\", \"spreadsheets\"],\n    Creative: [\"design\", \"designing\", \"graphic design\", \"illustration\", \"video editing\", \"photo editing\", \"photo and video editing\"],\n    Photography: [\"photo\", \"photos\", \"take photos\", \"taking photos\", \"photo taking\", \"take pictures\", \"taking pictures\", \"camera quality\"],\n    Media: [\"movies\", \"videos\", \"watch movies\", \"watching movies\", \"watch videos\", \"watching videos\", \"video streaming\", \"streaming\"],\n    Music: [\"listen to music\", \"listening to music\", \"listening\", \"audio\", \"songs\", \"podcasts\"],\n    Calls: [\"call\", \"calling\", \"video calls\", \"voice calls\"],\n    Travel: [\"travelling\", \"traveling\", \"commuting\", \"portable\", \"portability\", \"on the go\"],\n    Fitness: [\"exercise\", \"exercising\", \"workout\", \"workouts\", \"working out\", \"daily health\", \"health monitoring\"],\n    Development: [\"programming\", \"coding\", \"software development\", \"software programming\", \"software engineering\"],\n    Productivity: [\"productive work\", \"multi tasking\"],\n    Typing: [\"type documents\"],\n    \"Noise cancellation\": [\"noise cancelling\", \"noise canceling\", \"active noise cancellation\", \"anc\"],\n    Daily: [\"everyday\", \"everyday use\", \"basic use\", \"normal use\", \"casual use\"]\n  };\n  for (const [group, phrases] of Object.entries(aliases)) {\n    for (const phrase of phrases) {\n      // Explicit dataset phrases take priority over aliases with broader meaning.\n      if (!vocabulary.has(phrase)) vocabulary.set(phrase, { group });\n    }\n  }\n  const phrases = [...vocabulary.keys()].sort((a, b) => b.split(\" \").length - a.split(\" \").length || b.length - a.length);\n  const fillers = new Set([\"i\", \"am\", \"would\", \"like\", \"want\", \"need\", \"looking\", \"it\", \"this\", \"device\", \"my\", \"mainly\", \"mostly\", \"primarily\", \"for\", \"to\", \"the\", \"a\", \"an\", \"and\", \"also\", \"use\", \"using\", \"with\", \"please\", \"only\"]);\n  const words = normalize(requestedUsage).split(\" \");\n  const requirements = [];\n  for (let index = 0; index < words.length;) {\n    const phrase = phrases.find(candidate => {\n      const parts = candidate.split(\" \");\n      return parts.every((part, offset) => words[index + offset] === part);\n    });\n    if (phrase) {\n      requirements.push(vocabulary.get(phrase));\n      index += phrase.split(\" \").length;\n    } else if (fillers.has(words[index])) {\n      index += 1;\n    } else {\n      // Includes unknown qualifiers, negation and ambiguous 'or' expressions.\n      // A recognized substring must never hide unsupported request wording.\n      return { valid: false, error: \"Unrecognized or ambiguous main usage; please restate the intended use.\" };\n    }\n  }\n  if (!requirements.length) return { valid: false, error: \"A supported main usage is required.\" };\n  const tags = product.main_usage.map(normalize);\n  const supported = requirements.every(requirement => requirement.tag\n    ? tags.includes(requirement.tag)\n    : tags.some(tag => compatibility[requirement.group].some(term =>\n      (\" \" + tag + \" \").includes(\" \" + normalize(term) + \" \"))));\n  return { valid: supported, error: supported ? \"\" : \"The product's Master Dataset usage tags do not support the requested usage.\" };\n}\n\nfunction main({\n  raw_json,\n  active_requests,\n  previous_recommendations,\n  follow_up_intent\n}) {\n  let text = String(raw_json || \"\").trim();\n\n  text = text\n    .replace(/^```json\\s*/i, \"\")\n    .replace(/^```\\s*/i, \"\")\n    .replace(/\\s*```$/i, \"\")\n    .trim();\n\n  let data;\n\n  try {\n    data = JSON.parse(text);\n  } catch (e) {\n    const firstBrace = text.indexOf(\"{\");\n    const lastBrace = text.lastIndexOf(\"}\");\n\n    if (firstBrace !== -1 && lastBrace > firstBrace) {\n      try {\n        data = JSON.parse(text.slice(firstBrace, lastBrace + 1));\n      } catch (e2) {\n        return invalidResult(\n          \"Invalid JSON returned by the recommendation model.\"\n        );\n      }\n    } else {\n      return invalidResult(\n        \"Invalid JSON returned by the recommendation model.\"\n      );\n    }\n  }\n\n  if (!data || typeof data !== \"object\" || Array.isArray(data)) return invalidResult(\"Invalid response object.\");\n\n  let answer =\n    typeof data.answer === \"string\" ? data.answer : \"\";\n\n  const recommendations =\n    Array.isArray(data.recommendations)\n      ? data.recommendations\n      : [];\n\n  let next_step =\n    typeof data.next_step === \"string\"\n      ? data.next_step\n      : \"\";\n\n  // Recommendation branch = required information already complete.\n  const clarification_needed = false;\n\n  const requests =\n    Array.isArray(active_requests)\n      ? active_requests\n      : [];\n\n  const previous =\n    Array.isArray(previous_recommendations)\n      ? previous_recommendations\n      : [];\n\n  const intent =\n    String(follow_up_intent || \"none\")\n      .trim()\n      .toLowerCase();\n\n  /*\n   * Static validation catalogue for the current MyTech classroom prototype.\n   * The knowledge base remains the recommendation source.\n   * This catalogue is only a deterministic safety layer for validating\n   * product identity, category, reference price and source.\n   */\n  const PRODUCT_CATALOG = {\"Lenovo Xiaoxin 14 (2025, Ryzen 7 H255, 16GB/512GB)\":{\"id\":\"LAP-001\",\"category\":\"Laptop\",\"product\":\"Lenovo Xiaoxin 14 (2025, Ryzen 7 H255, 16GB/512GB)\",\"price_rmb\":5799,\"tier\":\"Entry\",\"main_usage\":[\"Study\",\"Office\",\"Daily use\"],\"key_features\":[\"14-inch display\",\"16GB RAM\",\"512GB SSD\",\"Ryzen 7 H255\"],\"source\":\"Lenovo Official Store\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":5799},\"HUAWEI MateBook 14\":{\"id\":\"LAP-002\",\"category\":\"Laptop\",\"product\":\"HUAWEI MateBook 14\",\"price_rmb\":6599,\"tier\":\"Mid-range\",\"main_usage\":[\"Study\",\"Office\",\"Creative work\"],\"key_features\":[\"2.8K OLED display\",\"HarmonyOS AI features\",\"Long battery-life positioning\"],\"source\":\"Huawei Official Website\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":6599},\"Lenovo Xiaoxin Pro 14 (Ryzen 7 H255, 32GB/1TB)\":{\"id\":\"LAP-003\",\"category\":\"Laptop\",\"product\":\"Lenovo Xiaoxin Pro 14 (Ryzen 7 H255, 32GB/1TB)\",\"price_rmb\":8999,\"tier\":\"Premium\",\"main_usage\":[\"Heavy multitasking\",\"Creative work\",\"Productivity\"],\"key_features\":[\"14-inch display\",\"32GB RAM\",\"1TB SSD\",\"Ryzen 7 H255\"],\"source\":\"Lenovo Official Store\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":8999},\"HONOR MagicBook X14 2025 Battle Edition (i5-13420H, 16GB/512GB)\":{\"id\":\"LAP-004\",\"category\":\"Laptop\",\"product\":\"HONOR MagicBook X14 2025 Battle Edition (i5-13420H, 16GB/512GB)\",\"price_rmb\":3299,\"tier\":\"Entry\",\"main_usage\":[\"Study\",\"Office\",\"Portable use\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.ithome.com/0/821/402.htm\",\"price_evidence\":\"Launch list price, 2024-12-31\",\"price\":3299},\"MECHREVO Jiaolong 16K (R7-7435H, RTX 4050, 16GB/512GB, 165Hz)\":{\"id\":\"LAP-005\",\"category\":\"Laptop\",\"product\":\"MECHREVO Jiaolong 16K (R7-7435H, RTX 4050, 16GB/512GB, 165Hz)\",\"price_rmb\":4999,\"tier\":\"Mid-range\",\"main_usage\":[\"Gaming\",\"Study\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://nb.zol.com.cn/964/9648215.html\",\"price_evidence\":\"Quoted regular sale price, 2025-03-26; excludes subsidies\",\"price\":4999},\"Lenovo Legion R7000 2025 (Ryzen 7 H 255, RTX 5060, 16GB/512GB)\":{\"id\":\"LAP-006\",\"category\":\"Laptop\",\"product\":\"Lenovo Legion R7000 2025 (Ryzen 7 H 255, RTX 5060, 16GB/512GB)\",\"price_rmb\":7999,\"tier\":\"Premium\",\"main_usage\":[\"Gaming\",\"Creative work\",\"Multitasking\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.lenovo.com.cn/wiki/product-doc-36144.html\",\"price_evidence\":\"Official reference listing, 2026-09-11\",\"price\":7999},\"Lenovo Tianyi 510S (Core i3-14100, 16GB/512GB)\":{\"id\":\"DES-001\",\"category\":\"Desktop\",\"product\":\"Lenovo Tianyi 510S (Core i3-14100, 16GB/512GB)\",\"price_rmb\":4099,\"tier\":\"Entry\",\"main_usage\":[\"Office\",\"Study\",\"Home use\"],\"key_features\":[\"Core i3-14100\",\"16GB RAM\",\"512GB SSD\",\"Compact desktop\"],\"source\":\"Lenovo Official Store\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":4099},\"Lenovo Tianyi 510S (Core i5-14400, 16GB/512GB)\":{\"id\":\"DES-002\",\"category\":\"Desktop\",\"product\":\"Lenovo Tianyi 510S (Core i5-14400, 16GB/512GB)\",\"price_rmb\":5099,\"tier\":\"Mid-range\",\"main_usage\":[\"Office\",\"Multitasking\",\"Home productivity\"],\"key_features\":[\"Core i5-14400\",\"16GB RAM\",\"512GB SSD\",\"Compact desktop\"],\"source\":\"Lenovo Official Store\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":5099},\"Apple Mac mini (M4 Pro)\":{\"id\":\"DES-003\",\"category\":\"Desktop\",\"product\":\"Apple Mac mini (M4 Pro)\",\"price_rmb\":10999,\"tier\":\"Premium\",\"main_usage\":[\"Creative work\",\"Professional productivity\",\"Development\"],\"key_features\":[\"Apple M4 Pro chip\",\"Compact desktop design\"],\"source\":\"Apple China\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":10999},\"MINISFORUM UM870 Slim (Ryzen 7 8745H, 16GB/1TB; complete system)\":{\"id\":\"DES-004\",\"category\":\"Desktop\",\"product\":\"MINISFORUM UM870 Slim (Ryzen 7 8745H, 16GB/1TB; complete system)\",\"price_rmb\":2699,\"tier\":\"Entry\",\"main_usage\":[\"Office\",\"Home use\",\"Study\",\"Mini PC\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.ithome.com/0/807/797.htm\",\"price_evidence\":\"Launch complete-system price, 2024-11-04\",\"price\":2699},\"Lenovo GeekPro (i5-14400F, RTX 5060, 32GB/1TB)\":{\"id\":\"DES-005\",\"category\":\"Desktop\",\"product\":\"Lenovo GeekPro (i5-14400F, RTX 5060, 32GB/1TB)\",\"price_rmb\":9699,\"tier\":\"Mid-range\",\"main_usage\":[\"Gaming\",\"Creative work\",\"Multitasking\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.lenovo.com.cn/wiki/product-doc-37534.html\",\"price_evidence\":\"Official reference listing, 2026-10-12\",\"price\":9699},\"Lenovo Legion Blade 7000K 2025 (i7-14650HX, RTX 5070, 32GB/1TB)\":{\"id\":\"DES-006\",\"category\":\"Desktop\",\"product\":\"Lenovo Legion Blade 7000K 2025 (i7-14650HX, RTX 5070, 32GB/1TB)\",\"price_rmb\":11999,\"tier\":\"Premium\",\"main_usage\":[\"Gaming\",\"Content creation\",\"Heavy multitasking\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.lenovo.com.cn/wiki/product-doc-34040.html\",\"price_evidence\":\"Official reference listing, 2026-09-11\",\"price\":11999},\"HUAWEI nova 14 \\u6d3b\\u529b\\u7248\":{\"id\":\"PHO-001\",\"category\":\"Smartphone\",\"product\":\"HUAWEI nova 14 \\u6d3b\\u529b\\u7248\",\"price_rmb\":2399,\"tier\":\"Entry\",\"main_usage\":[\"Daily use\",\"Photography\",\"Social media\"],\"key_features\":[\"Front and rear 50MP imaging\",\"66W fast charging\",\"HarmonyOS features\"],\"source\":\"Huawei Official Website\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":2399},\"HONOR 400 Pro (12GB/256GB)\":{\"id\":\"PHO-002\",\"category\":\"Smartphone\",\"product\":\"HONOR 400 Pro (12GB/256GB)\",\"price_rmb\":3399,\"tier\":\"Mid-range\",\"main_usage\":[\"Photography\",\"Daily use\",\"Entertainment\"],\"key_features\":[\"12GB RAM\",\"256GB storage\",\"HONOR 400-series photography focus\"],\"source\":\"HONOR Official Launch Information\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":3399},\"Apple iPhone 17 (256GB)\":{\"id\":\"PHO-003\",\"category\":\"Smartphone\",\"product\":\"Apple iPhone 17 (256GB)\",\"price_rmb\":6799,\"tier\":\"Premium\",\"main_usage\":[\"Daily use\",\"Photography\",\"Video\",\"Apple ecosystem\"],\"key_features\":[\"256GB storage\",\"6.3-inch display\",\"A19 chip\"],\"source\":\"Apple China\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":6799},\"REDMI 14C (4GB/128GB)\":{\"id\":\"PHO-004\",\"category\":\"Smartphone\",\"product\":\"REDMI 14C (4GB/128GB)\",\"price_rmb\":599,\"tier\":\"Entry\",\"main_usage\":[\"Daily use\",\"Calls\",\"Basic social media\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.ithome.com/0/821/084.htm\",\"price_evidence\":\"Launch list price, 2024-12-30\",\"price\":599},\"iQOO Z10 Turbo Pro (12GB/256GB)\":{\"id\":\"PHO-005\",\"category\":\"Smartphone\",\"product\":\"iQOO Z10 Turbo Pro (12GB/256GB)\",\"price_rmb\":1999,\"tier\":\"Mid-range\",\"main_usage\":[\"Gaming\",\"Battery life\",\"Daily use\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.ithome.com/0/849/624.htm\",\"price_evidence\":\"Launch list price, 2025-04-28\",\"price\":1999},\"REDMI K80 Ultra (12GB/256GB)\":{\"id\":\"PHO-006\",\"category\":\"Smartphone\",\"product\":\"REDMI K80 Ultra (12GB/256GB)\",\"price_rmb\":2599,\"tier\":\"Premium\",\"main_usage\":[\"Gaming\",\"High performance\",\"Entertainment\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.ithome.com/0/863/945.htm\",\"price_evidence\":\"Launch list price, 2025-06-26\",\"price\":2599},\"HUAWEI MatePad 11.5 S (2025)\":{\"id\":\"TAB-001\",\"category\":\"Tablet\",\"product\":\"HUAWEI MatePad 11.5 S (2025)\",\"price_rmb\":2199,\"tier\":\"Entry\",\"main_usage\":[\"Study\",\"Note-taking\",\"Reading\"],\"key_features\":[\"Paper-like display option\",\"Huawei Notes\",\"HarmonyOS AI study features\"],\"source\":\"Huawei Official Website\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":2199},\"HUAWEI MatePad 11.5 (2026)\":{\"id\":\"TAB-002\",\"category\":\"Tablet\",\"product\":\"HUAWEI MatePad 11.5 (2026)\",\"price_rmb\":2599,\"tier\":\"Mid-range\",\"main_usage\":[\"Study\",\"Media\",\"Note-taking\"],\"key_features\":[\"11.5-inch 2.5K display\",\"120Hz refresh rate\",\"10100mAh battery\"],\"source\":\"Huawei Official Website\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":2599},\"Apple iPad Air 11-inch (M3, Wi-Fi)\":{\"id\":\"TAB-003\",\"category\":\"Tablet\",\"product\":\"Apple iPad Air 11-inch (M3, Wi-Fi)\",\"price_rmb\":4799,\"tier\":\"Premium\",\"main_usage\":[\"Creative work\",\"Study\",\"Productivity\"],\"key_features\":[\"Apple M3 chip\",\"11-inch display\"],\"source\":\"Apple China\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":4799},\"HONOR Pad X9 (6GB/128GB)\":{\"id\":\"TAB-004\",\"category\":\"Tablet\",\"product\":\"HONOR Pad X9 (6GB/128GB)\",\"price_rmb\":899,\"tier\":\"Entry\",\"main_usage\":[\"Reading\",\"Study\",\"Media\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.ithome.com/0/802/849.htm\",\"price_evidence\":\"List price (not RMB799 launch discount), 2024-10-16\",\"price\":899},\"Lenovo Legion Y700 4th Gen (12GB/256GB)\":{\"id\":\"TAB-005\",\"category\":\"Tablet\",\"product\":\"Lenovo Legion Y700 4th Gen (12GB/256GB)\",\"price_rmb\":3299,\"tier\":\"Mid-range\",\"main_usage\":[\"Gaming\",\"Media\",\"Portable use\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.ithome.com/0/857/523.htm\",\"price_evidence\":\"Launch list price, 2025-05-31\",\"price\":3299},\"Apple iPad Pro 11-inch (M5, Wi-Fi, 256GB)\":{\"id\":\"TAB-006\",\"category\":\"Tablet\",\"product\":\"Apple iPad Pro 11-inch (M5, Wi-Fi, 256GB)\",\"price_rmb\":8999,\"tier\":\"Premium\",\"main_usage\":[\"Creative work\",\"Drawing\",\"Productivity\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.apple.com.cn/newsroom/2025/10/apple-introduces-ipad-pro-with-m5/\",\"price_evidence\":\"Apple official launch price, 2025-10\",\"price\":8999},\"Sony WH-CH520\":{\"id\":\"AUD-001\",\"category\":\"Headphones\",\"product\":\"Sony WH-CH520\",\"price_rmb\":350,\"tier\":\"Entry\",\"main_usage\":[\"Daily music\",\"Study\",\"Calls\"],\"key_features\":[\"Bluetooth 5.2\",\"Up to 50-hour battery-life specification\",\"Lightweight on-ear design\"],\"source\":\"Sony / JD Reference\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":350},\"Apple AirPods Pro 3\":{\"id\":\"AUD-002\",\"category\":\"Headphones\",\"product\":\"Apple AirPods Pro 3\",\"price_rmb\":1899,\"tier\":\"Mid-range\",\"main_usage\":[\"Commute\",\"Noise cancellation\",\"Apple ecosystem\"],\"key_features\":[\"Active noise cancellation\",\"Up to 8 hours listening with ANC\",\"Heart-rate sensing\"],\"source\":\"Apple China\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":1899},\"Sony WH-1000XM6\":{\"id\":\"AUD-003\",\"category\":\"Headphones\",\"product\":\"Sony WH-1000XM6\",\"price_rmb\":4799,\"tier\":\"Premium\",\"main_usage\":[\"Travel\",\"Premium noise cancellation\",\"Music\"],\"key_features\":[\"Flagship over-ear noise-cancelling positioning\"],\"source\":\"Sony China\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":4799},\"Razer BlackShark V2 X (3.5mm wired)\":{\"id\":\"AUD-004\",\"category\":\"Headphones\",\"product\":\"Razer BlackShark V2 X (3.5mm wired)\",\"price_rmb\":279,\"tier\":\"Entry\",\"main_usage\":[\"Gaming\",\"Voice chat\",\"PC use\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://detail.zol.com.cn/microphone/index1398825.shtml\",\"price_evidence\":\"Retail offer shown in reference listing, checked 2026-10\",\"price\":279},\"Sony WH-CH720N\":{\"id\":\"AUD-005\",\"category\":\"Headphones\",\"product\":\"Sony WH-CH720N\",\"price_rmb\":1009,\"tier\":\"Mid-range\",\"main_usage\":[\"Commute\",\"Noise cancellation\",\"Music\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://detail.zol.com.cn/microphone/index1465657.shtml\",\"price_evidence\":\"ZOL reference price, checked 2026-10\",\"price\":1009},\"Bose QuietComfort Ultra Headphones II\":{\"id\":\"AUD-006\",\"category\":\"Headphones\",\"product\":\"Bose QuietComfort Ultra Headphones II\",\"price_rmb\":3599,\"tier\":\"Premium\",\"main_usage\":[\"Travel\",\"Premium noise cancellation\",\"Music\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.bose.cn/zh_cn/pressroom/featured/bose_unveils_the_next_generation_of_the_quietcomfort_ultra_headphones.html\",\"price_evidence\":\"Official launch price, 2025-09-12\",\"price\":3599},\"AOC Q27G40E\":{\"id\":\"MON-001\",\"category\":\"Monitor\",\"product\":\"AOC Q27G40E\",\"price_rmb\":879,\"tier\":\"Entry\",\"main_usage\":[\"Gaming\",\"Study\",\"General use\"],\"key_features\":[\"27-inch\",\"2560\\u00d71440 resolution\",\"180Hz refresh rate\",\"Fast IPS\",\"1ms GTG\"],\"source\":\"AOC China Official Store\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":879},\"REDMI G27Q 320Hz\":{\"id\":\"MON-002\",\"category\":\"Monitor\",\"product\":\"REDMI G27Q 320Hz\",\"price_rmb\":1199,\"tier\":\"Mid-range\",\"main_usage\":[\"Competitive gaming\",\"Gaming\"],\"key_features\":[\"27-inch\",\"2560\\u00d71440 resolution\",\"320Hz refresh rate\",\"1ms response time\"],\"source\":\"JD / Market Reference\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":1199},\"LG UltraGear 27GS95QE\":{\"id\":\"MON-003\",\"category\":\"Monitor\",\"product\":\"LG UltraGear 27GS95QE\",\"price_rmb\":3499,\"tier\":\"Premium\",\"main_usage\":[\"Premium gaming\",\"High-refresh gaming\"],\"key_features\":[\"26.5-inch QHD OLED\",\"240Hz refresh rate\",\"0.03ms GTG\"],\"source\":\"LG China / Market Reference\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":3499},\"REDMI A24 2026 (23.8-inch IPS, 1080p, 144Hz)\":{\"id\":\"MON-004\",\"category\":\"Monitor\",\"product\":\"REDMI A24 2026 (23.8-inch IPS, 1080p, 144Hz)\",\"price_rmb\":449,\"tier\":\"Entry\",\"main_usage\":[\"Office\",\"Study\",\"Light gaming\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://dir.jd.com/guide/jd-geo-guide-10bit-1080p-xiao-chi-cun-xian-shi-qi-v1\",\"price_evidence\":\"JD category guide estimate, 2026-10\",\"price\":449},\"Dell S2725QS (27-inch 4K IPS, 120Hz)\":{\"id\":\"MON-005\",\"category\":\"Monitor\",\"product\":\"Dell S2725QS (27-inch 4K IPS, 120Hz)\",\"price_rmb\":1899,\"tier\":\"Mid-range\",\"main_usage\":[\"Office\",\"Creative work\",\"Media\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.dell.com/zh-cn/shop/dell-27-plus-4k--s2725qs/apd/210-bqvq/\",\"price_evidence\":\"Dell China listed price, checked 2026-10\",\"price\":1899},\"LG 34WR50QK-B (34-inch 3440x1440 curved, 100Hz)\":{\"id\":\"MON-006\",\"category\":\"Monitor\",\"product\":\"LG 34WR50QK-B (34-inch 3440x1440 curved, 100Hz)\",\"price_rmb\":2499,\"tier\":\"Premium\",\"main_usage\":[\"Office\",\"Multitasking\",\"Ultrawide productivity\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://wap.zol.com.cn/2123/2122982/index.html\",\"price_evidence\":\"ZOL reference quote, checked 2026-10\",\"price\":2499},\"HUAWEI WATCH GT 5 (41mm)\":{\"id\":\"WAT-001\",\"category\":\"Smartwatch\",\"product\":\"HUAWEI WATCH GT 5 (41mm)\",\"price_rmb\":1488,\"tier\":\"Entry\",\"main_usage\":[\"Fitness\",\"Daily health tracking\",\"Daily wear\"],\"key_features\":[\"41mm model\",\"Fitness and daily smartwatch positioning\"],\"source\":\"Huawei Official Website\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":1488},\"Apple Watch SE 3\":{\"id\":\"WAT-002\",\"category\":\"Smartwatch\",\"product\":\"Apple Watch SE 3\",\"price_rmb\":1999,\"tier\":\"Mid-range\",\"main_usage\":[\"Fitness\",\"Daily health tracking\",\"Apple ecosystem\"],\"key_features\":[\"40mm or 44mm\",\"Heart-rate tracking\",\"Sleep tracking\",\"50m water resistance\"],\"source\":\"Apple China\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":1999},\"HUAWEI WATCH 5\":{\"id\":\"WAT-003\",\"category\":\"Smartwatch\",\"product\":\"HUAWEI WATCH 5\",\"price_rmb\":2699,\"tier\":\"Premium\",\"main_usage\":[\"Smart features\",\"Health tracking\",\"Independent connectivity\"],\"key_features\":[\"X-TAP sensing\",\"Huawei AI features\",\"eSIM support\"],\"source\":\"Huawei Official Website\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":2699},\"Xiaomi Watch S4 41mm (fluororubber strap)\":{\"id\":\"WAT-004\",\"category\":\"Smartwatch\",\"product\":\"Xiaomi Watch S4 41mm (fluororubber strap)\",\"price_rmb\":999,\"tier\":\"Entry\",\"main_usage\":[\"Daily wear\",\"Fitness\",\"Style\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.ithome.com/0/863/949.htm\",\"price_evidence\":\"Launch list price, 2025-06-26\",\"price\":999},\"Garmin Forerunner 165 (standard, non-Music)\":{\"id\":\"WAT-005\",\"category\":\"Smartwatch\",\"product\":\"Garmin Forerunner 165 (standard, non-Music)\",\"price_rmb\":2080,\"tier\":\"Mid-range\",\"main_usage\":[\"Running\",\"Fitness\",\"Training\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.garmin.com.cn/news/garmin/garmin-news-forerunner165/\",\"price_evidence\":\"Official recommended retail starting price\",\"price\":2080},\"Garmin fenix 8 AMOLED (43mm; entry variant)\":{\"id\":\"WAT-006\",\"category\":\"Smartwatch\",\"product\":\"Garmin fenix 8 AMOLED (43mm; entry variant)\",\"price_rmb\":7980,\"tier\":\"Premium\",\"main_usage\":[\"Outdoor sports\",\"Hiking\",\"Training\",\"Navigation\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.garmin.com.cn/minisite/find-your-watch/\",\"price_evidence\":\"Garmin official series starting price; exact SKU recheck required\",\"price\":7980},\"Logitech M240\":{\"id\":\"MOU-001\",\"category\":\"Mouse\",\"product\":\"Logitech M240\",\"price_rmb\":109,\"tier\":\"Entry\",\"main_usage\":[\"Office\",\"Study\",\"Portable use\"],\"key_features\":[\"Bluetooth\",\"Quiet-click positioning\",\"Lightweight portable design\"],\"source\":\"JD Reference\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":109},\"Logitech G304 LIGHTSPEED\":{\"id\":\"MOU-002\",\"category\":\"Mouse\",\"product\":\"Logitech G304 LIGHTSPEED\",\"price_rmb\":229,\"tier\":\"Mid-range\",\"main_usage\":[\"Gaming\",\"General use\"],\"key_features\":[\"Wireless gaming mouse\",\"LIGHTSPEED wireless positioning\"],\"source\":\"JD / Market Reference\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":229},\"Logitech MX Master 3S\":{\"id\":\"MOU-003\",\"category\":\"Mouse\",\"product\":\"Logitech MX Master 3S\",\"price_rmb\":429,\"tier\":\"Premium\",\"main_usage\":[\"Office\",\"Creative work\",\"Productivity\"],\"key_features\":[\"8,000 DPI sensor\",\"Quiet clicks\",\"MagSpeed scrolling\"],\"source\":\"Logitech / Market Reference\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":429},\"Razer DeathAdder Essential (black wired)\":{\"id\":\"MOU-004\",\"category\":\"Mouse\",\"product\":\"Razer DeathAdder Essential (black wired)\",\"price_rmb\":109,\"tier\":\"Entry\",\"main_usage\":[\"Gaming\",\"General use\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://item.jd.com/product/v5zKcPGJuDWA1AOJa71zrQ.html\",\"price_evidence\":\"JD displayed price, checked 2026-10\",\"price\":109},\"Logitech Lift Vertical Ergonomic Mouse\":{\"id\":\"MOU-005\",\"category\":\"Mouse\",\"product\":\"Logitech Lift Vertical Ergonomic Mouse\",\"price_rmb\":499,\"tier\":\"Mid-range\",\"main_usage\":[\"Office\",\"Ergonomics\",\"Productivity\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://detail.zol.com.cn/Ergonomics_mouse/index1404738.shtml\",\"price_evidence\":\"ZOL reference price, checked 2026-10\",\"price\":499},\"Razer Viper V3 Pro (black wireless)\":{\"id\":\"MOU-006\",\"category\":\"Mouse\",\"product\":\"Razer Viper V3 Pro (black wireless)\",\"price_rmb\":1299,\"tier\":\"Premium\",\"main_usage\":[\"Competitive gaming\",\"Gaming\",\"FPS\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://detail.zol.com.cn/mice/index2125025.shtml\",\"price_evidence\":\"ZOL reference price, checked 2026-10\",\"price\":1299},\"Logitech K848\":{\"id\":\"KEY-001\",\"category\":\"Keyboard\",\"product\":\"Logitech K848\",\"price_rmb\":249,\"tier\":\"Entry\",\"main_usage\":[\"Office\",\"General typing\",\"Light gaming\"],\"key_features\":[\"Wired mechanical keyboard\",\"Backlighting\",\"Full-size layout\"],\"source\":\"JD / Market Reference\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":249},\"Logitech Signature K650\":{\"id\":\"KEY-002\",\"category\":\"Keyboard\",\"product\":\"Logitech Signature K650\",\"price_rmb\":299,\"tier\":\"Mid-range\",\"main_usage\":[\"Office\",\"Long typing sessions\",\"Productivity\"],\"key_features\":[\"Wireless and Bluetooth\",\"Integrated palm rest\",\"Full-size layout\"],\"source\":\"Logitech / JD Reference\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":299},\"Logitech MX Keys S\":{\"id\":\"KEY-003\",\"category\":\"Keyboard\",\"product\":\"Logitech MX Keys S\",\"price_rmb\":529,\"tier\":\"Premium\",\"main_usage\":[\"Office\",\"Productivity\",\"Multi-device use\"],\"key_features\":[\"Wireless and Bluetooth\",\"Smart backlighting\",\"Multi-device switching\"],\"source\":\"Logitech / JD Reference\",\"review_status\":\"EXISTING BASELINE\",\"evidence_url\":\"https://github.com/ych680/mytech-ai-assistant/blob/feat/aiep-deployment-candidate/mytech_v1_product_dataset.json\",\"price_evidence\":\"Existing v1 baseline snapshot: 2026-09-12\",\"price\":529},\"Rapoo V500PRO (full-size wired mechanical)\":{\"id\":\"KEY-004\",\"category\":\"Keyboard\",\"product\":\"Rapoo V500PRO (full-size wired mechanical)\",\"price_rmb\":199,\"tier\":\"Entry\",\"main_usage\":[\"Gaming\",\"General typing\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://www.rapoo.cn/product/769\",\"price_evidence\":\"Rapoo official listed price, checked 2026-10\",\"price\":199},\"AULA F75 (Glacier Blue, Reaper switch; tri-mode)\":{\"id\":\"KEY-005\",\"category\":\"Keyboard\",\"product\":\"AULA F75 (Glacier Blue, Reaper switch; tri-mode)\",\"price_rmb\":329,\"tier\":\"Mid-range\",\"main_usage\":[\"Gaming\",\"Office\",\"Multi-device use\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://detail.zol.com.cn/keyboard/index1969156.shtml\",\"price_evidence\":\"ZOL reference price, checked 2026-10\",\"price\":329},\"Logitech G PRO X TKL\":{\"id\":\"KEY-006\",\"category\":\"Keyboard\",\"product\":\"Logitech G PRO X TKL\",\"price_rmb\":1549,\"tier\":\"Premium\",\"main_usage\":[\"Competitive gaming\",\"Gaming\",\"FPS\"],\"key_features\":[\"Only the model/configuration stated in the Product field is selected\",\"detailed performance and other specifications require source verification.\"],\"source\":\"Candidate research reference \\u2014 not independently verified\",\"review_status\":\"NEW CANDIDATE \\u2014 provisional\",\"evidence_url\":\"https://detail.zol.com.cn/2100/2099769/price.shtml\",\"price_evidence\":\"ZOL reference price, checked 2026-10\",\"price\":1549}};\n\n  const USAGE_COMPATIBILITY = {\"Gaming\":[\"gaming\"],\"Study\":[\"study\",\"note-taking\",\"reading\"],\"Office\":[\"office\",\"productivity\",\"multitasking\",\"home use\"],\"Creative\":[\"creative\",\"content creation\",\"drawing\"],\"Photography\":[\"photography\"],\"Media\":[\"media\",\"entertainment\",\"video\"],\"Music\":[\"music\"],\"Calls\":[\"calls\",\"voice chat\"],\"Travel\":[\"travel\",\"commute\",\"portable\"],\"Fitness\":[\"fitness\",\"health tracking\",\"daily health\",\"running\",\"training\",\"outdoor sports\"],\"Development\":[\"development\"],\"Productivity\":[\"productivity\",\"office\",\"multitasking\"],\"Typing\":[\"typing\"],\"Noise cancellation\":[\"noise cancellation\"],\"Daily\":[\"daily\",\"general use\",\"home use\"]};\n\n  const categoryKey = value => String(value || \"\").trim().toLowerCase();\n  const isComparison = [\"cheaper\", \"more_expensive\", \"alternative\"].includes(intent);\n  let comparisonAnchor = null;\n  if (isComparison) {\n    if (requests.length !== 1 || !requests[0]?.category) {\n      return invalidResult(\"Follow-up violation: exactly one target request is required.\");\n    }\n    const target = requests[0];\n    const matches = previous.filter(item => categoryKey(item?.category) === categoryKey(target.category));\n    comparisonAnchor = matches.length === 1 ? matches[0] : null;\n    const approvedAnchor = Object.prototype.hasOwnProperty.call(PRODUCT_CATALOG, comparisonAnchor?.recommended_product)\n      ? PRODUCT_CATALOG[comparisonAnchor.recommended_product] : null;\n    if (!approvedAnchor || categoryKey(approvedAnchor.category) !== categoryKey(target.category)\n      || !Number.isFinite(comparisonAnchor.price) || comparisonAnchor.price !== approvedAnchor.price) {\n      return invalidResult(\"Follow-up violation: a unique approved same-category historical recommendation is required.\");\n    }\n    // A comparison must never bypass the existing hard cap through bad state.\n    // General budget normalization and partial updates remain Phase 1B.2 work.\n    const budget = Number(target.budget);\n    if (!Number.isFinite(budget) || budget <= 0) {\n      return invalidResult(\"Follow-up violation: a valid positive hard budget is required.\");\n    }\n  }\n\n  let validation_ok = true;\n  let validation_error = \"\";\n\n  const seenCategories = new Set();\n\n  // Do not allow more recommendations than active product requests.\n  if (recommendations.length > requests.length) {\n    return invalidResult(\n      \"Validation violation: more recommendations were returned than active product requests.\"\n    );\n  }\n\n  for (const rec of recommendations) {\n    if (!rec || typeof rec !== \"object\") {\n      validation_ok = false;\n      validation_error =\n        \"Validation violation: recommendation must be an object.\";\n      break;\n    }\n\n    const productName =\n      typeof rec.recommended_product === \"string\"\n        ? rec.recommended_product.trim()\n        : \"\";\n\n    const recCategory =\n      typeof rec.category === \"string\"\n        ? rec.category.trim()\n        : \"\";\n\n    const recSource =\n      typeof rec.source === \"string\"\n        ? rec.source.trim()\n        : \"\";\n\n    const price = Number(rec.price);\n\n    // 1. Product identity validation\n    const approvedProduct = Object.prototype.hasOwnProperty.call(PRODUCT_CATALOG, productName)\n      ? PRODUCT_CATALOG[productName] : null;\n\n    if (!approvedProduct) {\n      validation_ok = false;\n      validation_error =\n        `Product validation violation: \"${productName || \"Unknown product\"}\" ` +\n        `is not an approved MyTech product.`;\n      break;\n    }\n\n    // 2. Product-category validation\n    if (\n      approvedProduct.category.toLowerCase() !==\n      recCategory.toLowerCase()\n    ) {\n      validation_ok = false;\n      validation_error =\n        `Category validation violation: \"${productName}\" is a ` +\n        `${approvedProduct.category}, not a ${recCategory || \"missing category\"}.`;\n      break;\n    }\n\n    // 3. Active-request category validation\n    const request = requests.find(\n      r =>\n        String(r.category || \"\")\n          .trim()\n          .toLowerCase() ===\n        approvedProduct.category.toLowerCase()\n    );\n\n    if (!request) {\n      validation_ok = false;\n      validation_error =\n        `Category validation violation: \"${productName}\" belongs to ` +\n        `${approvedProduct.category}, but there is no active request for that category.`;\n      break;\n    }\n\n    // 4. Prevent duplicate recommendations for the same category\n    const categoryKey =\n      approvedProduct.category.toLowerCase();\n\n    if (seenCategories.has(categoryKey)) {\n      validation_ok = false;\n      validation_error =\n        `Validation violation: multiple recommendations were returned for ` +\n        `${approvedProduct.category}.`;\n      break;\n    }\n\n    seenCategories.add(categoryKey);\n\n    // 5. Exact reference-price validation\n    if (\n      !Number.isFinite(price) ||\n      price !== approvedProduct.price\n    ) {\n      validation_ok = false;\n      validation_error =\n        `Price validation violation: \"${productName}\" must use the approved ` +\n        `reference price of ¥${approvedProduct.price}.`;\n      break;\n    }\n\n    // 6. Exact source validation\n    if (recSource !== approvedProduct.source) {\n      validation_ok = false;\n      validation_error =\n        `Source validation violation: \"${productName}\" must use the approved ` +\n        `source \"${approvedProduct.source}\".`;\n      break;\n    }\n\n    // Check every recommendation, including initial turns, against Master Dataset usage tags.\n    const usageCheck = checkCatalogueUsage(approvedProduct, request.main_usage, PRODUCT_CATALOG, USAGE_COMPATIBILITY);\n    if (!usageCheck.valid) return invalidResult(\"Usage validation violation: \" + usageCheck.error);\n\n    // 7. Hard-budget validation\n    const budget = Number(request.budget);\n\n    if (\n      Number.isFinite(budget) &&\n      price > budget\n    ) {\n      validation_ok = false;\n      validation_error =\n        `Budget violation: ${productName} costs ¥${price}, ` +\n        `but the active budget is ¥${budget}.`;\n      break;\n    }\n\n    // Only the verified same-category anchor may drive this comparison.\n    const previousRec = comparisonAnchor;\n\n    // 8. Follow-up validation\n    if (previousRec) {\n      const previousPrice = Number(previousRec.price);\n\n      if (\n        intent === \"cheaper\" &&\n        Number.isFinite(previousPrice) &&\n        price >= previousPrice\n      ) {\n        validation_ok = false;\n        validation_error =\n          \"Follow-up violation: cheaper recommendation must cost less than the previous recommendation.\";\n        break;\n      }\n\n      if (\n        intent === \"more_expensive\" &&\n        Number.isFinite(previousPrice) &&\n        price <= previousPrice\n      ) {\n        validation_ok = false;\n        validation_error =\n          \"Follow-up violation: more_expensive recommendation must cost more than the previous recommendation.\";\n        break;\n      }\n\n      if (\n        intent === \"alternative\" &&\n        productName.toLowerCase() ===\n        String(previousRec.recommended_product || \"\")\n          .trim()\n          .toLowerCase()\n      ) {\n        validation_ok = false;\n        validation_error =\n          \"Follow-up violation: alternative recommendation must be a different product.\";\n        break;\n      }\n\n      if (\n        intent === \"cheaper\" ||\n        intent === \"more_expensive\" ||\n        intent === \"alternative\"\n      ) {\n        const previousCategory =\n          String(previousRec.category || \"\")\n            .trim()\n            .toLowerCase();\n\n        if (\n          previousCategory &&\n          previousCategory !==\n            approvedProduct.category.toLowerCase()\n        ) {\n          validation_ok = false;\n          validation_error =\n            \"Follow-up category violation: follow-up recommendations must remain in the same product category.\";\n          break;\n        }\n      }\n    }\n  }\n\n  if (!validation_ok) return invalidResult(validation_error);\n\n  // Empty public recommendations do not erase historical comparison anchors.\n  // Successful comparisons update only their target; ordinary successful tasks\n  // retain the baseline whole-response replacement/reset behavior.\n  let recommendations_to_store = recommendations;\n  if (recommendations.length === 0) {\n    recommendations_to_store = previous.map(item => ({ ...item }));\n    if (validation_ok && isComparison) {\n      const target = requests[0];\n      const comparisonLabel = intent === \"more_expensive\" ? \"more expensive\"\n        : intent === \"alternative\" ? \"alternative\" : \"cheaper\";\n      const article = intent === \"alternative\" ? \"an\" : \"a\";\n      answer = \"I couldn't find \" + article + \" \" + comparisonLabel + \" \" + target.category\n        + \" for \" + target.main_usage + \" within RMB \" + target.budget\n        + \" in the retrieved MyTech reference data.\";\n      next_step = \"Would you like to adjust your \" + target.category + \" budget or usage?\";\n    }\n  } else if (validation_ok && isComparison) {\n    const targetKey = categoryKey(requests[0].category);\n    recommendations_to_store = previous.map(item => categoryKey(item?.category) === targetKey\n      ? { ...recommendations[0] } : { ...item });\n  }\n\n  const normalized = {\n    answer,\n    recommendations,\n    next_step,\n    clarification_needed\n  };\n\n  return {\n    answer,\n    recommendations,\n    next_step,\n    clarification_needed,\n    validation_ok,\n    validation_error,\n    recommendations_to_store,\n    normalized_json: JSON.stringify(normalized)\n  };\n\n  function invalidResult(message) {\n    const safe = {\n      answer: \"I couldn't safely validate a recommendation for your requirements.\",\n      recommendations: [],\n      next_step: \"Please restate the category, maximum budget and main usage.\",\n      clarification_needed: true\n    };\n    return {\n      ...safe,\n      validation_ok: false,\n      validation_error: message,\n      // Current's validation router skips its writer on failure. Keep safe\n      // memory output too, so rejected results cannot replace prior anchors.\n      recommendations_to_store: Array.isArray(previous_recommendations)\n        ? previous_recommendations.map(item => ({ ...item })) : [],\n      normalized_json: JSON.stringify(safe)\n    };\n  }\n}",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "string",
+          "canEdit": true,
+          "key": "raw_json",
+          "label": "raw_json",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "pskHz4kajjJnBWwG",
+            "answerText"
+          ]
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "arrayObject",
+          "canEdit": true,
+          "key": "active_requests",
+          "label": "active_requests",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "tWP2LwPvzFadPPtk",
+            "school1bTargets"
+          ]
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "arrayObject",
+          "canEdit": true,
+          "key": "previous_recommendations",
+          "label": "previous_recommendations",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "VARIABLE_NODE_ID",
+            "abIVSlbb"
+          ]
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "string",
+          "canEdit": true,
+          "key": "follow_up_intent",
+          "label": "follow_up_intent",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "VARIABLE_NODE_ID",
+            "fD4C5VOp"
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "id": "system_rawResponse",
+          "key": "system_rawResponse",
+          "label": "workflow:full_response_data",
+          "valueType": "object",
+          "type": "static",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "error",
+          "key": "error",
+          "label": "workflow:error_text",
+          "valueType": "string",
+          "type": "error",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "system_addOutputParam",
+          "key": "system_addOutputParam",
+          "type": "dynamic",
+          "valueType": "dynamic",
+          "label": "",
+          "customFieldConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": false
+          },
+          "description": "将代码中 return 的对象作为输出，传递给后续的节点。变量名需要对应 return 的 key",
+          "valueDesc": ""
+        },
+        {
+          "id": "qLUQfhG0ILRX",
+          "type": "dynamic",
+          "key": "answer",
+          "valueType": "string",
+          "label": "answer",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "gR0mkQpJ4Og8",
+          "type": "dynamic",
+          "key": "recommendations",
+          "valueType": "arrayObject",
+          "label": "recommendations",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "hPUpDc",
+          "type": "dynamic",
+          "key": "next_step",
+          "label": "next_step",
+          "valueType": "string",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "jC66hR",
+          "type": "dynamic",
+          "key": "clarification_needed",
+          "label": "clarification_needed",
+          "valueType": "boolean",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "uINKaw",
+          "type": "dynamic",
+          "key": "validation_ok",
+          "label": "validation_ok",
+          "valueType": "boolean",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "dbdbmb",
+          "type": "dynamic",
+          "key": "validation_error",
+          "label": "validation_error",
+          "valueType": "string",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "hrIzWQ",
+          "type": "dynamic",
+          "key": "normalized_json",
+          "label": "normalized_json",
+          "valueType": "string",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "school1bMemory",
+          "type": "dynamic",
+          "key": "recommendations_to_store",
+          "valueType": "arrayObject",
+          "label": "recommendations_to_store",
+          "valueDesc": "",
+          "description": ""
+        }
+      ],
+      "catchError": false
+    },
+    {
+      "nodeId": "p4ZeCJXrGirXAQCz",
+      "name": "判断器#3",
+      "intro": "根据一定的条件，执行不同的分支。",
+      "avatar": "core/workflow/template/ifelse",
+      "flowNodeType": "ifElseNode",
+      "showStatus": true,
+      "position": {
+        "x": 8655,
+        "y": -360
+      },
+      "inputs": [
+        {
+          "key": "ifElseList",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "valueType": "any",
+          "label": "",
+          "value": [
+            {
+              "condition": "AND",
+              "list": [
+                {
+                  "variable": [
+                    "fakNM8mmlYmewx67",
+                    "uINKaw"
+                  ],
+                  "condition": "equalTo",
+                  "value": "true",
+                  "valueType": "input"
+                }
+              ]
+            }
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": [
+        {
+          "id": "ifElseResult",
+          "key": "ifElseResult",
+          "label": "workflow:judgment_result",
+          "valueType": "string",
+          "type": "static",
+          "valueDesc": "",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "nodeId": "oibK1q4js1HXjiO2",
+      "name": "变量更新#2",
+      "intro": "可以更新指定节点的输出值或更新全局变量",
+      "avatar": "core/workflow/template/variableUpdate",
+      "flowNodeType": "variableUpdate",
+      "showStatus": false,
+      "position": {
+        "x": 9510,
+        "y": -480
+      },
+      "inputs": [
+        {
+          "key": "updateList",
+          "valueType": "any",
+          "label": "",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "value": [
+            {
+              "variable": [
+                "VARIABLE_NODE_ID",
+                "abIVSlbb"
+              ],
+              "value": [
+                [
+                  "fakNM8mmlYmewx67",
+                  "school1bMemory"
+                ]
+              ],
+              "valueType": "arrayObject",
+              "renderType": "reference"
+            }
+          ],
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "nodeId": "zh9L8VeY9vKm3WnU",
+      "name": "指定回复#3",
+      "intro": "该模块可以直接回复一段指定的内容。常用于引导、提示。非字符串内容传入时，会转成字符串进行输出。",
+      "avatar": "core/workflow/template/reply",
+      "flowNodeType": "answerNode",
+      "position": {
+        "x": 9510,
+        "y": -75
+      },
+      "inputs": [
+        {
+          "key": "text",
+          "renderTypeList": [
+            "textarea",
+            "reference"
+          ],
+          "valueType": "any",
+          "required": true,
+          "isRichText": false,
+          "maxLength": 100000,
+          "label": "common:core.module.input.label.Response content",
+          "description": "common:core.module.input.description.Response content",
+          "placeholder": "common:core.module.input.description.Response content",
+          "value": "{\n  \"answer\": \"Sorry, I could not produce a valid recommendation that satisfies the current budget and requirements.\",\n  \"recommendations\": [],\n  \"next_step\": \"Please adjust your budget or requirements and try again.\",\n  \"clarification_needed\": false\n}",
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "nodeId": "b0vXntQUXZL2Mk5m",
+      "name": "指定回复#4",
+      "intro": "该模块可以直接回复一段指定的内容。常用于引导、提示。非字符串内容传入时，会转成字符串进行输出。",
+      "avatar": "core/workflow/template/reply",
+      "flowNodeType": "answerNode",
+      "position": {
+        "x": 10365,
+        "y": -480
+      },
+      "inputs": [
+        {
+          "key": "text",
+          "renderTypeList": [
+            "textarea",
+            "reference"
+          ],
+          "valueType": "any",
+          "required": true,
+          "isRichText": false,
+          "maxLength": 100000,
+          "label": "common:core.module.input.label.Response content",
+          "description": "common:core.module.input.description.Response content",
+          "placeholder": "common:core.module.input.description.Response content",
+          "value": [
+            "fakNM8mmlYmewx67",
+            "hrIzWQ"
+          ],
+          "selectedTypeIndex": 1,
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "nodeId": "d6kCXfQ1mcJ5hT8J",
+      "name": "指定回复#5",
+      "intro": "该模块可以直接回复一段指定的内容。常用于引导、提示。非字符串内容传入时，会转成字符串进行输出。",
+      "avatar": "core/workflow/template/reply",
+      "flowNodeType": "answerNode",
+      "position": {
+        "x": 2715,
+        "y": 585
+      },
+      "inputs": [
+        {
+          "key": "text",
+          "renderTypeList": [
+            "textarea",
+            "reference"
+          ],
+          "valueType": "any",
+          "required": true,
+          "isRichText": false,
+          "maxLength": 100000,
+          "label": "common:core.module.input.label.Response content",
+          "description": "common:core.module.input.description.Response content",
+          "placeholder": "common:core.module.input.description.Response content",
+          "value": "{\n  \"answer\": \"Hi! I'm MyTech. I can help you choose Laptop, Desktop, Smartphone, Tablet, Headphones, Monitor, Smartwatch, Mouse, and Keyboard. Tell me what product you need, your budget in RMB, and your main usage, and I can recommend a suitable option.\",\n  \"recommendations\": [],\n  \"next_step\": \"Tell me what kind of device you are looking for.\",\n  \"clarification_needed\": false\n}",
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "nodeId": "zWAw4oYVL1QMe8YX",
+      "name": "知识库搜索",
+      "intro": "调用“语义检索”和“全文检索”能力，从“知识库”中查找可能与问题相关的参考内容",
+      "avatar": "core/workflow/template/datasetSearch",
+      "flowNodeType": "datasetSearchNode",
+      "showStatus": true,
+      "position": {
+        "x": 6360,
+        "y": -241
+      },
+      "version": "4.9.2",
+      "inputs": [
+        {
+          "key": "datasets",
+          "renderTypeList": [
+            "selectDataset",
+            "reference"
+          ],
+          "label": "common:core.module.input.label.Select dataset",
+          "value": [],
+          "valueType": "selectDataset",
+          "required": true,
+          "valueDesc": "{\n  datasetId: string;\n}[]",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "similarity",
+          "renderTypeList": [
+            "selectDatasetParamsModal"
+          ],
+          "label": "",
+          "value": 0.35,
+          "valueType": "number",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "limit",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "value": 5000,
+          "valueType": "number",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "searchMode",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "value": "embedding",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "embeddingWeight",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "number",
+          "value": 0.5,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "usingReRank",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "boolean",
+          "value": false,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "rerankModel",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "debugLabel": "",
+          "toolDescription": "",
+          "value": ""
+        },
+        {
+          "key": "rerankWeight",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "number",
+          "value": 0.5,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "datasetSearchUsingExtensionQuery",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "boolean",
+          "value": false,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "datasetSearchExtensionModel",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "debugLabel": "",
+          "toolDescription": "",
+          "value": ""
+        },
+        {
+          "key": "datasetSearchExtensionBg",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "value": "",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "authTmbId",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "boolean",
+          "value": false,
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "userChatInput",
+          "renderTypeList": [
+            "reference",
+            "textarea"
+          ],
+          "valueType": "string",
+          "label": "workflow:user_question",
+          "toolDescription": "需要检索的内容",
+          "required": true,
+          "value": [
+            "sxwN5Fd17Tc8leTf",
+            "qLUQfhG0ILRX"
+          ],
+          "debugLabel": ""
+        },
+        {
+          "key": "collectionFilterMatch",
+          "renderTypeList": [
+            "textarea",
+            "reference"
+          ],
+          "label": "workflow:collection_metadata_filter",
+          "valueType": "string",
+          "isPro": true,
+          "description": "workflow:filter_description",
+          "debugLabel": "",
+          "toolDescription": ""
+        }
+      ],
+      "outputs": [
+        {
+          "id": "quoteQA",
+          "key": "quoteQA",
+          "label": "common:core.module.Dataset quote.label",
+          "description": "特殊数组格式，搜索结果为空时，返回空数组。",
+          "type": "static",
+          "valueType": "datasetQuote",
+          "valueDesc": "{\n  id: string;\n  datasetId: string;\n  collectionId: string;\n  sourceName: string;\n  sourceId?: string;\n  q: string;\n  a: string\n}[]"
+        },
+        {
+          "id": "system_error_text",
+          "key": "system_error_text",
+          "type": "error",
+          "valueType": "string",
+          "label": "workflow:error_text",
+          "valueDesc": "",
+          "description": ""
+        }
+      ],
+      "catchError": false
+    },
+    {
+      "nodeId": "sxwN5Fd17Tc8leTf",
+      "name": "代码运行#3",
+      "intro": "执行一段简单的脚本代码，通常用于进行复杂的数据处理。",
+      "avatar": "core/workflow/template/codeRun",
+      "flowNodeType": "code",
+      "showStatus": true,
+      "position": {
+        "x": 5355,
+        "y": -360
+      },
+      "inputs": [
+        {
+          "key": "system_addInputParam",
+          "renderTypeList": [
+            "addInputParam"
+          ],
+          "valueType": "dynamic",
+          "label": "",
+          "required": false,
+          "description": "workflow:these_variables_will_be_input_parameters_for_code_execution",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "codeType",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "value": "js",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "code",
+          "renderTypeList": [
+            "custom"
+          ],
+          "label": "",
+          "valueType": "string",
+          "value": "function main({\n  user_question,\n  active_requests,\n  follow_up_intent,\n  previous_recommendations\n}) {\n  const requests = Array.isArray(active_requests)\n    ? active_requests\n    : [];\n\n  const previous = Array.isArray(previous_recommendations)\n    ? previous_recommendations\n    : [];\n\n  if (requests.length === 0) {\n    return {\n      comparison_history: [],\n      retrieval_query: String(user_question || \"\")\n    };\n  }\n\n  const categoryKey = value =>\n    String(value || \"\").trim().toLowerCase();\n\n  const intent =\n    String(follow_up_intent || \"none\").toLowerCase();\n\n  const comparison_history = [];\n  const queries = requests.map(request => {\n    const category = request?.category || \"\";\n    const budget = request?.budget ?? \"\";\n    const mainUsage = request?.main_usage || \"\";\n\n    const categoryMatches = previous.filter(item =>\n      categoryKey(category) !== \"\" &&\n      categoryKey(item?.category) === categoryKey(category)\n    );\n    const previousItem = categoryMatches.length === 1\n      ? categoryMatches[0]\n      : null;\n    if (previousItem) comparison_history.push({ ...previousItem });\n\n    const previousProduct =\n      previousItem?.recommended_product || \"\";\n\n    const previousPrice =\n      previousItem?.price ?? \"\";\n\n    let query =\n      `${category} for ${mainUsage}`\n      + (budget !== \"\" ? ` within RMB ${budget}` : \"\");\n\n    if (intent === \"cheaper\" && previousPrice !== \"\") {\n      query += `, cheaper than RMB ${previousPrice}`;\n    } else if (\n      intent === \"more_expensive\" &&\n      previousPrice !== \"\"\n    ) {\n      query += `, more expensive than RMB ${previousPrice}`;\n    } else if (\n      intent === \"alternative\" &&\n      previousProduct\n    ) {\n      query += `, alternative to ${previousProduct}`;\n    }\n\n    return query.trim();\n  });\n\n  return {\n    comparison_history,\n    retrieval_query: queries.join(\"\\n\")\n  };\n}",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "string",
+          "canEdit": true,
+          "key": "user_question",
+          "label": "user_question",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "448745",
+            "userChatInput"
+          ]
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "arrayObject",
+          "canEdit": true,
+          "key": "active_requests",
+          "label": "active_requests",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "tWP2LwPvzFadPPtk",
+            "school1bTargets"
+          ]
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "string",
+          "canEdit": true,
+          "key": "follow_up_intent",
+          "label": "follow_up_intent",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "VARIABLE_NODE_ID",
+            "fD4C5VOp"
+          ]
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "arrayObject",
+          "canEdit": true,
+          "key": "previous_recommendations",
+          "label": "previous_recommendations",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "VARIABLE_NODE_ID",
+            "abIVSlbb"
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "id": "system_rawResponse",
+          "key": "system_rawResponse",
+          "label": "workflow:full_response_data",
+          "valueType": "object",
+          "type": "static",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "error",
+          "key": "error",
+          "label": "workflow:error_text",
+          "valueType": "string",
+          "type": "error",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "system_addOutputParam",
+          "key": "system_addOutputParam",
+          "type": "dynamic",
+          "valueType": "dynamic",
+          "label": "",
+          "customFieldConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": false
+          },
+          "description": "将代码中 return 的对象作为输出，传递给后续的节点。变量名需要对应 return 的 key",
+          "valueDesc": ""
+        },
+        {
+          "id": "qLUQfhG0ILRX",
+          "type": "dynamic",
+          "key": "retrieval_query",
+          "valueType": "string",
+          "label": "retrieval_query",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "school1bHistory",
+          "type": "dynamic",
+          "key": "comparison_history",
+          "valueType": "arrayObject",
+          "label": "comparison_history",
+          "valueDesc": "",
+          "description": ""
+        }
+      ],
+      "catchError": false
+    },
+    {
+      "nodeId": "v21RmbInputNormalize",
+      "name": "TEST RMB Input Normalization",
+      "intro": "执行一段简单的脚本代码，通常用于进行复杂的数据处理。",
+      "avatar": "core/workflow/template/codeRun",
+      "flowNodeType": "code",
+      "showStatus": true,
+      "position": {
+        "x": 960,
+        "y": -1575
+      },
+      "inputs": [
+        {
+          "key": "system_addInputParam",
+          "renderTypeList": [
+            "addInputParam"
+          ],
+          "valueType": "dynamic",
+          "label": "",
+          "required": false,
+          "description": "workflow:these_variables_will_be_input_parameters_for_code_execution",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "codeType",
+          "renderTypeList": [
+            "hidden"
+          ],
+          "label": "",
+          "valueType": "string",
+          "value": "js",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "key": "code",
+          "renderTypeList": [
+            "custom"
+          ],
+          "label": "",
+          "valueType": "string",
+          "value": "// TEST-only pure input helpers. No currency conversion and no history inference.\nfunction normalizeRmbInput(value) {\n  const text = String(value == null ? \"\" : value);\n  const codes = \"(?:USD|EUR|GBP|JPY|HKD|AUD|CAD|SGD|NZD|KRW|TWD|INR|CHF|THB|MYR|IDR|PHP|VND|ZAR|BRL|AED|SAR|RUB|TRY|PLN|SEK|NOK|DKK)\";\n  const foreign = /\\b(?:dollars?|euros?|pounds?|yen|rupees?|won|baht|ringgit|rand|dirhams?|francs?|roubles?|rubles?)\\b|JP\\s*[¥￥]/i.test(text)\n    || new RegExp(\"\\\\b\" + codes + \"\\\\s*[¥￥$]?\\\\s*\\\\d|\\\\d\\\\s*\" + codes + \"\\\\b|\\\\b(?:in|currency(?: is)?)\\\\s+\" + codes + \"\\\\b\", \"i\").test(text)\n    || [...text.matchAll(/\\b(?:under|below|up to|budget(?: is| of| in| to)?|maximum)\\s+([A-Za-z]{3})\\s*(?=\\d)/gi)].some(match => ![\"RMB\", \"CNY\", \"MAX\"].includes(match[1].toUpperCase()))\n    || [...text.matchAll(/\\p{Sc}/gu)].some(match => ![\"¥\", \"￥\"].includes(match[0]));\n  if (foreign) return { normalized_question: text, currency_status: \"foreign_or_mixed\" };\n  const amount = \"(?:[1-9]\\\\d{0,2}(?:,\\\\d{3})+|(?:0|[1-9]\\\\d*))(?:\\\\.\\\\d+)?\";\n  const completeAmount = new RegExp(\"^\" + amount + \"$\");\n  const statedAmounts = [...text.matchAll(/(?:\\b(?:RMB|CNY)\\s*|[¥￥]\\s*)([+-]?\\d[\\w.,+-]*)/gi)];\n  if (statedAmounts.some(match => {\n    const number = match[1].replace(/[.,]$/, \"\"); // Sentence punctuation, not decimal rounding.\n    const numeric = Number(number.replace(/,/g, \"\"));\n    return !completeAmount.test(number) || !Number.isFinite(numeric) || numeric <= 0 || numeric > Number.MAX_SAFE_INTEGER;\n  })) return { normalized_question: text, currency_status: \"invalid_rmb_amount\" };\n  const currency = new RegExp(\"(\\\\b(?:RMB|CNY)\\\\s*|[¥￥]\\\\s*)(\" + amount + \")(?!\\\\w|[,.]\\\\d)\", \"gi\");\n  const normalized = text.replace(currency, (whole, _prefix, number) => {\n    const digits = number.replace(/,/g, \"\");\n    const numeric = Number(digits);\n    return Number.isFinite(numeric) && numeric > 0 && numeric <= Number.MAX_SAFE_INTEGER ? \"RMB \" + digits : whole;\n  });\n  return { normalized_question: normalized, currency_status: \"rmb_or_unspecified\" };\n}\n\nfunction normalizeRmbBudget(value) {\n  if (typeof value === \"number\") return Number.isFinite(value) && value > 0 && value <= Number.MAX_SAFE_INTEGER ? value : null;\n  if (typeof value !== \"string\") return null;\n  const normalized = normalizeRmbInput(value.trim());\n  if (normalized.currency_status !== \"rmb_or_unspecified\") return null;\n  const match = /^(?:RMB\\s+)?((?:[1-9]\\d{0,2}(?:,\\d{3})+|(?:0|[1-9]\\d*))(?:\\.\\d+)?)$/i.exec(normalized.normalized_question);\n  if (!match) return null;\n  return normalizeRmbBudget(Number(match[1].replace(/,/g, \"\")));\n}\n\nfunction currentPurchaseEvidence(value) {\n  // Recognize an explicit, bounded purchase utterance, not arbitrary category\n  // mentions, quotations, capability questions, repairs or negative intent.\n  const text = normalizeRmbInput(value).normalized_question.trim().replace(/[.!?]+$/, \"\");\n  if (/[\"“”\\n]/.test(text) || /\\b(?:not|never|don't|do not|if|pretend|translate|translation|quote|repair|broken)\\b/i.test(text)) return null;\n  if (/[.!?]/.test(text.replace(/(\\d)\\.(?=\\d)/g, \"$1_\"))) return null;\n  const lead = /^(?:please\\s+)?(?:i\\s+(?:need|want)\\s+|i(?:'d| would)\\s+like\\s+|i(?:'m| am)\\s+looking for\\s+|(?:(?:can|could|would) you\\s+(?:please\\s+)?)?(?:recommend|suggest|find|show)\\s+(?:me\\s+)?)/i.exec(text);\n  if (!lead) return null;\n  const body = text.slice(lead[0].length);\n  // Mixed unsupported requests are left to the original extractor/whitelist.\n  if (/\\b(?:cameras?|printers?|televisions?|TVs?|routers?|speakers?|projectors?|consoles?)\\b/i.test(body)) return null;\n  const names = { laptop: \"Laptop\", laptops: \"Laptop\", desktop: \"Desktop\", desktops: \"Desktop\",\n    smartphone: \"Smartphone\", smartphones: \"Smartphone\", tablet: \"Tablet\", tablets: \"Tablet\",\n    headphone: \"Headphones\", headphones: \"Headphones\", monitor: \"Monitor\", monitors: \"Monitor\",\n    smartwatch: \"Smartwatch\", smartwatches: \"Smartwatch\", mouse: \"Mouse\", mice: \"Mouse\", keyboard: \"Keyboard\", keyboards: \"Keyboard\" };\n  const noun = \"(?:\" + Object.keys(names).sort((a, b) => b.length - a.length).join(\"|\") + \")\";\n  const modifier = \"(?:(?:a|an|some|new|gaming|study|office|budget|portable)\\\\s+)*\";\n  const clauses = body.split(new RegExp(\"(?:,?\\\\s+and\\\\s+|,?\\\\s+plus\\\\s+|;\\\\s*)(?=\" + modifier + noun + \"\\\\b)\", \"i\"));\n  const result = [], seen = new Set();\n  for (const clause of clauses) {\n    const match = new RegExp(\"^\" + modifier + \"(\" + noun + \")\\\\b(.*)$\", \"i\").exec(clause.trim());\n    if (!match) return null;\n    const tail = match[2].trim();\n    if (tail && !/^(?:under|below|up to|less than|around|about|for|with (?:a )?budget|budget)\\b/i.test(tail)) return null;\n    const category = names[match[1].toLowerCase()];\n    if (seen.has(category)) return null; // Ambiguous duplicate requests need extraction/clarification.\n    seen.add(category);\n    const amounts = [...clause.matchAll(/\\bRMB\\s+(\\d+(?:\\.\\d+)?)(?!\\w|[,.]\\d)/gi)];\n    const range = /\\d\\s*(?:[-–—]|to|or)\\s*(?:RMB\\s*)?\\d/i.test(clause);\n    result.push({ category, budget: amounts.length === 1 && !range ? normalizeRmbBudget(amounts[0][1]) : null });\n  }\n  return result.length ? result : null;\n}\n\nfunction main({ user_question }) { return normalizeRmbInput(user_question); }\n",
+          "debugLabel": "",
+          "toolDescription": ""
+        },
+        {
+          "renderTypeList": [
+            "reference"
+          ],
+          "valueType": "string",
+          "canEdit": true,
+          "key": "user_question",
+          "label": "user_question",
+          "customInputConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": true
+          },
+          "required": true,
+          "value": [
+            "448745",
+            "userChatInput"
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "id": "system_rawResponse",
+          "key": "system_rawResponse",
+          "label": "workflow:full_response_data",
+          "valueType": "object",
+          "type": "static",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "error",
+          "key": "error",
+          "label": "workflow:error_text",
+          "valueType": "string",
+          "type": "error",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "system_addOutputParam",
+          "key": "system_addOutputParam",
+          "type": "dynamic",
+          "valueType": "dynamic",
+          "label": "",
+          "customFieldConfig": {
+            "selectValueTypeList": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "arrayString",
+              "arrayNumber",
+              "arrayBoolean",
+              "arrayObject",
+              "arrayAny",
+              "any",
+              "chatHistory",
+              "datasetQuote",
+              "dynamic",
+              "selectDataset",
+              "selectApp"
+            ],
+            "showDescription": false,
+            "showDefaultValue": false
+          },
+          "description": "将代码中 return 的对象作为输出，传递给后续的节点。变量名需要对应 return 的 key",
+          "valueDesc": ""
+        },
+        {
+          "id": "v21NormalizedQuestion",
+          "type": "dynamic",
+          "key": "normalized_question",
+          "valueType": "string",
+          "label": "normalized_question",
+          "valueDesc": "",
+          "description": ""
+        },
+        {
+          "id": "v21CurrencyStatus",
+          "type": "dynamic",
+          "key": "currency_status",
+          "valueType": "string",
+          "label": "currency_status",
+          "valueDesc": "",
+          "description": ""
+        }
+      ],
+      "catchError": false
+    }
+  ],
+  "edges": [
+    {
+      "source": "448745",
+      "target": "v21RmbInputNormalize",
+      "sourceHandle": "448745-source-right",
+      "targetHandle": "v21RmbInputNormalize-target-left"
+    },
+    {
+      "source": "v21RmbInputNormalize",
+      "target": "etNrwEXVwr5sySpK",
+      "sourceHandle": "v21RmbInputNormalize-source-right",
+      "targetHandle": "etNrwEXVwr5sySpK-target-left"
+    },
+    {
+      "source": "etNrwEXVwr5sySpK",
+      "target": "tWP2LwPvzFadPPtk",
+      "sourceHandle": "etNrwEXVwr5sySpK-source-right",
+      "targetHandle": "tWP2LwPvzFadPPtk-target-left"
+    },
+    {
+      "source": "tWP2LwPvzFadPPtk",
+      "target": "yrfKbYdd3I61H9JN",
+      "sourceHandle": "tWP2LwPvzFadPPtk-source-right",
+      "targetHandle": "yrfKbYdd3I61H9JN-target-left"
+    },
+    {
+      "source": "yrfKbYdd3I61H9JN",
+      "target": "hMbWAx9XxkNcfG6V",
+      "sourceHandle": "yrfKbYdd3I61H9JN-source-IF",
+      "targetHandle": "hMbWAx9XxkNcfG6V-target-left"
+    },
+    {
+      "source": "yrfKbYdd3I61H9JN",
+      "target": "bgcB6pN1kaSjIiAk",
+      "sourceHandle": "yrfKbYdd3I61H9JN-source-ELSE IF 1",
+      "targetHandle": "bgcB6pN1kaSjIiAk-target-left"
+    },
+    {
+      "source": "yrfKbYdd3I61H9JN",
+      "target": "wwmnkseAaXixej19",
+      "sourceHandle": "yrfKbYdd3I61H9JN-source-ELSE",
+      "targetHandle": "wwmnkseAaXixej19-target-left"
+    },
+    {
+      "source": "hMbWAx9XxkNcfG6V",
+      "target": "fzgLdGhMS3eMuqQt",
+      "sourceHandle": "hMbWAx9XxkNcfG6V-source-right",
+      "targetHandle": "fzgLdGhMS3eMuqQt-target-left"
+    },
+    {
+      "source": "fzgLdGhMS3eMuqQt",
+      "target": "ikIzMK483vihRths",
+      "sourceHandle": "fzgLdGhMS3eMuqQt-source-IF",
+      "targetHandle": "ikIzMK483vihRths-target-left"
+    },
+    {
+      "source": "pskHz4kajjJnBWwG",
+      "target": "fakNM8mmlYmewx67",
+      "sourceHandle": "pskHz4kajjJnBWwG-source-right",
+      "targetHandle": "fakNM8mmlYmewx67-target-left"
+    },
+    {
+      "source": "fakNM8mmlYmewx67",
+      "target": "p4ZeCJXrGirXAQCz",
+      "sourceHandle": "fakNM8mmlYmewx67-source-right",
+      "targetHandle": "p4ZeCJXrGirXAQCz-target-left"
+    },
+    {
+      "source": "p4ZeCJXrGirXAQCz",
+      "target": "oibK1q4js1HXjiO2",
+      "sourceHandle": "p4ZeCJXrGirXAQCz-source-IF",
+      "targetHandle": "oibK1q4js1HXjiO2-target-left"
+    },
+    {
+      "source": "p4ZeCJXrGirXAQCz",
+      "target": "zh9L8VeY9vKm3WnU",
+      "sourceHandle": "p4ZeCJXrGirXAQCz-source-ELSE",
+      "targetHandle": "zh9L8VeY9vKm3WnU-target-left"
+    },
+    {
+      "source": "oibK1q4js1HXjiO2",
+      "target": "b0vXntQUXZL2Mk5m",
+      "sourceHandle": "oibK1q4js1HXjiO2-source-right",
+      "targetHandle": "b0vXntQUXZL2Mk5m-target-left"
+    },
+    {
+      "source": "yrfKbYdd3I61H9JN",
+      "target": "d6kCXfQ1mcJ5hT8J",
+      "sourceHandle": "yrfKbYdd3I61H9JN-source-ELSE IF 2",
+      "targetHandle": "d6kCXfQ1mcJ5hT8J-target-left"
+    },
+    {
+      "source": "zWAw4oYVL1QMe8YX",
+      "target": "pskHz4kajjJnBWwG",
+      "sourceHandle": "zWAw4oYVL1QMe8YX-source-right",
+      "targetHandle": "pskHz4kajjJnBWwG-target-left"
+    },
+    {
+      "source": "fzgLdGhMS3eMuqQt",
+      "target": "sxwN5Fd17Tc8leTf",
+      "sourceHandle": "fzgLdGhMS3eMuqQt-source-ELSE",
+      "targetHandle": "sxwN5Fd17Tc8leTf-target-left"
+    },
+    {
+      "source": "sxwN5Fd17Tc8leTf",
+      "target": "zWAw4oYVL1QMe8YX",
+      "sourceHandle": "sxwN5Fd17Tc8leTf-source-right",
+      "targetHandle": "zWAw4oYVL1QMe8YX-target-left"
+    }
+  ],
+  "chatConfig": {
+    "variables": [
+      {
+        "type": "internal",
+        "key": "tsPXY04c",
+        "label": "product_requests",
+        "valueType": "arrayObject",
+        "description": "保存当前所有产品需求，例如类别、预算、用途",
+        "required": false,
+        "defaultValue": "[]"
+      },
+      {
+        "type": "internal",
+        "key": "abIVSlbb",
+        "label": "last_recommendations",
+        "valueType": "arrayObject",
+        "description": "保存上一轮推荐，支持 cheaper / alternative 等追问",
+        "required": false,
+        "defaultValue": "[]"
+      },
+      {
+        "type": "internal",
+        "key": "w967Jp1P",
+        "label": "clarification_needed",
+        "valueType": "boolean",
+        "description": "当前是否缺信息、需要追问",
+        "required": false,
+        "defaultValue": false
+      },
+      {
+        "type": "internal",
+        "key": "dMoZisLb",
+        "label": "missing_fields",
+        "valueType": "arrayString",
+        "description": "缺少哪些必要字段",
+        "required": false,
+        "defaultValue": "[]"
+      },
+      {
+        "type": "internal",
+        "key": "fD4C5VOp",
+        "label": "follow_up_intent",
+        "valueType": "string",
+        "description": "保存 cheaper / more expensive / alternative 等追问意图",
+        "required": false,
+        "defaultValue": ""
+      }
+    ],
+    "scheduledTriggerConfig": {
+      "cronString": "",
+      "timezone": "Asia/Hong_Kong",
+      "defaultPrompt": ""
+    }
+  }
+}

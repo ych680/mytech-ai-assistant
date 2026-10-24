@@ -56,7 +56,7 @@ def _metadata(dataset):
 
 
 def _record(product, currency):
-    return {
+    fields = {
         "Product ID": product["id"],
         "Category": product["category"],
         "Product": product["product"],
@@ -66,6 +66,12 @@ def _record(product, currency):
         "Key Features": product["key_features"],
         "Source": product["source"],
     }
+    for key, label in (("review_status", "Review Status"), ("evidence_url", "Evidence URL"), ("price_evidence", "Price Evidence")):
+        if key in product:
+            fields[label] = product[key]
+    if "review_status" in product:
+        fields["Release Scope"] = "TEST ONLY — not approved for Current or production"
+    return fields
 
 
 def _field_lines(fields):
@@ -144,7 +150,7 @@ _METADATA_LABELS = {
 }
 _RECORD_LABELS = {
     "Product ID", "Category", "Product", "Reference Price", "Tier", "Main Usage",
-    "Key Features", "Source",
+    "Key Features", "Source", "Review Status", "Evidence URL", "Price Evidence", "Release Scope",
 }
 _LIST_LABELS = {"Supported categories", "Main Usage", "Key Features"}
 

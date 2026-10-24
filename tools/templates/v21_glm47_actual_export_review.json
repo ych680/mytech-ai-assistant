@@ -1,0 +1,45 @@
+{
+  "provenance": "actual_published_working_test_export",
+  "source_sha256": "3cbc07ab41542ae6a9280497ae8e629021444dc4bfe7b7755c98db27e36add15",
+  "original_download_sha256": "3e6087b7572ea4c7cfa702c895f5b6a369e6a31c032cfd4264d5d2e72b736f60",
+  "source_filename": "MyTech v2.1 — TEST Knowledge.json",
+  "user_evidence": "User freshly exported actual working TEST directly from FastGPT and supplied exact Downloads path.",
+  "sanitization": [
+    "Removed /chatConfig/_id account metadata; no workflow logic, prompts, models or settings changed. JSON formatting normalized."
+  ],
+  "credential_free": true,
+  "non_prompt_configuration_reviewed": true,
+  "same_existing_54_product_kb_verified": false,
+  "validation_memory_and_four_field_contract_reviewed": true,
+  "published_revision": null,
+  "publish_state": "UNVERIFIED_REVISION: user reports working published app; export has no verifiable published revision and may represent editor draft.",
+  "kb_evidence": "datasets.value=[]; valueDesc is only a type declaration. Active KB selection/ID is not exported; must confirm same existing unchanged TEST KB after import.",
+  "nodes": {
+    "state_extraction": "etNrwEXVwr5sySpK",
+    "recommendation": "pskHz4kajjJnBWwG",
+    "retrieval": "zWAw4oYVL1QMe8YX"
+  },
+  "glm47": {
+    "display_name": "glm-4.7",
+    "selector_value": "glm-4.7",
+    "selector_verified_from_export": true,
+    "evidence_node_id": "ikIzMK483vihRths",
+    "runtime_availability_tested": false
+  },
+  "comparison_with_reconstructed_A": {
+    "difference_count": 7,
+    "differences": [
+      "/chatConfig/_id added in actual export (removed for repository copy)",
+      "/nodes/2/inputs/0/value: DeepSeek extraction model bound",
+      "/nodes/9/inputs/0/value: Clarification model bound to glm-4.7",
+      "/nodes/10/inputs/0/value: DeepSeek recommendation model bound",
+      "/nodes/17/inputs/0/valueDesc: type declaration instead of local placeholder",
+      "/nodes/19/position/x: actual editor layout",
+      "/nodes/19/position/y: actual editor layout"
+    ],
+    "long_prompts_exact_match": true,
+    "all_other_logic_and_parameters_exact_match": true
+  },
+  "source_canonical_sha256": "3cbc07ab41542ae6a9280497ae8e629021444dc4bfe7b7755c98db27e36add15",
+  "original_export_prompts_verified": true
+}
