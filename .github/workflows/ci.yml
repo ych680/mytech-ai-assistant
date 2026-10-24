@@ -61,3 +61,6 @@ jobs:
 
       - name: Run Node.js tests
         run: node --test tests/*.test.mjs
+
+      - name: Check isolated Original usage-repair candidate (read-only)
+        run: uv run --locked python -B tools/build_v21_usage_repair.py --check

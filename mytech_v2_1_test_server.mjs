@@ -100,16 +100,17 @@ export async function createTestServer(config = testServerConfig(), options = {}
       || guard.activeCategories.some(category => !catalogue.supported_categories.includes(category))
       || new Set(guard.activeCategories).size !== guard.activeCategories.length
       || guard.targetCategories.some(category => !guard.activeCategories.includes(category))) throw fail("INVALID_TEST_CONTEXT");
+    if (guard.usageClarificationNeeded !== undefined && typeof guard.usageClarificationNeeded !== "boolean") throw fail("INVALID_TEST_CONTEXT");
     return guard;
   }
   function validate(output, guard, previous) {
     const recs = output?.recommendations;
     const preflight = validateOutput(output, guard.budgetsByCategory, {}, { productByName, supportedCategories: catalogue.supported_categories });
-    if (preflight.length || ((output?.clarification_needed || guard.cancelled || guard.ambiguousComparison || guard.ambiguousBetter) && recs?.length)) {
+    if (preflight.length || ((output?.clarification_needed || guard.cancelled || guard.ambiguousComparison || guard.ambiguousBetter || guard.usageClarificationNeeded) && recs?.length)) {
       throw fail("MODEL_OUTPUT_VALIDATION_FAILED", 502);
     }
     if (!recs.length) return previous; // Help/clarification never erases comparison anchors.
-    const categories = guard.comparison ? guard.targetCategories : guard.activeCategories;
+    const categories = guard.targetCategories.length ? guard.targetCategories : guard.activeCategories;
     if ((guard.comparison && categories.length !== 1) || recs.some(rec => !categories.includes(rec.category))) {
       throw fail("MODEL_OUTPUT_VALIDATION_FAILED", 502);
     }

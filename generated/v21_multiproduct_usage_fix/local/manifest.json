@@ -1,0 +1,10 @@
+{
+  "product_count": 54,
+  "release_scope": "OFFLINE USAGE REPAIR CANDIDATE — not deployed",
+  "outputs": {
+    "index.html": "8d4c6c4b4ec1e25278ffe40fd34b1b72584c07658e7e85a3f8fd9303671d80a1",
+    "catalogue.json": "0e99d7df0238b67d321f729a6ecbe87ed35f16aec1c6e923f2d00e3d69bf85ac",
+    "mytech-fastgpt-workflow-v2_1-TEST.json": "e41498899c13434c68ee3de9691cfd9d705ecc81ba4629ba5c241d622bae551c",
+    "MyTech_Product_Knowledge_v2_1_TEST.md": "96bca468f19799fca9a17adfce1a37e2fa6fe8e099835f47a3b12c59931af4f4"
+  }
+}

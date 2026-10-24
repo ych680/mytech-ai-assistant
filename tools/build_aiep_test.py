@@ -39,11 +39,11 @@ def scan_credentials(text):
             for name, pattern in rules.items() for match in re.finditer(pattern, text)]
 
 
-def render_aiep_frontend(dataset):
+def render_aiep_frontend(dataset, *, repair_usage=False):
     errors = sync.validate_dataset(dataset, test_v21=True)
     if errors:
         raise ValueError("\n".join(errors))
-    text = sync.render_frontend(dataset)
+    text = sync.render_frontend(dataset, repair_usage=repair_usage)
     text = sync.replace_once(text, sync.FRONTEND_RUNTIME.read_text(encoding="utf-8"), RUNTIME.read_text(encoding="utf-8"))
     start = text.index("    // Official INT6137 routing")
     end = text.index("    const CONFIG =", start)
@@ -103,7 +103,7 @@ def render_outputs(dataset):
                       "published_workflow_policy": "Keep currently published TEST unchanged; do not import generated shortened prompts"},
         "sources_sha256": {path.relative_to(sync.ROOT).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
                            for path in (sync.FRONTEND, sync.ROOT / "tools/sync_catalogue.py", Path(__file__),
-                                        sync.FRONTEND_VALIDATOR, sync.USAGE_VALIDATOR, sync.USAGE_COMPATIBILITY,
+                                        sync.FRONTEND_VALIDATOR, sync.USAGE_VALIDATOR, sync.FROZEN_USAGE_WORKFLOW, sync.USAGE_COMPATIBILITY,
                                         sync.TEST_SETTINGS, sync.CITATION_HELPERS, RUNTIME, TRANSPORT)},
         "credential_scan": "PASS: public candidate only; no environment files read; heuristic rules in tools/build_aiep_test.py",
         "outputs": {"site/index.html": hashlib.sha256(page).hexdigest()},
