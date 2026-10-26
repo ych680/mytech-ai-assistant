@@ -64,3 +64,11 @@ jobs:
 
       - name: Check isolated Original usage-repair candidate (read-only)
         run: uv run --locked python -B tools/build_v21_usage_repair.py --check
+
+      - name: Check isolated completion-repair candidate (read-only)
+        run: uv run --locked python -B tools/build_v21_completion_repair.py --check
+
+      - name: Replay PR17 regressions against the completion candidate
+        env:
+          MYTECH_REPAIR_PACKAGE: v21_completion_fix
+        run: node --test tests/usage-repair.test.mjs

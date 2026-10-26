@@ -29,8 +29,8 @@
     "mytech_v2_1_test_response.mjs": "457578d24283b5b23cbc8307fb41a25fc20936af845d42512221d4f42d9d6dea",
     "tools/templates/v21_aiep_runtime.js": "a9582cf94dff462783a60e98b533a4983b2981121da70549693a88e4bed9b8aa",
     "tools/templates/v21_aiep_transport.js": "cf5028aa1923199d6f579c29f6c75e26a0b22d56aed94f3be7902ac60b1f41fe",
-    "mytech_v2_1_test_adapter.mjs": "c4279f03a5fca43cd2692556efee9071399e332a113392d9cc8bedfe61c78e4f",
-    "mytech_v2_1_test_server.mjs": "03572653137157dc8b7a023013d06fb740dd862ebbf9a278e0f3b3b8a36a924d"
+    "mytech_v2_1_test_adapter.mjs": "24fd37ee558070b0856a1daf1d5d0abade923b58982712754bd1f4dea2b6d71f",
+    "mytech_v2_1_test_server.mjs": "b6ca1af6c82358f641bc49f9b0d00706725c1d6721ff17b606cc1645f30207b7"
   },
   "outputs": {
     "workflow-original-repair.json": "e41498899c13434c68ee3de9691cfd9d705ecc81ba4629ba5c241d622bae551c",

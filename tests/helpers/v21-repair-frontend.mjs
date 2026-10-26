@@ -19,10 +19,10 @@ class Element {
 const normal = value => JSON.parse(JSON.stringify(value));
 const descendants = element => element.children.flatMap(child => [child, ...descendants(child)]);
 
-export async function repairFrontend(kind) {
+export async function repairFrontend(kind, packageName = "v21_multiproduct_usage_fix") {
   const local = kind === "local";
   const file = local ? "local/index.html" : "aiep/site/index.html";
-  const html = await readFile(new URL("../../generated/v21_multiproduct_usage_fix/" + file, import.meta.url), "utf8");
+  const html = await readFile(new URL("../../generated/" + packageName + "/" + file, import.meta.url), "utf8");
   const elements = new Map(), calls = [];
   const element = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
   for (const match of html.matchAll(/<script type="application\/json" id="([^"]+)">([\s\S]*?)<\/script>/g)) element(match[1]).textContent = match[2];
