@@ -1,0 +1,43 @@
+{
+  "status": "OFFLINE_ONLY_REVIEW_REQUIRED",
+  "base_commit": "860b744a9d9f956a7dfa296dea5843fdb3385c38",
+  "source_pr17": "generated/v21_multiproduct_usage_fix/workflow-original-repair.json",
+  "source_sha256": "e41498899c13434c68ee3de9691cfd9d705ecc81ba4629ba5c241d622bae551c",
+  "workflow_changed_paths": [
+    "/nodes/11/inputs",
+    "/nodes/11/outputs",
+    "/nodes/14/inputs/0/value"
+  ],
+  "nodes": 20,
+  "edges": 18,
+  "workflow_changed_fields": [
+    "/nodes/11/inputs/2/value",
+    "/nodes/11/inputs/7",
+    "/nodes/11/outputs/11",
+    "/nodes/14/inputs/0/value"
+  ],
+  "prompts_models_history_rag_edges_and_memory_bindings": "Unchanged from PR17",
+  "retrieval_diagnostics": "quoteQA is diagnostic only; empty evidence does not distinguish no hits from configuration/binding failure. Successful products retain unverified grounding unless complete records are recognized; recognition is not proof of model use. No synthesis or retry.",
+  "published_revision": null,
+  "kb_binding": "Unverified; no KB selection or publication changed",
+  "default_deployment_changed": false,
+  "requests_executed_by_builder": 0,
+  "sources_sha256": {
+    "tools/build_v21_completion_repair.py": "0d784114f0261f1aa7a98d3ca7268f3f685a8f48a9abaa62e795405f42d31094",
+    "tools/templates/v21_completion_validation.js": "492979de42450649aa2b24f6fdd612d3ac6ccd56e121d9e48a1e946bc5e57cac",
+    "mytech_v2_1_test_adapter.mjs": "24fd37ee558070b0856a1daf1d5d0abade923b58982712754bd1f4dea2b6d71f",
+    "mytech_v2_1_test_server.mjs": "b6ca1af6c82358f641bc49f9b0d00706725c1d6721ff17b606cc1645f30207b7",
+    "generated/v21_multiproduct_usage_fix/manifest.json": "003f724e6d51d72a25183ab2734e6026b0e52af3a9327223b7d5159daa6f4b94",
+    "generated/v21_multiproduct_usage_fix/workflow-original-repair.json": "e41498899c13434c68ee3de9691cfd9d705ecc81ba4629ba5c241d622bae551c",
+    "catalogue/mytech_products_v2_1_test.json": "0e99d7df0238b67d321f729a6ecbe87ed35f16aec1c6e923f2d00e3d69bf85ac"
+  },
+  "outputs": {
+    "workflow-completion-repair.json": "108bd7340b37bbfdce5017547fd624b99ec771ee9c62a98304654fcaa02ec5e0",
+    "local/mytech-fastgpt-workflow-v2_1-TEST.json": "108bd7340b37bbfdce5017547fd624b99ec771ee9c62a98304654fcaa02ec5e0",
+    "local/catalogue.json": "0e99d7df0238b67d321f729a6ecbe87ed35f16aec1c6e923f2d00e3d69bf85ac",
+    "local/MyTech_Product_Knowledge_v2_1_TEST.md": "96bca468f19799fca9a17adfce1a37e2fa6fe8e099835f47a3b12c59931af4f4",
+    "local/index.html": "5b108c57dfe2c31e6516285676109a61e6313d39adcf6aa51b8ed8f06dc173c6",
+    "aiep/site/index.html": "c2a81c61d2987ae630655da66072b654ae4ac370265141fcfe6bff36521297dc",
+    "local/manifest.json": "868e85a5d0d82fdf7b4534c6ba985f12a7f42596ffd390b176168cdaa984ec14"
+  }
+}

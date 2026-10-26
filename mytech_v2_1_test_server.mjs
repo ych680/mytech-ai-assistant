@@ -103,13 +103,21 @@ export async function createTestServer(config = testServerConfig(), options = {}
     if (guard.usageClarificationNeeded !== undefined && typeof guard.usageClarificationNeeded !== "boolean") throw fail("INVALID_TEST_CONTEXT");
     return guard;
   }
-  function validate(output, guard, previous) {
+  function validate(output, guard, previous, message) {
     const recs = output?.recommendations;
+    let acceptedOutput = output;
     const preflight = validateOutput(output, guard.budgetsByCategory, {}, { productByName, supportedCategories: catalogue.supported_categories });
     if (preflight.length || ((output?.clarification_needed || guard.cancelled || guard.ambiguousComparison || guard.ambiguousBetter || guard.usageClarificationNeeded) && recs?.length)) {
       throw fail("MODEL_OUTPUT_VALIDATION_FAILED", 502);
     }
-    if (!recs.length) return previous; // Help/clarification never erases comparison anchors.
+    if (manifest.completion_validation) {
+      const completion = adapter.validateCompletionTurn?.(output, guard, previous, message);
+      if (!completion?.valid) {
+        throw fail("MODEL_OUTPUT_VALIDATION_FAILED", 502);
+      }
+      if (completion.result?.normalized_json) acceptedOutput = JSON.parse(completion.result.normalized_json);
+    }
+    if (!recs.length) return { recommendations: previous, output: acceptedOutput }; // Never erase anchors.
     const categories = guard.targetCategories.length ? guard.targetCategories : guard.activeCategories;
     if ((guard.comparison && categories.length !== 1) || recs.some(rec => !categories.includes(rec.category))) {
       throw fail("MODEL_OUTPUT_VALIDATION_FAILED", 502);
@@ -123,7 +131,7 @@ export async function createTestServer(config = testServerConfig(), options = {}
     const result = adapter.validate(input);
     if (!result.valid) throw fail("MODEL_OUTPUT_VALIDATION_FAILED", 502);
     // Browser retains other categories. Merge only validated replacements locally.
-    return [...previous.filter(item => !recs.some(rec => rec.category === item.category)), ...structuredClone(recs)];
+    return { recommendations: [...previous.filter(item => !recs.some(rec => rec.category === item.category)), ...structuredClone(recs)], output: acceptedOutput };
   }
 
   const server = createServer(async (req, res) => {
@@ -187,8 +195,10 @@ export async function createTestServer(config = testServerConfig(), options = {}
       let output, next;
       try {
         output = parseFastGptResponse(apiResponse); // Only final message content, never reasoning or traces.
-        next = validate(output, guard, heldSession.recommendations);
-        validate(testDisplayOutput(output), guard, heldSession.recommendations);
+        const checked = validate(output, guard, heldSession.recommendations, body.message);
+        next = checked.recommendations;
+        output = checked.output;
+        validate(testDisplayOutput(output), guard, heldSession.recommendations, body.message);
       } catch { throw fail("MODEL_OUTPUT_VALIDATION_FAILED", 502); }
       finally { validationMs = performance.now() - validationStarted; }
       if (controller.signal.aborted || res.destroyed) throw fail("TEST_REQUEST_CANCELLED", 499);

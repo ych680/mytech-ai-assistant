@@ -55,5 +55,26 @@ export async function createTestAdapter(directory = DEFAULT_DIRECTORY) {
     return { valid: result.validation_ok, errors: result.validation_ok ? [] : [result.validation_error], result };
   }
 
-  return { catalogue: structuredClone(catalogue), validate };
+  // Only the separate Phase 3 graph exposes this policy. Older packages keep
+  // their byte-for-byte workflow behavior and default server behavior.
+  const completion = workflow.nodes.find(node => node.nodeId === "fakNM8mmlYmewx67")
+    .inputs.some(field => field.key === "retrieved_evidence");
+  const completionPolicy = completion ? new Script(code + '\ninput.guard.completionControl = completionControlMessage(input.message);\n'
+    + 'checkClientRecommendationCompletion(input.output, input.guard, input.catalogue, compatibility);') : null;
+  const compatibility = completion ? JSON.parse(code.match(/const USAGE_COMPATIBILITY = (\{[^\n]+\});/)[1]) : null;
+  const validateCompletionTurn = completion ? (output, guard, previous, message) => {
+    const errors = validateOutput(output, guard.budgetsByCategory, {}, context);
+    if (errors.length) return { valid: false, errors };
+    const input = { output: structuredClone(output), guard: { ...structuredClone(guard),
+      previousRecommendationsByCategory: Object.fromEntries(previous.map(p => [p.category, { product: p.recommended_product, price: p.price }])) },
+      message, catalogue: Object.fromEntries(catalogue.products.map(p => [p.id, p])) };
+    const result = JSON.parse(JSON.stringify(completionPolicy.runInContext(createContext({ input, compatibility },
+      { codeGeneration: { strings: false, wasm: false } }), { timeout: 1000 })));
+    if (!result.valid || result.status === "non_recommendation_turn") return result;
+    const categories = guard.targetCategories.length ? guard.targetCategories : guard.activeCategories;
+    return validate({ raw_json: JSON.stringify(output),
+      active_requests: categories.map(category => ({ category, budget: guard.budgetsByCategory[category], main_usage: guard.usagesByCategory[category] })),
+      previous_recommendations: previous, follow_up_intent: guard.comparison === "another" ? "alternative" : guard.comparison || "none" });
+  } : null;
+  return { catalogue: structuredClone(catalogue), validate, validateCompletionTurn };
 }
