@@ -1,0 +1,34 @@
+    /* Candidate-only additions live in the scrolling conversation, never the fixed composer. */
+    .demo-examples,
+    .demo-followup {
+      margin: 0 0 18px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+      color: var(--text-muted);
+      font-size: .8rem;
+      overflow-wrap: anywhere;
+    }
+    .demo-examples summary { cursor: pointer; color: var(--text); }
+    .demo-examples p,
+    .demo-followup p { margin: 8px 0; }
+    .demo-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .demo-category { display: block; margin-bottom: 8px; }
+    .demo-category select {
+      display: block;
+      width: 100%;
+      max-width: 320px;
+      min-height: 36px;
+      margin-top: 6px;
+      padding: 6px 8px;
+      font: inherit;
+      color: var(--text);
+      border: 1px solid #d8d6d1;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .demo-actions button { white-space: normal; max-width: 100%; }
+    .demo-actions button:disabled { opacity: .5; cursor: default; }
+    .demo-examples summary:focus-visible,
+    .demo-category select:focus-visible { outline: 3px solid rgba(31,31,31,.55); outline-offset: 2px; }

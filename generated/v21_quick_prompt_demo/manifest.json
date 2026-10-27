@@ -1,0 +1,28 @@
+{
+  "status": "OFFLINE_ONLY_REVIEW_REQUIRED",
+  "base_commit": "e50dbfe025f102644355ec7d0d1ff38370af19e7",
+  "source_package": "generated/v21_completion_fix",
+  "frontend_only": true,
+  "default_deployment_changed": false,
+  "requests_executed_by_builder": 0,
+  "workflow_catalogue_knowledge": "Byte-identical to PR18",
+  "published_revision": null,
+  "kb_binding": "Unverified; unchanged from PR18",
+  "sources_sha256": {
+    "tools/build_v21_quick_prompt_demo.py": "0b7209b29d2474e2a310db2a21f744d4a32c5b2c39e3cf5c8a21ea4b32264bfb",
+    "tools/templates/v21_quick_prompt_demo.json": "aa9965f87a1103c9c02c3feade2ffde35a9ebb3a5508c5b838efef0e0137eea0",
+    "tools/templates/v21_quick_prompt_demo.js": "807a8d79c1bd2989cc5999382bd72a5841c46eb18a25ee25fb458d3f3d22fd84",
+    "tools/templates/v21_quick_prompt_demo.css": "6977ed7f15ddea4b0dc31b75275a0e8d75a8ec326d96dc012cb7a8b02ff4cd18",
+    "tests/fixtures/v21_quick_prompt_demo_preservation.json": "371512ebc297af76e13fa29ea62ceedd641eb5b815f54b584685bc793aae4698",
+    "generated/v21_completion_fix/manifest.json": "9161da3934c103682b8e8e766767c1ff527ac13505567589ce8ee0d606a8d91d"
+  },
+  "outputs": {
+    "workflow-completion-repair.json": "108bd7340b37bbfdce5017547fd624b99ec771ee9c62a98304654fcaa02ec5e0",
+    "local/mytech-fastgpt-workflow-v2_1-TEST.json": "108bd7340b37bbfdce5017547fd624b99ec771ee9c62a98304654fcaa02ec5e0",
+    "local/catalogue.json": "0e99d7df0238b67d321f729a6ecbe87ed35f16aec1c6e923f2d00e3d69bf85ac",
+    "local/MyTech_Product_Knowledge_v2_1_TEST.md": "96bca468f19799fca9a17adfce1a37e2fa6fe8e099835f47a3b12c59931af4f4",
+    "local/index.html": "0b8c1a14758b14a0320b355daa8cda29f6e366879bc772181638e80c5583ba9a",
+    "aiep/site/index.html": "becc89a7f73ba0a612c2422636d01e4bcfc07cd2062146c663c77a74451fbf6a",
+    "local/manifest.json": "2d0a70a500a51bcc3f1fe71650b916bc38b666e5ddf11a1c56638ff694565e3c"
+  }
+}

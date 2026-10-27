@@ -10,7 +10,9 @@ import { createTestServer, testServerConfig } from "../mytech_v2_1_test_server.m
 import { repairFrontend } from "./helpers/v21-repair-frontend.mjs";
 
 const root = new URL("../", import.meta.url);
-const directory = new URL("generated/v21_completion_fix/local/", root);
+const packageName = process.env.MYTECH_COMPLETION_PACKAGE || "v21_completion_fix";
+assert.ok(["v21_completion_fix", "v21_quick_prompt_demo"].includes(packageName));
+const directory = new URL(`generated/${packageName}/local/`, root);
 const graph = JSON.parse(await readFile(new URL("mytech-fastgpt-workflow-v2_1-TEST.json", directory), "utf8"));
 const master = JSON.parse(await readFile(new URL("catalogue.json", directory), "utf8"));
 const adapter = await createTestAdapter(fileURLToPath(directory));
@@ -122,7 +124,7 @@ async function across(output, requests, message, valid, previous = []) {
     assert.doesNotMatch(final.output.answer + final.output.next_step, /adjust your budget|restate.*budget|no.*catalogue.*match/i);
   }
   for (const kind of ["local", "aiep"]) {
-    const app = await repairFrontend(kind, "v21_completion_fix");
+    const app = await repairFrontend(kind, packageName);
     const guard = app.guard(message);
     assert.equal(app.validate(output, guard).valid, valid, kind);
     assert.equal(adapter.validateCompletionTurn(output, guard, previous, message).valid, valid);
@@ -139,7 +141,7 @@ test("exact school-demo acknowledgement cannot complete a satisfiable request", 
 });
 test("rejected school-demo output cannot replace already rendered browser anchors", async () => {
   for (const kind of ["local", "aiep"]) {
-    const app = await repairFrontend(kind, "v21_completion_fix");
+    const app = await repairFrontend(kind, packageName);
     await app.submit("I need a laptop under RMB 6000 and a mouse under RMB 300 for gaming.", response(["LAP-005", "MOU-002"]));
     assert.equal(app.cards(), 2);
     const anchors = app.state().sessionContext.lastRecommendationsByCategory;
@@ -208,7 +210,7 @@ test("empty retrieval cannot trigger a fabricated product fallback", async () =>
   assert.equal(r.validation_ok, false); assert.equal(adapter.validate(value).valid, false);
   assert.deepEqual(finalize(value, r).memory, value.previous_recommendations);
   for (const kind of ["local", "aiep"]) {
-    const app = await repairFrontend(kind, "v21_completion_fix");
+    const app = await repairFrontend(kind, packageName);
     assert.equal(app.validate(output, app.guard(demoMessage)).valid, false);
   }
 });
@@ -220,7 +222,7 @@ for (const [intent, id, budget] of [["cheaper", "LAP-005", 6000], ["more_expensi
     assert.equal(result.validation_ok, true, result.validation_error);
     assert.equal(adapter.validate(value).valid, true); assert.deepEqual(final.memory, previous);
     for (const kind of ["local", "aiep"]) {
-      const app = await repairFrontend(kind, "v21_completion_fix");
+      const app = await repairFrontend(kind, packageName);
       await app.submit(demoMessage, response([id]));
       const guard = app.guard(`${label} Laptop.`);
       assert.equal(app.validate(output, guard).valid, true);
@@ -238,7 +240,7 @@ for (const [intent, anchor, budget] of [["cheaper", "MOU-002", 300], ["more_expe
     assert.equal(r.validation_ok, false); assert.equal(adapter.validate(value).valid, false);
     assert.deepEqual(finalize(value, r).memory, previous);
     for (const kind of ["local", "aiep"]) {
-      const app = await repairFrontend(kind, "v21_completion_fix");
+      const app = await repairFrontend(kind, packageName);
       await app.submit("I need a mouse under RMB 300 for gaming.", response([anchor]));
       const message = `${intent.replace("_", " ")} Mouse.`, guard = app.guard(message);
       assert.equal(app.validate(output, guard).valid, false);
@@ -258,7 +260,7 @@ test("invalid returned items reject the entire batch and preserve old anchors", 
 });
 test("clarification, cancellation, help, unsupported and Restart survive historical complete requests", async () => {
   for (const kind of ["local", "aiep"]) {
-    const app = await repairFrontend(kind, "v21_completion_fix");
+    const app = await repairFrontend(kind, packageName);
     await app.submit(demoMessage, response(["LAP-005"]));
     for (const message of ["Hello", "Hello MyTech", "Hi, what can you do?", "What can you help me with?", "Which product categories can you recommend?", "Tell me a joke.", "What's the weather?", "Help me with my homework.", "I need a camera under RMB 6000.", "I need printers under RMB 6000.", "Cancel that comparison."]) {
       const output = response([], "Please tell me your next request."), guard = app.guard(message);
@@ -274,7 +276,7 @@ test("clarification, cancellation, help, unsupported and Restart survive histori
 });
 test("a greeting combined with a purchase still requires completion", async () => {
   for (const kind of ["local", "aiep"]) {
-    const app = await repairFrontend(kind, "v21_completion_fix");
+    const app = await repairFrontend(kind, packageName);
     const message = "Hi, I need a laptop under RMB 6000 for gaming.", guard = app.guard(message);
     assert.equal(app.validate(demo, guard).valid, false);
     assert.equal(adapter.validateCompletionTurn(demo, guard, [], message).valid, false);
@@ -286,7 +288,7 @@ test("local candidate server rejects empty completion and can recover without lo
   const server = await createTestServer(config, { directory: fileURLToPath(directory), fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(output) } }] })) });
   await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
   t.after(() => new Promise(resolve => server.close(resolve)));
-  const app = await repairFrontend("local", "v21_completion_fix"), guard = app.guard(demoMessage);
+  const app = await repairFrontend("local", packageName), guard = app.guard(demoMessage);
   const post = (message, validationContext) => fetch(`http://127.0.0.1:${server.address().port}/api/test/mytech`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, validationContext, chatId: "offline-completion-session" }) });
   assert.equal((await post(demoMessage, guard)).status, 200);
   output = demo; assert.equal((await post(demoMessage, guard)).status, 502);
@@ -321,7 +323,7 @@ for (const [intent, wording, message] of [
   assert.equal(turn.validation.validation_ok, true); assert.deepEqual(turn.state.last_recommendations, previous);
   assert.ok(turn.trace.includes("b0vXntQUXZL2Mk5m"));
   for (const kind of ["local", "aiep"]) {
-    const app = await repairFrontend(kind, "v21_completion_fix");
+    const app = await repairFrontend(kind, packageName);
     await app.submit(demoMessage, response(["LAP-005"]));
     const guard = app.guard(message), before = app.state().sessionContext.lastRecommendationsByCategory;
     assert.equal(app.validate(output, guard).valid, true);
@@ -339,7 +341,7 @@ for (const [intent, anchor, wording] of [["cheaper", "MOU-002", "lower-priced"],
     const turn = nativeTurn(`${wording === "other" ? "Another" : wording} Mouse.`, { requests: [mouse], intent, output, state: { product_requests: [mouse], last_recommendations: previous } });
     assert.equal(turn.validation.validation_ok, false); assert.deepEqual(turn.state.last_recommendations, previous);
     for (const kind of ["local", "aiep"]) {
-      const app = await repairFrontend(kind, "v21_completion_fix"); await app.submit("I need a mouse under RMB 300 for gaming.", response([anchor]));
+      const app = await repairFrontend(kind, packageName); await app.submit("I need a mouse under RMB 300 for gaming.", response([anchor]));
       const message = `${wording === "other" ? "Another" : wording} Mouse.`;
       assert.equal(app.validate(output, app.guard(message)).valid, false);
       await app.submit(message, output); assert.equal(app.state().sessionContext.lastRecommendationsByCategory.Mouse.price, rec(anchor).price);
@@ -354,7 +356,7 @@ for (const [label, requests, ids] of [["fresh", [], []], ["Laptop history", [lap
       assert.ok(turn.trace.includes("d6kCXfQ1mcJ5hT8J")); assert.equal(turn.validation, undefined);
       assert.deepEqual(turn.state.last_recommendations, previous);
       for (const kind of ["local", "aiep"]) {
-        const app = await repairFrontend(kind, "v21_completion_fix");
+        const app = await repairFrontend(kind, packageName);
         if (ids.length) await app.submit(ids.length === 1 ? demoMessage : "I need a laptop under RMB 6000 and a mouse under RMB 300 for gaming.", response(ids));
         const before = app.state().sessionContext.lastRecommendationsByCategory, guard = app.guard(message);
         assert.equal(app.validate(turn.output, guard).valid, true, message);
@@ -372,7 +374,7 @@ for (const message of [
   "Can you help me choose a laptop under RMB 6000 for gaming?", "Hi, what products can you recommend, and I need a laptop under RMB 6000 for gaming."
 ]) test(`Phase 3B capability grammar cannot bypass purchase completion: ${message}`, async () => {
   for (const kind of ["local", "aiep"]) {
-    const app = await repairFrontend(kind, "v21_completion_fix"); await app.submit(demoMessage, response(["LAP-005"]));
+    const app = await repairFrontend(kind, packageName); await app.submit(demoMessage, response(["LAP-005"]));
     const guard = app.guard(message); assert.equal(guard.completionControl, false);
     assert.equal(app.validate(demo, guard).valid, false);
     assert.equal(adapter.validateCompletionTurn(demo, guard, [rec("LAP-005")], message).valid, false);
@@ -395,7 +397,7 @@ for (const [label, answer] of [
   const turn = nativeTurn(message, { requests: [headphones], output });
   assert.equal(turn.output.answer, final.output.answer);
   for (const kind of ["local", "aiep"]) {
-    const app = await repairFrontend(kind, "v21_completion_fix"), guard = app.guard(message);
+    const app = await repairFrontend(kind, packageName), guard = app.guard(message);
     assert.equal(app.validate(output, guard).valid, true);
     await app.submit(message, output);
     const accepted = JSON.parse(app.state().modelHistory.at(-1).content);
@@ -421,7 +423,7 @@ test("Phase 3B canonical partial responses retain exact valid items and all omit
   const message = "I need a laptop under RMB 6000 for gaming and headphones under RMB 800 for music and commuting, noise cancellation.";
   const turn = nativeTurn(message, { requests: [laptop, headphones], output }); assert.deepEqual(turn.output.recommendations, output.recommendations);
   for (const kind of ["local", "aiep"]) {
-    const app = await repairFrontend(kind, "v21_completion_fix"); await app.submit(message, output);
+    const app = await repairFrontend(kind, packageName); await app.submit(message, output);
     assert.equal(app.cards(), 1); const accepted = JSON.parse(app.state().modelHistory.at(-1).content);
     assert.deepEqual(accepted.recommendations, output.recommendations); assert.doesNotMatch(accepted.answer, /1200/);
   }
