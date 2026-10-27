@@ -1,0 +1,12 @@
+{
+  "product_count": 54,
+  "completion_validation": true,
+  "quick_prompt_demo": true,
+  "release_scope": "OFFLINE QUICK PROMPT DEMO CANDIDATE — not deployed",
+  "outputs": {
+    "mytech-fastgpt-workflow-v2_1-TEST.json": "108bd7340b37bbfdce5017547fd624b99ec771ee9c62a98304654fcaa02ec5e0",
+    "catalogue.json": "0e99d7df0238b67d321f729a6ecbe87ed35f16aec1c6e923f2d00e3d69bf85ac",
+    "MyTech_Product_Knowledge_v2_1_TEST.md": "96bca468f19799fca9a17adfce1a37e2fa6fe8e099835f47a3b12c59931af4f4",
+    "index.html": "0b8c1a14758b14a0320b355daa8cda29f6e366879bc772181638e80c5583ba9a"
+  }
+}

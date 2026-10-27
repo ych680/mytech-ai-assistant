@@ -1,0 +1,17 @@
+{
+  "starters": [
+    {"label": "Gaming Setup ×2", "prompt": "I need a laptop under ¥6,000 for gaming and a mouse under ¥300 for gaming."},
+    {"label": "Study Laptop", "prompt": "I need a laptop under ¥7,000 for study and office work."},
+    {"label": "ANC Headphones", "prompt": "I need headphones under ¥1,200 for music, commuting, and noise cancellation."},
+    {"label": "Gaming Smartphone", "prompt": "I need a smartphone under ¥3,000 for gaming."}
+  ],
+  "examples": [
+    {"label": "Clarification", "prompt": "I need a laptop."},
+    {"label": "Honest No-Match", "prompt": "I need headphones under ¥800 for music, commuting, and noise cancellation."}
+  ],
+  "actions": [
+    {"label": "Cheaper", "phrase": "a cheaper"},
+    {"label": "More Expensive", "phrase": "a more expensive"},
+    {"label": "Another Option", "phrase": "another"}
+  ]
+}

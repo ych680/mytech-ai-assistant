@@ -11,7 +11,7 @@ import { repairFrontend as packageFrontend } from "./helpers/v21-repair-frontend
 
 const root = new URL("../", import.meta.url);
 const packageName = process.env.MYTECH_REPAIR_PACKAGE || "v21_multiproduct_usage_fix";
-assert.ok(["v21_multiproduct_usage_fix", "v21_completion_fix"].includes(packageName));
+assert.ok(["v21_multiproduct_usage_fix", "v21_completion_fix", "v21_quick_prompt_demo"].includes(packageName));
 const repairFrontend = kind => packageFrontend(kind, packageName);
 const directory = new URL(`generated/${packageName}/local/`, root);
 const fixtures = JSON.parse(await readFile(new URL("tests/fixtures/v21_usage_repair.json", root), "utf8"));
