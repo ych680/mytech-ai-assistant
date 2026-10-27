@@ -1,5 +1,5 @@
 // Node's explicit --env-file selects the environment; this launcher loads none.
-import { resolve } from "node:path";
+import { realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createTestServer, testServerConfig } from "./mytech_v2_1_test_server.mjs";
 
@@ -19,7 +19,18 @@ export async function startMyTechDemo(env = process.env, options = {}) {
   return { server, configured: config.configured };
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+function isDirectExecution() {
+  if (!process.argv[1]) return false;
+  try {
+    // argv can retain a directory alias (e.g. macOS /var); ESM resolves it.
+    return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    // Imports from stdin/eval can have a non-file argv[1].
+    return false;
+  }
+}
+
+if (isDirectExecution()) {
   try {
     const { server, configured } = await startMyTechDemo();
     console.log(`MyTech v2.1 Quick Prompt Demo (four-button frontend): http://127.0.0.1:${server.address().port}`);

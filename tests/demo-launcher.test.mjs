@@ -2,10 +2,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { readFile, mkdtemp, writeFile, copyFile, rm } from "node:fs/promises";
+import { readFile, mkdtemp, writeFile, copyFile, symlink, realpath, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { startMyTechDemo } from "../start-mytech-demo.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -40,6 +40,11 @@ async function temporary(t) {
   const directory = await mkdtemp(join(tmpdir(), "mytech-launcher-"));
   resources(t).directories.push(directory);
   return directory;
+}
+async function directoryAlias(t, target) {
+  const alias = join(await temporary(t), "alias");
+  await symlink(target, alias, process.platform === "win32" ? "junction" : "dir");
+  return alias;
 }
 function cli(t, { entry = launcher, env = {}, cwd = root, args = [] } = {}) {
   const child = spawn(process.execPath, [`--import=${blockFetch}`, ...args, entry], {
@@ -169,8 +174,44 @@ test("missing generated assets fail clearly without exposing configuration", asy
   const cwd = await temporary(t);
   for (const name of ["start-mytech-demo.mjs", "mytech_v2_1_test_server.mjs", "mytech_v2_1_test_adapter.mjs",
     "mytech_response.mjs", "mytech_v2_1_test_response.mjs"]) await copyFile(join(root, name), join(cwd, name));
-  const app = cli(t, { cwd, entry: join(cwd, "start-mytech-demo.mjs"), env: bound("app-id") });
-  assert.equal(await app.exited, 1); assert.equal(app.state.stdout, "");
-  assert.match(app.state.stderr, /MYTECH_DEMO_ASSETS_INVALID: required generated Quick Prompt Demo assets are missing or stale/);
-  assert.ok(!app.state.stderr.includes("synthetic"));
+  const alias = await directoryAlias(t, cwd);
+  const aliasedEntry = join(alias, "start-mytech-demo.mjs");
+  // Like macOS /var versus /private/var: argv retains the alias, ESM resolves it.
+  assert.notEqual(aliasedEntry, await realpath(aliasedEntry));
+  for (const [entry, args] of [[join(cwd, "start-mytech-demo.mjs"), []], [aliasedEntry, []],
+    [aliasedEntry, ["--preserve-symlinks-main"]]]) {
+    const app = cli(t, { cwd, entry, args, env: bound("app-id") });
+    assert.equal(await app.exited, 1); assert.equal(app.state.stdout, "");
+    assert.match(app.state.stderr, /MYTECH_DEMO_ASSETS_INVALID: required generated Quick Prompt Demo assets are missing or stale/);
+    for (const value of ["synthetic", cwd, alias, "Bearer", "Authorization"]) {
+      assert.ok(!app.state.stderr.includes(value));
+    }
+  }
+});
+
+test("launcher starts through a directory alias", async t => {
+  const alias = await directoryAlias(t, root);
+  for (const args of [[], ["--preserve-symlinks-main"]]) {
+    const app = cli(t, { entry: join(alias, "start-mytech-demo.mjs"), args });
+    const base = await app.ready();
+    assert.equal(await (await fetch(base)).text(), html);
+    assert.match(app.state.stdout, /TEST API binding: not configured \(offline\)/);
+    assert.equal(app.state.stderr, "");
+  }
+});
+
+test("importing the launcher leaves CLI startup inactive", async t => {
+  const cwd = await temporary(t);
+  const wrapper = join(cwd, "import-launcher.mjs");
+  const script = `await import(${JSON.stringify(pathToFileURL(launcher).href)}); console.log("import completed");`;
+  await writeFile(wrapper, script);
+  // An ordinary importing entrypoint, stdin-style argv, and empty argv[1].
+  for (const options of [{ entry: wrapper },
+    { entry: "-", args: ["--input-type=module", "--eval", script, "--"] },
+    { entry: "", args: ["--input-type=module", "--eval", script, "--"] }]) {
+    const app = cli(t, { cwd, env: bound("app-id"), ...options });
+    assert.equal(await app.exited, 0);
+    assert.equal(app.state.stdout.trim(), "import completed");
+    assert.equal(app.state.stderr, "");
+  }
 });
