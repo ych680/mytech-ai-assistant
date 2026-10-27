@@ -56,6 +56,36 @@ The published DeepSeek TEST app and AIEP remain unchanged.
 
 ## Demo
 
+### Local v2.1 Quick Prompt Demo
+
+From the repository root, use Node.js 24 with either command in Windows
+PowerShell or macOS Terminal:
+
+School FastGPT:
+
+```sh
+node --env-file=.env.v21.test start-mytech-demo.mjs
+```
+
+Private FastGPT:
+
+```sh
+node --env-file=.env.private.test start-mytech-demo.mjs
+```
+
+Open the printed `http://127.0.0.1:<port>` URL. Both commands serve
+`generated/v21_quick_prompt_demo/local/index.html` with **Gaming Setup ×2**,
+**Study Laptop**, **ANC Headphones**, and **Gaming Smartphone**, preserving their
+full submitted prompts. The selected environment supplies `MYTECH_TEST_PORT`
+(default `8788`) and the existing `MYTECH_TEST_FASTGPT_*` binding. The launcher
+does not load other environment files or fall back to legacy credentials.
+Node gives inherited environment variables precedence over `--env-file` values.
+Without a TEST binding, the page opens offline; sending prompts requires one.
+Stop the server with **Ctrl+C**. Missing/stale assets or an occupied port produce
+a startup error. The original `mytech_v2_1_test_server.mjs` command still serves
+its original TEST frontend. See the [Quick Prompt Demo guide](docs/v21-quick-prompt-demo.md)
+for offline generation and regression checks.
+
 [Watch on YouTube: MyTech v2 | RAG Product Recommendation Chatbot — Project Demo](https://youtu.be/0BjV3ngw40w)
 
 This approximately 67-second demo shows multi-product recommendations, contextual follow-ups, multi-turn clarification, and hard-budget constraints with no-match handling.
