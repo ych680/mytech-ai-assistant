@@ -1,0 +1,32 @@
+[
+  {
+    "retest": "category-prefixed budget",
+    "request": "I need a laptop.",
+    "response": {
+      "answer": "What is your budget and main usage for the laptop?",
+      "recommendations": [],
+      "next_step": "Please provide your laptop budget and main usage.",
+      "clarification_needed": true
+    }
+  },
+  {
+    "retest": "18:49 Asia/Hong_Kong contraction",
+    "request": "I need a laptop.",
+    "response": {
+      "answer": "What’s your budget and main usage for the laptop?",
+      "recommendations": [],
+      "next_step": "Please provide your laptop budget and main usage.",
+      "clarification_needed": true
+    }
+  },
+  {
+    "retest": "split question and refinement directive",
+    "request": "I need a laptop.",
+    "response": {
+      "answer": "What is your budget for the laptop?",
+      "recommendations": [],
+      "next_step": "Please also share your main usage so I can refine the recommendation.",
+      "clarification_needed": true
+    }
+  }
+]

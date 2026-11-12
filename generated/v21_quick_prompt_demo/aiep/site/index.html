@@ -2022,7 +2022,9 @@ function testDisplayOutput(output) {
       const output = coerceStructuredOutput(rawResult);
       if ((guard.usageClarificationNeeded || demoHasMissingInformation(guard))
         && !demoMissingFieldClarification(output, guard)) {
-        throw new Error(guard.usageClarificationNeeded ? "USAGE_CLARIFICATION_REQUIRED" : "MODEL_OUTPUT_VALIDATION_FAILED");
+        const error = new Error(guard.usageClarificationNeeded ? "USAGE_CLARIFICATION_REQUIRED" : "MODEL_OUTPUT_VALIDATION_FAILED");
+        error.demoSafeClarification = demoSafeClarification(output, guard, message);
+        throw error;
       }
       const display = testDisplayOutput(output);
       const validation = validateStructuredOutput(output, guard);
@@ -2091,6 +2093,7 @@ function testDisplayOutput(output) {
         thinkingMessage.remove();
         addStructuredResponse(testDisplayOutput(response));
         updateContextAfterResponse(response);
+        demoResponseOutcome = { kind: "accepted_model", modelAccepted: true };
         demoShowFollowup(response, guard, currentRequest);
         timingStatus = "validated";
         modelConnectionReady = true;
@@ -2106,8 +2109,17 @@ function testDisplayOutput(output) {
         if (currentRequest !== requestVersion) return;
         if (timedOut) error = new Error("MODEL_TIMEOUT");
         thinkingMessage.remove();
-        const bubble = addTextResponse(safeErrorResponse(error));
+        const fallback = !timedOut && error.demoSafeClarification;
+        const bubble = fallback
+          ? demoRenderClarification(fallback)
+          : addTextResponse(safeErrorResponse(error));
+        demoResponseOutcome = fallback
+          ? { kind: "deterministic_clarification", modelAccepted: false, category: fallback.category,
+            missingFields: [...fallback.missingFields], output: fallback.output }
+          : { kind: "rejected", modelAccepted: false };
+        if (fallback) timingStatus = "clarification_fallback";
         createRecoveryAction(bubble, text, currentRequest);
+        if (fallback) demoHideClarificationRecovery();
       } finally {
         window.clearTimeout(timeout);
         emitTestTiming("turn", startedAt, timedOut ? "timeout" : currentRequest !== requestVersion ? "cancelled" : timingStatus);
@@ -2121,6 +2133,7 @@ function testDisplayOutput(output) {
 
     function resetConversation() {
       invalidateRecovery();
+      demoResponseOutcome = null;
       demoInvalidateFollowup();
       testUsageOwnershipAmbiguous = false;
       requestVersion += 1;
@@ -2386,7 +2399,8 @@ function testDisplayOutput(output) {
       if (!missing.size) return false;
 
       const device = "(?:the |your )?" + noun;
-      const budgetTerm = new RegExp("^(?:(?:your|the) )?(?:maximum )?budget(?: for " + device + ")?(?: in (?:rmb|cny|yuan))?$");
+      // A category may precede budget only when it names the sole target.
+      const budgetTerm = new RegExp("^(?:(?:your|the) )?(?:(?:maximum )?budget(?: for " + device + ")?|" + noun + " budget)(?: in (?:rmb|cny|yuan))?$");
       const usageTerm = new RegExp("^(?:(?:your|the) )?(?:(?:main|intended) )?(?:usage|use|purpose)(?: for " + device + ")?$");
       const parseTerms = value => {
         const terms = value.split(/,? and /);
@@ -2397,7 +2411,8 @@ function testDisplayOutput(output) {
       const usageQuestion = new RegExp("^what (?:will|do) you (?:mainly )?use (?:" + device + "|it) for$");
       const budgetQuestion = new RegExp("^how much (?:can|would) you (?:spend|like to spend)(?: on " + device + ")?$");
       const parseQuestion = clause => {
-        const simple = /^(?:what (?:is|are)|(?:could|can) you (?:tell me|provide|specify|share)) (.+)$/.exec(clause);
+        // Accept contracted "what is" only as an opening to a parsed question.
+        const simple = /^(?:what(?: (?:is|are)|['\u2019]s)|(?:could|can) you (?:tell me|provide|specify|share)) (.+)$/.exec(clause);
         if (simple) return parseTerms(simple[1]);
         if (usageQuestion.test(clause)) return ["usage"];
         if (budgetQuestion.test(clause)) return ["budget"];
@@ -2436,6 +2451,79 @@ function testDisplayOutput(output) {
         }
       }
       return [...missing].every(name => asked.has(name));
+    }
+
+    // This outcome contains only local provenance, never rejected model prose.
+    let demoResponseOutcome = null;
+
+    function demoClarificationContext(guard, message) {
+      if (guard.completionControl || guard.cancelled || guard.startsNewFlow || guard.comparison
+        || guard.ambiguousComparison || guard.ambiguousBetter || guard.demoUsageOwnershipAmbiguous !== false
+        || guard.activeCategories.length !== 1 || guard.targetCategories.length !== 1) return null;
+      const category = guard.activeCategories[0];
+      if (!IDENTITY.supportedCategories.includes(category) || guard.targetCategories[0] !== category
+        || JSON.stringify(sessionContext.activeCategories) !== JSON.stringify(guard.activeCategories)
+        || JSON.stringify(sessionContext.targetCategories) !== JSON.stringify(guard.targetCategories)
+        || JSON.stringify(sessionContext.lastRecommendationsByCategory) !== JSON.stringify(guard.previousRecommendationsByCategory)
+        || sessionContext.pendingComparison || collectBudgetMatches(message).length > 1) return null;
+      const requirement = sessionContext.requirementsByCategory[category];
+      if (!requirement || requirement.category !== category
+        || !isPlainObject(guard.budgetsByCategory) || !isPlainObject(guard.usagesByCategory)
+        || Object.keys(guard.budgetsByCategory).some(key => key !== category)
+        || Object.keys(guard.usagesByCategory).some(key => key !== category)) return null;
+      const budget = guard.budgetsByCategory[category], usage = guard.usagesByCategory[category];
+      if ((requirement.budget === null ? budget !== undefined : requirement.budget !== budget)
+        || (requirement.usage === null ? usage !== undefined : requirement.usage !== usage)) return null;
+      const missingFields = [];
+      if (budget === undefined) missingFields.push("budget");
+      else if (!Number.isSafeInteger(budget) || budget <= 0) return null;
+      if (usage === undefined && requirement.usage === null) missingFields.push("main_usage");
+      else if (typeof usage !== "string" || !usage.trim()
+        || !parseCatalogueUsage(usage, testUsageCatalogue, TEST_USAGE_POLICY, category).valid) return null;
+      return missingFields.length ? { category, missingFields } : null;
+    }
+
+    function demoSafeClarification(output, guard, message) {
+      // A rejected model response can trigger a local question, never become
+      // validated history. Its prose does not determine the category or fields.
+      const keys = ["answer", "recommendations", "next_step", "clarification_needed"];
+      if (!isPlainObject(output) || Object.keys(output).length !== keys.length
+        || !keys.every(key => Object.hasOwn(output, key)) || output.clarification_needed !== true
+        || !Array.isArray(output.recommendations) || output.recommendations.length
+        || typeof output.answer !== "string" || !output.answer.trim()
+        || typeof output.next_step !== "string" || output.answer.length + output.next_step.length > 4000
+        || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(output.answer + output.next_step)
+        || !validateStructuredOutput(output, guard).valid
+        || !validateStructuredOutput(testDisplayOutput(output), guard).valid) return null;
+      const context = demoClarificationContext(guard, message);
+      if (!context) return null;
+      const fields = context.missingFields;
+      const noun = context.category.toLowerCase();
+      const question = fields.length === 2
+        ? `What's your maximum budget (RMB), and what will you mainly use the ${noun} for?`
+        : fields[0] === "budget" ? `What's your maximum budget (RMB) for the ${noun}?`
+        : `What will you mainly use the ${noun} for?`;
+      const safe = { answer: question, recommendations: [], next_step: "", clarification_needed: true };
+      if (!validateStructuredOutput(safe, guard).valid) return null;
+      return { ...context, output: safe };
+    }
+
+    function demoRenderClarification(fallback) {
+      const { bubble } = createAssistantMessage();
+      const label = document.createElement("div");
+      label.className = "assistant-label";
+      label.textContent = "Local clarification";
+      const question = document.createElement("p");
+      question.textContent = fallback.output.answer;
+      bubble.append(label, question);
+      scrollToNewest();
+      return bubble;
+    }
+
+    function demoHideClarificationRecovery() {
+      if (!activeRecovery) return;
+      activeRecovery.button.hidden = true;
+      invalidateRecovery();
     }
 
     inputElement.addEventListener("input", () => {

@@ -49,14 +49,32 @@ def render_frontend(text, config):
     text = sync.replace_once(text, '      if (guard.usageClarificationNeeded) throw new Error("USAGE_CLARIFICATION_REQUIRED");',
                              '      if ((guard.usageClarificationNeeded || demoHasMissingInformation(guard))\n'
                              '        && !demoMissingFieldClarification(output, guard)) {\n'
-                             '        throw new Error(guard.usageClarificationNeeded ? "USAGE_CLARIFICATION_REQUIRED" : "MODEL_OUTPUT_VALIDATION_FAILED");\n'
+                             '        const error = new Error(guard.usageClarificationNeeded ? "USAGE_CLARIFICATION_REQUIRED" : "MODEL_OUTPUT_VALIDATION_FAILED");\n'
+                             '        error.demoSafeClarification = demoSafeClarification(output, guard, message);\n'
+                             '        throw error;\n'
                              '      }')
     text = sync.replace_once(text, '      invalidateRecovery();\n      addUserMessage(text);',
                              '      invalidateRecovery();\n      demoInvalidateFollowup();\n      addUserMessage(text);')
     text = sync.replace_once(text, '        updateContextAfterResponse(response);',
-                             '        updateContextAfterResponse(response);\n        demoShowFollowup(response, guard, currentRequest);')
+                             '        updateContextAfterResponse(response);\n'
+                             '        demoResponseOutcome = { kind: "accepted_model", modelAccepted: true };\n'
+                             '        demoShowFollowup(response, guard, currentRequest);')
+    text = sync.replace_once(text, '        const bubble = addTextResponse(safeErrorResponse(error));',
+                             '        const fallback = !timedOut && error.demoSafeClarification;\n'
+                             '        const bubble = fallback\n'
+                             '          ? demoRenderClarification(fallback)\n'
+                             '          : addTextResponse(safeErrorResponse(error));\n'
+                             '        demoResponseOutcome = fallback\n'
+                             '          ? { kind: "deterministic_clarification", modelAccepted: false, category: fallback.category,\n'
+                             '            missingFields: [...fallback.missingFields], output: fallback.output }\n'
+                             '          : { kind: "rejected", modelAccepted: false };\n'
+                             '        if (fallback) timingStatus = "clarification_fallback";')
+    text = sync.replace_once(text, '        createRecoveryAction(bubble, text, currentRequest);',
+                             '        createRecoveryAction(bubble, text, currentRequest);\n'
+                             '        if (fallback) demoHideClarificationRecovery();')
     text = sync.replace_once(text, '    function resetConversation() {\n      invalidateRecovery();',
-                             '    function resetConversation() {\n      invalidateRecovery();\n      demoInvalidateFollowup();\n      testUsageOwnershipAmbiguous = false;')
+                             '    function resetConversation() {\n      invalidateRecovery();\n'
+                             '      demoResponseOutcome = null;\n      demoInvalidateFollowup();\n      testUsageOwnershipAmbiguous = false;')
     text = sync.replace_once(text, '      if (datasetReady) inputElement.focus({ preventScroll: true });',
                              '      demoResetExamples();\n      if (datasetReady) inputElement.focus({ preventScroll: true });')
     text = sync.replace_once(text, '      promptButtons.forEach((button) => {\n        button.disabled = value;\n      });',
