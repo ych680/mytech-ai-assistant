@@ -22,6 +22,17 @@ PRESERVATION = ROOT / "tests/fixtures/v21_quick_prompt_demo_preservation.json"
 
 
 def render_frontend(text, config):
+    # Local context parsing repairs belong only to this demo overlay. Preserve
+    # the frozen PR17/PR18 packages and their workflow/usage policy verbatim.
+    text = sync.replace_once(text, '          value += text.slice(cursor, budget.index) + " ";',
+                             '          const prefix = text.slice(cursor, budget.index);\n'
+                             '          const budgetLabel = /^my (?:maximum )?$/i.test(prefix)\n'
+                             '            && /^budget\\s+is\\b/i.test(text.slice(budget.index, budget.end));\n'
+                             '          value += (budgetLabel ? "" : prefix) + " ";')
+    text = sync.replace_once(text, r'usage\s*[:=]?\s*|for\s+',
+                             r'usage\s*[:=]?\s*|(?:mainly\s+)?for\s+')
+    text = sync.replace_once(text, '      if (reset || cancelled || intent) {',
+                             '      if (reset || cancelled || intent || !sessionContext.activeCategories.length) {')
     start = text.index('      <div class="quick-prompts" aria-label="Starter questions">')
     end = text.index("      </div>", start) + len("      </div>")
     buttons = ['      <div class="quick-prompts" aria-label="Starter questions">']

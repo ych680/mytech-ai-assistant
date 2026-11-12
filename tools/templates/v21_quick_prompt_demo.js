@@ -194,6 +194,9 @@
       };
       const neutral = new Set(["sure", "okay", "thanks", "got it"]);
       const offer = new RegExp("^i can help you choose (?:a |an |the |your )?" + noun + "$");
+      // Only this complete, category-matched purpose clause may follow a
+      // missing-field directive. No trailing promises, claims or instructions.
+      const purpose = new RegExp("^(.+) so i can recommend " + (noun === "headphones" ? "" : "a ") + noun + "$");
       const asked = new Set();
       let count = 0;
       for (const field of [output.answer, output.next_step]) {
@@ -208,7 +211,7 @@
           if ((neutral.has(clause) || offer.test(clause)) && ending !== "?") continue;
           const directive = /^(?:please )?(?:tell me|provide|specify|share|state) (.+)$/.exec(clause);
           let fields;
-          if (directive) fields = parseTerms(directive[1]);
+          if (directive) fields = parseTerms(purpose.exec(directive[1])?.[1] || directive[1]);
           else {
             if (ending !== "?") return false;
             // A bounded pair of actual questions, e.g. budget + intended use.

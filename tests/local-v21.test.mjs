@@ -1,4 +1,7 @@
 import test from "node:test";
+import { fileURLToPath } from "node:url";
+import { repairFrontend } from "./helpers/v21-repair-frontend.mjs";
+import { createTestAdapter } from "../mytech_v2_1_test_adapter.mjs";
 import assert from "node:assert/strict";
 import { readFile, mkdtemp, cp, rm, appendFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -172,3 +175,154 @@ test("modified generated assets fail closed at TEST server startup", async () =>
     await assert.rejects(createTestServer(testServerConfig(), { directory }), /STALE_TEST_ASSETS/);
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
+
+// P05/P09 run through the existing generated frontend harness and real loopback
+// server with an injected fixture provider. Keep the fingerprinted quick-prompt
+// suite unchanged so historical school-export provenance remains reproducible.
+{
+const p05Request = "I need a laptop.";
+const p05Followup = "My maximum budget is RMB 6000, mainly for study and office work.";
+const p05Clarification = {
+  answer: "What is your budget and main usage for the laptop?",
+  recommendations: [],
+  next_step: "Provide your budget and main usage so I can recommend a laptop.",
+  clarification_needed: true
+};
+const p09Request = "I need a printer under RMB 1000 for home use.";
+// P09's exact upstream prose was not recorded; this is a controlled refusal.
+const p09Refusal = { answer: "Printers are not a supported category.", recommendations: [],
+  next_step: "Choose a Laptop, Smartphone, Headphones, or Mouse.", clarification_needed: true };
+
+
+const product = id => item(id);
+const output = (ids = []) => ({ answer: "Reference recommendations.", recommendations: ids.map(id => rec(item(id))),
+  next_step: "Would you like to change your requirements?", clarification_needed: false });
+const appFor = kind => repairFrontend(kind, "v21_quick_prompt_demo");
+const adapter = await createTestAdapter(fileURLToPath(new URL("../generated/v21_quick_prompt_demo/local/", import.meta.url)));
+test("P05/P09 controlled HTTP fixtures verify Node response validation", async t => {
+  let reply, upstreamCalls = 0;
+  const server = await createTestServer(testServerConfig({ MYTECH_TEST_FASTGPT_API_URL: "https://offline.invalid/v1/chat/completions",
+    MYTECH_TEST_FASTGPT_API_KEY: "offline-fixture", MYTECH_TEST_FASTGPT_BINDING: "app-key" }), {
+    directory: fileURLToPath(new URL("../generated/v21_quick_prompt_demo/local/", import.meta.url)),
+    fetchImpl: async () => { upstreamCalls++; return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(reply) } }] })); }
+  });
+  await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
+  t.after(() => new Promise(resolve => { server.close(resolve); server.closeAllConnections(); }));
+  const post = (message, validationContext, chatId = "offline-p05-http") => fetch(`http://127.0.0.1:${server.address().port}/api/test/mytech`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, validationContext, chatId })
+  });
+  const app = await appFor("local"), initial = app.guard(p05Request);
+  reply = p05Clarification;
+  assert.equal((await post(p05Request, initial)).status, 200);
+  const guard = app.guard(p05Followup);
+  reply = output(["LAP-001"]);
+  // Preserve and prove the historical malformed browser context independently
+  // of the repaired parser. Workflow validation_ok cannot override this context.
+  const historical = { ...guard, usageClarificationNeeded: true,
+    usagesByCategory: { Laptop: "My maximum  mainly for study and office work" } };
+  const rejected = await post(p05Followup, historical);
+  assert.equal(rejected.status, 502);
+  assert.deepEqual(await rejected.json(), { error: "MODEL_OUTPUT_VALIDATION_FAILED" });
+  t.diagnostic("Historical P05 Turn 2 context: HTTP 502 MODEL_OUTPUT_VALIDATION_FAILED");
+  assert.equal((await post(p05Followup, guard)).status, 200);
+  reply = p09Refusal;
+  const fresh = await appFor("local");
+  assert.equal((await post(p09Request, fresh.guard(p09Request), "offline-p09-http")).status, 200);
+  assert.equal(upstreamCalls, 4);
+
+  const historicalApp = await appFor("local");
+  historicalApp.guard(p05Request);
+  reply = output(["LAP-001"]);
+  historicalApp.respondWith(call => post(call.payload.message, historical, "offline-p05-old-ui"));
+  await historicalApp.submit(p05Followup);
+  assert.ok(historicalApp.text().includes("The AI service is busy. Try again in a moment."));
+  assert.equal(historicalApp.cards(), 0);
+
+  const connected = await appFor("local");
+  connected.respondWith(call => post(call.payload.message, call.payload.validationContext, "offline-p05-new-ui"));
+  reply = p05Clarification;
+  await connected.submit(p05Request);
+  assert.equal(connected.state().modelHistory.length, 2);
+  reply = output(["LAP-001"]);
+  await connected.submit(p05Followup);
+  assert.equal(connected.cards(), 1);
+  assert.equal(connected.state().modelHistory.length, 4);
+  assert.equal(connected.text().includes("The AI service is busy."), false);
+  assert.equal(upstreamCalls, 7);
+});
+
+for (const kind of ["local", "aiep"]) {
+  test(`${kind}: P05 exact Turn 1 clarification`, async () => {
+    const app = await appFor(kind);
+    await app.submit(p05Request, p05Clarification);
+    assert.equal(app.state().modelHistory.length, 2);
+    assert.ok(app.text().includes(p05Clarification.answer));
+    assert.ok(app.text().includes(p05Clarification.next_step));
+    assert.equal(app.cards(), 0);
+  });
+
+  test(`${kind}: P05 exact Turn 2 budget and usage`, async () => {
+    const app = await appFor(kind);
+    app.guard(p05Request);
+    const guard = app.guard(p05Followup);
+    assert.equal(guard.budgetsByCategory.Laptop, 6000);
+    assert.equal(guard.usagesByCategory.Laptop, "study and office work");
+    assert.equal(guard.usageClarificationNeeded, false);
+    assert.equal(product("LAP-001").product, "Lenovo Xiaoxin 14 (2025, Ryzen 7 H255, 16GB/512GB)");
+    assert.equal(product("LAP-001").price_rmb, 5799);
+    assert.equal(adapter.validateCompletionTurn(output(["LAP-001"]), guard, [], p05Followup).valid, true);
+    await app.submit(p05Followup, output(["LAP-001"]));
+    assert.equal(app.cards(), 1);
+  });
+
+  test(`${kind}: P09 exact unsupported category has no usage ownership`, async () => {
+    const app = await appFor(kind), guard = app.guard(p09Request);
+    assert.deepEqual(guard.activeCategories, []);
+    assert.equal(guard.usageClarificationNeeded, false);
+    assert.equal(guard.demoUsageOwnershipAmbiguous, false);
+    await app.submit(p09Request, p09Refusal);
+    assert.ok(app.text().includes(p09Refusal.answer));
+    assert.equal(app.state().modelHistory.length, 2);
+    assert.equal(app.cards(), 0);
+    assert.equal(app.validate(output(["LAP-001"]), guard).valid, false,
+      "an unsupported category cannot authorize a fabricated supported recommendation");
+  });
+
+  for (const usage of ["study and office work and quantum simulation", "study but not office work",
+    "not for study and office work", "study and office work but not study", "study and office work only if it can print"]) {
+    test(`${kind}: P05 follow-up retains unsupported or negated usage: ${usage}`, async () => {
+      const app = await appFor(kind);
+      app.guard(p05Request);
+      const guard = app.guard(`My maximum budget is RMB 6000, mainly for ${usage}.`);
+      assert.equal(guard.usagesByCategory.Laptop, usage);
+      assert.equal(guard.usageClarificationNeeded, true);
+      assert.equal(app.validate(output(["LAP-001"]), guard).valid, false);
+      assert.equal(adapter.validateCompletionTurn(output(["LAP-001"]), guard, [], p05Followup).valid, false);
+    });
+  }
+
+  for (const next_step of [
+    "Provide your budget and main usage so I can recommend a smartphone.",
+    "Provide your budget and main usage so I can recommend a laptop later.",
+    "Provide your budget and main usage so I can recommend a laptop with guaranteed performance.",
+    "Provide your budget and main usage so I can recommend a laptop. Buy the Imaginary Laptop.",
+    "Do not provide your budget and main usage so I can recommend a laptop."
+  ]) {
+    test(`${kind}: P05 purpose clause remains bounded: ${next_step}`, async () => {
+      const app = await appFor(kind);
+      await app.submit(p05Request, { ...p05Clarification, next_step });
+      assert.equal(app.state().modelHistory.length, 0);
+      assert.equal(app.text().includes(next_step), false);
+    });
+  }
+
+  for (const request of ["I need a printer and a laptop under RMB 6000 for home use.",
+    "I need a laptop or mouse under RMB 6000 for home use."]) {
+    test(`${kind}: P09 mixed or ambiguous supported request still fails safely: ${request}`, async () => {
+      const app = await appFor(kind), guard = app.guard(request);
+      assert.equal(guard.usageClarificationNeeded, true);
+      assert.equal(app.validate(output(["LAP-001"]), guard).valid, false);
+    });
+  }
+}
+}

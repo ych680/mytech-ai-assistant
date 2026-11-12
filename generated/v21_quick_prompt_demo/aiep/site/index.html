@@ -1657,7 +1657,10 @@ function testDisplayOutput(output) {
       const withoutBudgets = (left, right) => {
         let value = "", cursor = left;
         for (const budget of budgetMatches.filter(item => item.index >= left && item.end <= right)) {
-          value += text.slice(cursor, budget.index) + " ";
+          const prefix = text.slice(cursor, budget.index);
+          const budgetLabel = /^my (?:maximum )?$/i.test(prefix)
+            && /^budget\s+is\b/i.test(text.slice(budget.index, budget.end));
+          value += (budgetLabel ? "" : prefix) + " ";
           cursor = budget.end;
         }
         return value + text.slice(cursor, right);
@@ -1666,7 +1669,7 @@ function testDisplayOutput(output) {
         .replace(/^(?:please\s+)?(?:(?:(?:can|could|would)\s+you\s+)?(?:recommend|suggest|show|give)(?:\s+me)?|(?:i\s+)?(?:need|want|would like|am looking for))(?:\s+|$)/i, "")
         .replace(/^(?:a|an|the)(?:\s+|$)/i, "")
         .replace(/^[\s,:;]+|[\s,.;!?]+$/g, "")
-        .replace(/^(?:(?:main\s+)?usage\s*[:=]?\s*|for\s+)/i, "").trim();
+        .replace(/^(?:(?:main\s+)?usage\s*[:=]?\s*|(?:mainly\s+)?for\s+)/i, "").trim();
       const noun = text.slice(category.index, category.end);
       const embedded = collectMatches(noun, USAGE_MATCHERS).map(match => noun.slice(match.index, match.end)).join(" ");
       const before = [clean(withoutBudgets(start, category.index)), embedded].filter(Boolean).join(" ");
@@ -1718,7 +1721,7 @@ function testDisplayOutput(output) {
     }
 
     function testUsageOwnershipIssue(text, mentioned, intent, reset, cancelled) {
-      if (reset || cancelled || intent) {
+      if (reset || cancelled || intent || !sessionContext.activeCategories.length) {
         testUsageOwnershipAmbiguous = false;
         return false;
       }
@@ -2402,6 +2405,9 @@ function testDisplayOutput(output) {
       };
       const neutral = new Set(["sure", "okay", "thanks", "got it"]);
       const offer = new RegExp("^i can help you choose (?:a |an |the |your )?" + noun + "$");
+      // Only this complete, category-matched purpose clause may follow a
+      // missing-field directive. No trailing promises, claims or instructions.
+      const purpose = new RegExp("^(.+) so i can recommend " + (noun === "headphones" ? "" : "a ") + noun + "$");
       const asked = new Set();
       let count = 0;
       for (const field of [output.answer, output.next_step]) {
@@ -2416,7 +2422,7 @@ function testDisplayOutput(output) {
           if ((neutral.has(clause) || offer.test(clause)) && ending !== "?") continue;
           const directive = /^(?:please )?(?:tell me|provide|specify|share|state) (.+)$/.exec(clause);
           let fields;
-          if (directive) fields = parseTerms(directive[1]);
+          if (directive) fields = parseTerms(purpose.exec(directive[1])?.[1] || directive[1]);
           else {
             if (ending !== "?") return false;
             // A bounded pair of actual questions, e.g. budget + intended use.
